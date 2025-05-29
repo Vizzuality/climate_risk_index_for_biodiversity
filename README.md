@@ -1,2 +1,2 @@
-# climate_risk_index_for_biodiversity
+# Climate Risk Index for Biodiversity
 Climate risk index for biodiversity — Technical prototype.
