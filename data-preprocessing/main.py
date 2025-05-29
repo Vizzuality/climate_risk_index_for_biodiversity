@@ -69,9 +69,7 @@ def main():
     experiment_low = df.filter(pl.col("Experiment") == 2.6)
     experiment_high = df.filter(pl.col("Experiment") == 8.5)
 
-    indicator_columns = df.select(
-        cs.float().exclude("Lat", "Lon", "Experiment")
-    ).columns
+    indicator_columns = df.select(cs.float().exclude("Lat", "Lon", "Experiment")).columns
 
     northest = df.select(pl.col("Lat").max()).item()
     westest = df.select(pl.col("Lon").min()).item()
