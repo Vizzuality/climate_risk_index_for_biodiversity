@@ -1,0 +1,26 @@
+.env
+.env.staging
+.env.prod
+
+node_modules/
+
+# IDEs
+.idea
+.vscode/
+.zed
+
+# python stuff
+__pycache__/
+.venv
+*.py[cod]
+.ipynb_checkpoints/
+.mypy_cache/
+.ruff_cache
+.pytest_cache
+
+# exclude data from source control by default
+*/data/**
+
+# vim
+*.swp
+*.swo
