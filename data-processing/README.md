@@ -1,4 +1,4 @@
-CRIB Data Preprocessing
+CRIB Data Processing
 =======================
 
 Simply install the dependencies with:

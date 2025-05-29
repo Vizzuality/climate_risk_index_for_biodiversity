@@ -124,7 +124,7 @@ wheels = [
 ]
 
 [[package]]
-name = "data-preprocessing"
+name = "data-processing"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [

@@ -1,5 +1,5 @@
 [project]
-name = "data-preprocessing"
+name = "data-processing"
 version = "0.1.0"
 description = "CRIB data preprocessing pipelines"
 readme = "README.md"
