@@ -1,7 +1,7 @@
 [project]
 name = "data-preprocessing"
 version = "0.1.0"
-description = "Add your description here"
+description = "CRIB data preprocessing pipelines"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
@@ -18,3 +18,28 @@ dev = [
     "vegafusion>=2.0.2",
     "vl-convert-python>=1.8.0",
 ]
+
+[tool.ruff]
+line-length = 100
+src = ["src"]
+extend-include = ["*.ipynb"]
+
+[tool.ruff.lint]
+select = [
+    "UP", # pyupgrade
+    "D1", # pydocstyle errors
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # flake8
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+    "N",  # Naming conventions
+    "I",  # isort
+]
+ignore = [
+    "D104", # Missing docstring in public package
+]
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
