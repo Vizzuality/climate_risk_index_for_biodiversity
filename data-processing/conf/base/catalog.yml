@@ -1,0 +1,27 @@
+# Here you can define all your datasets by using simple YAML syntax.
+#
+# Documentation for this file format can be found in "The Data Catalog"
+# Link: https://docs.kedro.org/en/stable/data/data_catalog.html
+
+grid_raw:
+  type: polars.LazyPolarsDataset
+  filepath: data/01_raw/Boyce_etal_2022_NATCC_Species_SpatRes.csv
+  file_format: csv
+
+indicator_rasters:
+  type: partitions.PartitionedDataset
+  path: data/02_intermediate/indicator_rasters
+  filename_suffix: ".tif"
+  save_lazily: True
+  dataset:
+    type: data_processing.datasets.raster.RasterDataset
+
+conservation_network_raw:
+  type: geopandas.GenericDataset
+  filepath: data/01_raw/ConservationNetwork_ReseauDeConservation_FGDB/ConservationNetwork_ReseauDeConservation.gdb
+  load_args:
+    layer: network_reseau_20240320_WGS
+
+marine_protected_areas_raw:
+  type: geopandas.GenericDataset
+  filepath: data/01_raw/Marine_ProtectedConservedAreas_2023_Atlantic/marine_ProtectedConservedAreas_2023_atlantic.shp

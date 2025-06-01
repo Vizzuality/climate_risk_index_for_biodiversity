@@ -1,41 +1,64 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
 [project]
-name = "data-processing"
-version = "0.1.0"
-description = "CRIB data preprocessing pipelines"
+requires-python = ">=3.9"
+name = "data_processing"
 readme = "README.md"
-requires-python = ">=3.13"
+dynamic = ["version"]
 dependencies = [
-    "altair>=5.5.0",
-    "numpy>=2.2.6",
+    "ipython>=8.10",
+    "jupyterlab>=3.0",
+    "notebook",
+    "kedro~=0.19.13",
     "polars>=1.30.0",
     "rasterio>=1.4.3",
+    "xarray>=2024.7.0",
+    "rioxarray>=0.15.0",
+    "kedro-datasets[geopandas,polars]>=4.1.0",
 ]
 
-[dependency-groups]
-dev = [
-    "marimo>=0.13.14",
-    "ruff>=0.11.11",
-    "vegafusion>=2.0.2",
-    "vl-convert-python>=1.8.0",
-]
+[project.scripts]
+data-processing = "data_processing.__main__:main"
+
+[project.optional-dependencies]
+dev = ["pytest~=7.2", "ruff~=0.1.8"]
+
+[tool.kedro]
+package_name = "data_processing"
+project_name = "data-processing"
+kedro_init_version = "0.19.13"
+tools = "['Linting', 'Testing', 'Data Structure']"
+example_pipeline = "False"
+source_dir = "src"
 
 [tool.ruff]
-line-length = 100
-src = ["src"]
-extend-include = ["*.ipynb"]
+line-length = 88
+show-fixes = true
+select = ["F", "W", "E", "I", "UP", "PL", "T201"]
+ignore = ["E501"]
 
-[tool.ruff.lint]
-select = [
-    "UP", # pyupgrade
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # flake8
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
-    "N",  # Naming conventions
-    "I",  # isort
-]
+[project.entry-points."kedro.hooks"]
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.setuptools.dynamic.version]
+attr = "data_processing.__version__"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+namespaces = false
+
+[tool.kedro_telemetry]
+project_id = "c963e283cd814db8bc09685a89e1907f"
 
 [tool.pyright]
 venvPath = "."
 venv = ".venv"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.1.15",
+]

@@ -9,5 +9,5 @@ uv sync
 and run the pipeline with
 
 ```
-uv run main.py -i data/input.csv -o data/output.csv
+uv run kedro run
 ```
