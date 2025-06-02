@@ -3,7 +3,9 @@ This is a boilerplate pipeline 'processing'
 generated using Kedro 0.19.13
 """
 
+import geopandas as gpd
 import numpy as np
+import pandas as pd
 import polars as pl
 import polars.selectors as cs
 import xarray as xr
@@ -57,7 +59,22 @@ def grid_table_to_rasters(grid_table: pl.LazyFrame) -> dict[str, xr.DataArray]:
     return parts
 
 
-def clean_marine_conservation_areas(
-    marine_conservation_areas: pl.LazyFrame,
-) -> pl.DataFrame:
-    return 0
+def rename_columns(
+    gdf: gpd.GeoDataFrame, columns_map: dict[str, str]
+) -> gpd.GeoDataFrame:
+    if "Km2" in gdf.columns:
+        gdf["Km2"] = gdf["Km2"] * 100  # convert to Ha
+    renamed = gdf.rename(columns=columns_map)
+    columns = [col for col in columns_map.values()]
+    columns.append("geometry")
+    return renamed[columns]
+
+
+def concat_marine_protected_area(
+    areas1: gpd.GeoDataFrame,
+    areas2: gpd.GeoDataFrame,
+) -> gpd.GeoDataFrame:
+    df = pd.concat([areas1, areas2], ignore_index=True)
+    # Drop "existing site" because they already present in one of the datasets
+    df = df.loc[df["type"] != "Existing site"]
+    return df

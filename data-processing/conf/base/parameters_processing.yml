@@ -1,5 +1,13 @@
-# This is a boilerplate parameters config generated for pipeline 'processing'
-# using Kedro 0.19.13.
-#
-# Documentation for this file format can be found in "Parameters"
-# Link: https://docs.kedro.org/en/0.19.13/configuration/parameters.html
+conservation_network_reseau_columns:
+  SiteName_E: name_en
+  NomDuSite_F: name_fr
+  Km2: area_ha
+  Classification_E: type
+  URL_E: website_url
+
+marine_protected_areas_columns:
+  NAME_E: name_en
+  NAME_F: name_fr
+  O_AREA_HA: area_ha
+  TYPE_E: type
+  IUCN_CAT: iucn_category
