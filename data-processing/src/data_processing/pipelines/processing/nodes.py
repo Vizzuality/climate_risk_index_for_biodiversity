@@ -3,12 +3,15 @@ This is a boilerplate pipeline 'processing'
 generated using Kedro 0.19.13
 """
 
+from typing import Callable
+
 import geopandas as gpd
 import numpy as np
 import pandas as pd
 import polars as pl
 import polars.selectors as cs
 import xarray as xr
+from exactextract import exact_extract
 from rasterio.transform import from_origin
 
 
@@ -87,3 +90,16 @@ def concat_marine_protected_area(
     # Drop "existing site" because they already present in one of the datasets
     df = df.loc[df["type"] != "Existing site"]
     return df
+
+
+def aggregate_per_mpas(
+    mpas: gpd.GeoDataFrame,
+    rasters: dict[str, Callable[[], xr.DataArray]],
+    category_columns: list[str],
+) -> gpd.GeoDataFrame:
+    for indicator_name, raster_loader in rasters.items():
+        ops = "mode" if indicator_name in category_columns else "mean"
+        mpas[indicator_name] = exact_extract(
+            raster_loader(), mpas, ops, output="pandas"
+        )
+    return mpas

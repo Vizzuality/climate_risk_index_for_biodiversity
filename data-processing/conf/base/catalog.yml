@@ -33,3 +33,9 @@ marine_protected_areas:
   filepath: data/03_primary/marine_protected_areas.geojson
   save_args:
     driver: "GeoJSON"
+
+marine_protected_areas_annotated:
+  type: geopandas.GenericDataset
+  filepath: data/03_primary/marine_protected_areas_annotated.geojson
+  save_args:
+    driver: "GeoJSON"

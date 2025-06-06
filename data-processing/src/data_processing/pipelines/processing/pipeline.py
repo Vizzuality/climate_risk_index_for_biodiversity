@@ -6,6 +6,7 @@ generated using Kedro 0.19.13
 from kedro.pipeline import Pipeline, node, pipeline
 
 from data_processing.pipelines.processing.nodes import (
+    aggregate_per_mpas,
     concat_marine_protected_area,
     grid_table_to_rasters,
     rename_protected_areas_columns,
@@ -19,8 +20,8 @@ def create_pipeline(**kwargs) -> Pipeline:
                 grid_table_to_rasters,
                 [
                     "grid_raw",
-                    "params:grid_category_columns",
-                    "params:grid_indices_categorical_map",
+                    "params:grid_risk_category_columns",
+                    "params:grid_risk_categorical_map",
                 ],
                 "indicator_rasters",
                 tags="raster",
@@ -52,10 +53,15 @@ def create_pipeline(**kwargs) -> Pipeline:
                 "marine_protected_areas",
                 tags="mpas",
             ),
-            # node(
-            #     aggregate_per_mpas,
-            #     ['raster', 'mpas'],
-            #     'geometries with aggregation values'
-            # )
+            node(
+                aggregate_per_mpas,
+                [
+                    "marine_protected_areas",
+                    "indicator_rasters",
+                    "params:grid_risk_category_columns",
+                ],
+                "marine_protected_areas_annotated",
+                tags="final",
+            ),
         ]
     )

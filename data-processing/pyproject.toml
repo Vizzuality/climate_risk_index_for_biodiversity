@@ -17,6 +17,7 @@ dependencies = [
     "xarray>=2024.7.0",
     "rioxarray>=0.15.0",
     "kedro-datasets[geopandas,polars]>=4.1.0",
+    "exactextract>=0.2.2",
 ]
 
 [dependency-groups]

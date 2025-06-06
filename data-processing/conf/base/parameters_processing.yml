@@ -1,10 +1,10 @@
-grid_category_columns:
+grid_risk_category_columns:
   - ClimSensRisk
   - ClimAdaptRisk
   - ClimExpoRisk
   - ClimRisk
 
-grid_indices_categorical_map:
+grid_risk_categorical_map:
   N: 0
   M: 1
   H: 2
