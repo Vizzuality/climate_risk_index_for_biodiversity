@@ -20,34 +20,43 @@ def _pivot_to_raster(df: pl.DataFrame, column: str) -> np.ndarray:
     return p.to_numpy()[None, :, :]
 
 
-def grid_table_to_rasters(grid_table: pl.LazyFrame) -> dict[str, xr.DataArray]:
+def grid_table_to_rasters(
+    grid_table: pl.LazyFrame, category_columns: list[str], category_map: dict[str, int]
+) -> dict[str, xr.DataArray]:
+    LOW_SCENARIO_EXPERIMENT = 2.6
+    HIGH_SCNEARIO_EXPERIMENT = 8.5
+    # convert climate index category columns to integer codes
+    grid_table = grid_table.with_columns(
+        cs.by_name(category_columns).replace_strict(category_map, return_dtype=pl.Int8)
+    )
     df = (
         grid_table.group_by("Lat", "Lon", "Experiment")
-        .agg(cs.float().median())
+        .agg(cs.float().median(), cs.by_name(category_columns).mode().first())
         .collect()
     )
 
-    experiment_low = df.filter(pl.col("Experiment") == 2.6).sort("Lat", descending=True)
-    experiment_high = df.filter(pl.col("Experiment") == 8.5).sort(
+    experiment_low = df.filter(pl.col("Experiment") == LOW_SCENARIO_EXPERIMENT).sort(
         "Lat", descending=True
     )
-
+    experiment_high = df.filter(pl.col("Experiment") == HIGH_SCNEARIO_EXPERIMENT).sort(
+        "Lat", descending=True
+    )
+    # By defaut keep all decimal columns and the provided by columns_to_keep
     indicator_columns = df.select(
-        cs.float().exclude("Lat", "Lon", "Experiment")
+        cs.float().exclude("Lat", "Lon", "Experiment") | cs.by_name(category_columns)
     ).columns
-
     northest = df.select(pl.col("Lat").max()).item()
     westest = df.select(pl.col("Lon").min()).item()
     transform = from_origin(westest, northest, 1, 1)
     parts = {}
-
     for column in indicator_columns:
+        dtype = np.int8 if column in category_columns else np.float32
         data_low = xr.DataArray(
-            _pivot_to_raster(experiment_low, column),
+            _pivot_to_raster(experiment_low, column).astype(dtype),
             dims=["band", "y", "x"],
         )
         data_high = xr.DataArray(
-            _pivot_to_raster(experiment_high, column),
+            _pivot_to_raster(experiment_high, column).astype(dtype),
             dims=["band", "y", "x"],
         )
 
@@ -59,11 +68,11 @@ def grid_table_to_rasters(grid_table: pl.LazyFrame) -> dict[str, xr.DataArray]:
     return parts
 
 
-def rename_columns(
+def rename_protected_areas_columns(
     gdf: gpd.GeoDataFrame, columns_map: dict[str, str]
 ) -> gpd.GeoDataFrame:
     if "Km2" in gdf.columns:
-        gdf["Km2"] = gdf["Km2"] * 100  # convert to Ha
+        gdf["Km2"] *= 100  # convert to Ha
     renamed = gdf.rename(columns=columns_map)
     columns = [col for col in columns_map.values()]
     columns.append("geometry")

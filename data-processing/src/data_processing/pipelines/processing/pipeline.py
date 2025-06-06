@@ -8,7 +8,7 @@ from kedro.pipeline import Pipeline, node, pipeline
 from data_processing.pipelines.processing.nodes import (
     concat_marine_protected_area,
     grid_table_to_rasters,
-    rename_columns,
+    rename_protected_areas_columns,
 )
 
 
@@ -17,12 +17,16 @@ def create_pipeline(**kwargs) -> Pipeline:
         [
             node(
                 grid_table_to_rasters,
-                "grid_raw",
+                [
+                    "grid_raw",
+                    "params:grid_category_columns",
+                    "params:grid_indices_categorical_map",
+                ],
                 "indicator_rasters",
                 tags="raster",
             ),
             node(
-                rename_columns,
+                rename_protected_areas_columns,
                 [
                     "conservation_network_reseau_raw",
                     "params:conservation_network_reseau_columns",
@@ -31,7 +35,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                 tags="mpas",
             ),
             node(
-                rename_columns,
+                rename_protected_areas_columns,
                 [
                     "marine_protected_areas_raw",
                     "params:marine_protected_areas_columns",
@@ -48,5 +52,10 @@ def create_pipeline(**kwargs) -> Pipeline:
                 "marine_protected_areas",
                 tags="mpas",
             ),
+            # node(
+            #     aggregate_per_mpas,
+            #     ['raster', 'mpas'],
+            #     'geometries with aggregation values'
+            # )
         ]
     )

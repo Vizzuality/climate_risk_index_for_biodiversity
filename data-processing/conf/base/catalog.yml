@@ -24,7 +24,7 @@ conservation_network_reseau_raw:
 
 marine_protected_areas_raw:
   type: geopandas.GenericDataset
-  filepath: data/01_raw/Marine_ProtectedConservedAreas_2023_Atlantic/marine_protected_areas_2023_atlantic.geojson
+  filepath: data/01_raw/marine_protected_areas_2023_atlantic.geojson
   load_args:
     driver: "GeoJSON"
 
