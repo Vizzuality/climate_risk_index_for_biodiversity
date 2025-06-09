@@ -9,6 +9,7 @@ from data_processing.pipelines.processing.nodes import (
     aggregate_per_mpas,
     concat_marine_protected_area,
     grid_table_to_rasters,
+    mpas_list,
     rename_protected_areas_columns,
 )
 
@@ -61,7 +62,13 @@ def create_pipeline(**kwargs) -> Pipeline:
                     "params:grid_risk_category_columns",
                 ],
                 "marine_protected_areas_annotated",
-                tags="final",
+                tags="mpas",
+            ),
+            node(
+                mpas_list,
+                "marine_protected_areas_annotated",
+                "marine_protected_areas_list_index",
+                tags="mpas",
             ),
         ]
     )

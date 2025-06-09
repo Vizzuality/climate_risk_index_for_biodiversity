@@ -98,8 +98,23 @@ def aggregate_per_mpas(
     category_columns: list[str],
 ) -> gpd.GeoDataFrame:
     for indicator_name, raster_loader in rasters.items():
-        ops = "mode" if indicator_name in category_columns else "mean"
+        # check membership removing the _high or _low sufix
+        ops = "mode" if indicator_name.split("_")[0] in category_columns else "mean"
         mpas[indicator_name] = exact_extract(
             raster_loader(), mpas, ops, output="pandas"
         )
     return mpas
+
+
+def mpas_list(mpas: gpd.GeoDataFrame) -> pd.DataFrame:
+    keep_columns = [
+        "name_en",
+        "name_fr",
+        "type",
+        "website_url",
+        "ClimVuln_low",
+        "ClimVuln_high",
+        "ClimRisk_low",
+        "ClimRisk_high",
+    ]
+    return pd.DataFrame(mpas.loc[:, keep_columns])
