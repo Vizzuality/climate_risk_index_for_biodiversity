@@ -14,7 +14,7 @@ import Map from "@/components/map";
 const redHatDisplay = Red_Hat_Display({
   variable: "--font-red-hat-display",
   subsets: ["latin"],
-  weight: ["400", "500", "900"],
+  weight: ["400", "500", "600", "900"],
 });
 
 export const metadata: Metadata = {
