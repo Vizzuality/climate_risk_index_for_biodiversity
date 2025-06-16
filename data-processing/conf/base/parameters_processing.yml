@@ -5,10 +5,10 @@ grid_risk_category_columns:
   - ClimRisk
 
 grid_risk_categorical_map:
-  N: 0
-  M: 1
-  H: 2
-  C: 3
+  N: 1
+  M: 2
+  H: 3
+  C: 4
 
 conservation_network_reseau_columns:
   SiteName_E: name_en

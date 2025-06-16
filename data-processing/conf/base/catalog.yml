@@ -34,15 +34,16 @@ marine_protected_areas:
   save_args:
     driver: "GeoJSON"
 
-marine_protected_areas_annotated:
-  type: geopandas.GenericDataset
-  filepath: data/03_primary/marine_protected_areas_annotated.geojson
-  save_args:
-    driver: "GeoJSON"
+# marine_protected_areas_annotated:
+#   type: geopandas.GenericDataset
+#   filepath: data/03_primary/marine_protected_areas_annotated.geojson
+#   save_args:
+#     driver: "GeoJSON"
 
 marine_protected_areas_list_index:
-  type: pandas.JSONDataset
+  type: json.JSONDataset
   filepath: data/03_primary/marine_protected_areas_list_index.json
   save_args:
-    orient: records
-    force_ascii: false
+    indent: 2
+    ensure_ascii: False
+    allow_nan: False

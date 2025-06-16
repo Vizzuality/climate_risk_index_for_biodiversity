@@ -3,7 +3,8 @@ This is a boilerplate pipeline 'processing'
 generated using Kedro 0.19.13
 """
 
-from typing import Callable
+import logging
+from typing import Any, Callable
 
 import geopandas as gpd
 import numpy as np
@@ -13,6 +14,8 @@ import polars.selectors as cs
 import xarray as xr
 from exactextract import exact_extract
 from rasterio.transform import from_origin
+
+from data_processing.models import MarineProtectedAreasIndex
 
 
 def _pivot_to_raster(df: pl.DataFrame, column: str) -> np.ndarray:
@@ -34,7 +37,7 @@ def grid_table_to_rasters(
     )
     df = (
         grid_table.group_by("Lat", "Lon", "Experiment")
-        .agg(cs.float().median(), cs.by_name(category_columns).mode().first())
+        .agg(cs.float().median(), cs.by_name(category_columns).max())
         .collect()
     )
 
@@ -92,29 +95,73 @@ def concat_marine_protected_area(
     return df
 
 
-def aggregate_per_mpas(
+def aggregate_indicators_per_mpas(
     mpas: gpd.GeoDataFrame,
     rasters: dict[str, Callable[[], xr.DataArray]],
     category_columns: list[str],
-) -> gpd.GeoDataFrame:
-    for indicator_name, raster_loader in rasters.items():
-        # check membership removing the _high or _low sufix
-        ops = "mode" if indicator_name.split("_")[0] in category_columns else "mean"
-        mpas[indicator_name] = exact_extract(
-            raster_loader(), mpas, ops, output="pandas"
+) -> dict[str, Any]:
+    log = logging.getLogger(__name__)
+    stats_records = {}
+    for indicator_name_scenario, raster_loader in rasters.items():
+        indicator_name, scenario = indicator_name_scenario.split("_")
+        log.info("Computing zonal stats %s scenario %s", indicator_name, scenario)
+        is_categorical = indicator_name in category_columns
+        stat_ops = "mode" if is_categorical else ["mean", "min", "max"]
+        raster = raster_loader()
+        zonal_stats = [
+            entry["properties"]
+            for entry in exact_extract(  # type: ignore
+                raster, mpas, stat_ops, include_cols="name_en"
+            )
+        ]
+        if stats_records.get(indicator_name) is None:
+            stats_records[indicator_name] = {}
+        stats_records[indicator_name].update({scenario: zonal_stats})
+        del raster
+    mpas = pd.concat([mpas, mpas.bounds], axis=1)  # type: ignore
+    mpas_indicator_data = mpas.drop(columns="geometry").to_dict(orient="records")
+    log.info("Reshaping data into destination schema...")
+    for mpas_entry in mpas_indicator_data:
+        mpa_name = mpas_entry["name_en"]
+        mpas_entry["bbox"] = (
+            mpas_entry["minx"],
+            mpas_entry["miny"],
+            mpas_entry["maxx"],
+            mpas_entry["maxy"],
         )
-    return mpas
+        # init indicator field if not exists yet
+        if mpas_entry.get("indicator") is None:
+            mpas_entry["indicator"] = []
+        for indicator_name, scenarios in stats_records.items():
+            mpas_entry["indicator"].append(
+                {
+                    "name": indicator_name,
+                    "type": "categorical"
+                    if indicator_name in category_columns
+                    else "numerical",
+                    "scenario": {
+                        "high": next(
+                            (
+                                {k: v for k, v in item.items() if k != "name_en"}
+                                for item in scenarios["high"]
+                                if item["name_en"] == mpa_name
+                            ),
+                            None,
+                        ),
+                        "low": next(
+                            (
+                                {k: v for k, v in item.items() if k != "name_en"}
+                                for item in scenarios["low"]
+                                if item["name_en"] == mpa_name
+                            ),
+                            None,
+                        ),
+                    },
+                }
+            )
+    data = MarineProtectedAreasIndex.model_validate(mpas_indicator_data)
+    return data.model_dump(mode="json")
 
 
 def mpas_list(mpas: gpd.GeoDataFrame) -> pd.DataFrame:
-    keep_columns = [
-        "name_en",
-        "name_fr",
-        "type",
-        "website_url",
-        "ClimVuln_low",
-        "ClimVuln_high",
-        "ClimRisk_low",
-        "ClimRisk_high",
-    ]
-    return pd.DataFrame(mpas.loc[:, keep_columns])
+    return pd.DataFrame(mpas.drop(columns="geometry"))
