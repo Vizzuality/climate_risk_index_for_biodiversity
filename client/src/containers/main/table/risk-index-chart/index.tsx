@@ -9,7 +9,7 @@ export default function RiskIndexChart({
   values: {
     min: number;
     max: number;
-    avg: number;
+    mean: number;
   };
 }) {
   return (
@@ -28,7 +28,7 @@ export default function RiskIndexChart({
           <div
             className="absolute"
             style={{
-              left: `${((values.avg - range.min) / (range.max - range.min)) * 100}%`,
+              left: `${((values.mean - range.min) / (range.max - range.min)) * 100}%`,
               top: "-4px",
               transform: "translateX(-50%)",
             }}

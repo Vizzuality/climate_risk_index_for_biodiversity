@@ -5,6 +5,6 @@ export function filterByAreaName(areas: Area[], searchTerm: string): Area[] {
 
   const lowerCaseSearchTerm = searchTerm.toLowerCase();
   return areas.filter((area) =>
-    area.name.toLowerCase().includes(lowerCaseSearchTerm),
+    area.name_en.toLowerCase().includes(lowerCaseSearchTerm),
   );
 }

@@ -20,11 +20,12 @@ import {
 import { searchAtom } from "@/containers/main/store";
 import { useAtom } from "jotai";
 
-import data from "@/data/areas";
+import data from "@/data/areas_old";
+import { Area } from "@/containers/main/table/columns";
 
-const areas = data.map((area) => ({
-  value: area.id,
-  label: area.name,
+const areas = (data as Area[]).map((area) => ({
+  value: area.name_en,
+  label: area.name_en,
 }));
 
 export default function Search() {
