@@ -1,16 +1,17 @@
 import * as React from "react";
 
-import areas from "@/data/areas";
+import areas from "@/data/areas_old";
 import { useParams } from "next/navigation";
 
 export function useSelectedArea() {
   const params = useParams();
   const areaId = params.area as string;
-  console.log(areaId);
 
   return React.useMemo(() => {
-    if (!areaId) return null;
-    const area = areas.find((a) => a.id === areaId);
-    return area || null;
+    if (!areaId || typeof window === "undefined") return null;
+
+    return (
+      areas.find((a) => a.name_en === window.decodeURIComponent(areaId)) || null
+    );
   }, [areaId]);
 }

@@ -9,7 +9,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 
 const style = { width: "100%", height: "100%" };
 
-const Map = () => {
+const Map: React.FC<React.PropsWithChildren> = ({ children }) => {
   const mapRef = useRef<MapRef>(null);
   const [map, setMap] = useState<MapRef | null>(null);
 
@@ -25,9 +25,10 @@ const Map = () => {
       <>
         {/* todo: implement layers here */}
         {/*<Controls />*/}
+        {children}
       </>
     );
-  }, [map]);
+  }, [map, children]);
 
   const onLoad = useCallback(() => setMap(mapRef.current), [setMap]);
 
@@ -39,6 +40,15 @@ const Map = () => {
       mapStyle="mapbox://styles/mapbox/dark-v10"
       projection="mercator"
       onLoad={onLoad}
+      padding={{
+        left: 630,
+      }}
+      initialViewState={{
+        bounds: [
+          [-71.03883885640943, 40.04343083174228],
+          [-47.69751888944774, 60.99999999975432],
+        ],
+      }}
     >
       {innerMap}
     </ReactMapGL>

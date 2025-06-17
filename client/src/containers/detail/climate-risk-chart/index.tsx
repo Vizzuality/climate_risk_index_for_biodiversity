@@ -1,3 +1,5 @@
+import Chart from "@/containers/detail/climate-risk-chart/chart";
+
 export default function ClimateRiskChart() {
   return (
     <div className="climate-risk-chart space-y-4">
@@ -36,7 +38,9 @@ export default function ClimateRiskChart() {
           </li>
         </ul>
       </div>
-      <div className="chart-placeholder">Chart will be rendered here</div>
+      <div className="chart-placeholder">
+        <Chart />
+      </div>
     </div>
   );
 }

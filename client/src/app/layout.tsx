@@ -11,6 +11,9 @@ import MapProvider from "@/app/map-provider";
 import Navigation from "@/components/navigation";
 import Map from "@/components/map";
 
+import { NuqsAdapter } from "nuqs/adapters/next/app";
+import ScenarioToggle from "@/components/scenario-toggle";
+
 const redHatDisplay = Red_Hat_Display({
   variable: "--font-red-hat-display",
   subsets: ["latin"],
@@ -30,21 +33,25 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${redHatDisplay.variable} antialiased font-sans`}>
-        <SidebarProvider>
-          <QueryProvider>
-            <MapProvider>
-              <div className="absolute h-full">
-                <Navigation />
-                <Sidebar className="left-[5.125rem]">
-                  <SidebarContent>{children}</SidebarContent>
-                </Sidebar>
-              </div>
-              <div className="h-screen w-full">
-                <Map />
-              </div>
-            </MapProvider>
-          </QueryProvider>
-        </SidebarProvider>
+        <NuqsAdapter>
+          <SidebarProvider>
+            <QueryProvider>
+              <MapProvider>
+                <div className="absolute h-full">
+                  <Navigation />
+                  <Sidebar className="left-[5.125rem]">
+                    <SidebarContent>{children}</SidebarContent>
+                  </Sidebar>
+                </div>
+                <div className="h-screen w-full">
+                  <Map>
+                    <ScenarioToggle />
+                  </Map>
+                </div>
+              </MapProvider>
+            </QueryProvider>
+          </SidebarProvider>
+        </NuqsAdapter>
       </body>
     </html>
   );

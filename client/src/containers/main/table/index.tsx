@@ -15,9 +15,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { columns } from "./columns";
+import { Area, columns } from "./columns";
 
-import data from "@/data/areas";
+import data from "@/data/areas_old";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useMemo } from "react";
 import { useAtomValue } from "jotai";
@@ -27,7 +27,7 @@ export default function DataTable() {
   const searchValue = useAtomValue(searchAtom);
 
   const filteredData = useMemo(() => {
-    let x = data;
+    let x = data as Area[];
     if (searchValue !== "") x = filterByAreaName(x, searchValue);
     return x;
   }, [searchValue]);
