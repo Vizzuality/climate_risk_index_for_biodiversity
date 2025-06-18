@@ -17,10 +17,11 @@ import {
 
 import { Area, columns } from "./columns";
 
-import data from "@/data/areas_old";
+import data from "@/data/wdpa.json";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useMemo } from "react";
 import { useAtomValue } from "jotai";
+
 import { searchAtom } from "@/containers/main/store";
 import { filterByAreaName } from "@/utils/filters";
 export default function DataTable() {

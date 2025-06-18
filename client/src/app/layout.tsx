@@ -13,6 +13,7 @@ import Map from "@/components/map";
 
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import ScenarioToggle from "@/components/scenario-toggle";
+import LayerManager from "@/containers/map/layer-manager";
 
 const redHatDisplay = Red_Hat_Display({
   variable: "--font-red-hat-display",
@@ -46,6 +47,7 @@ export default function RootLayout({
                 <div className="h-screen w-full">
                   <Map>
                     <ScenarioToggle />
+                    <LayerManager />
                   </Map>
                 </div>
               </MapProvider>
