@@ -1,11 +1,12 @@
 from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field, RootModel
-
-type BoundingBox = tuple[float, float, float, float]
+from pydantic.config import ConfigDict
 
 
 class StatsValue(BaseModel):
+    model_config = ConfigDict(ser_json_inf_nan="null")
+
     min: float | None
     max: float | None
     mean: float | None
@@ -38,13 +39,15 @@ class CategoricalIndicator(BaseModel):
 
 
 class MarineProtectedAreasEntity(BaseModel):
+    model_config = ConfigDict(ser_json_inf_nan="null")
+
     name_en: str
     # TODO: ADMIN REGION
     # admin_region: str
     area_ha: float
     type: str
     website_url: str | None
-    bbox: BoundingBox
+    bbox: tuple[float, float, float, float]
     indicator: list[
         Annotated[Indicator | CategoricalIndicator, Field(discriminator="type")]
     ]

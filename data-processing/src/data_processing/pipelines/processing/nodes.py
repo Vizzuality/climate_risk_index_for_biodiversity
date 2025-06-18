@@ -4,7 +4,8 @@ generated using Kedro 0.19.13
 """
 
 import logging
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 import geopandas as gpd
 import numpy as np
@@ -13,6 +14,7 @@ import polars as pl
 import polars.selectors as cs
 import xarray as xr
 from exactextract import exact_extract
+from polars.dependencies import json
 from rasterio.transform import from_origin
 
 from data_processing.models import MarineProtectedAreasIndex
@@ -82,7 +84,7 @@ def rename_protected_areas_columns(
     renamed = gdf.rename(columns=columns_map)
     columns = [col for col in columns_map.values()]
     columns.append("geometry")
-    return renamed[columns]
+    return renamed[columns]  # type: ignore
 
 
 def concat_marine_protected_area(
@@ -98,11 +100,11 @@ def concat_marine_protected_area(
 def join_admin_region(
     mpas: gpd.GeoDataFrame, admin_region: gpd.GeoDataFrame
 ) -> gpd.GeoDataFrame:
-    return mpas.sjoin(
+    return mpas.sjoin(  # type: ignore
         admin_region.loc[:, ["NAME_E", "geometry"]].rename(
             columns={"NAME_E": "admin_region"}
         ),
-    )
+    ).drop_duplicates("name_en")
 
 
 def aggregate_indicators_per_mpas(
@@ -121,7 +123,10 @@ def aggregate_indicators_per_mpas(
         zonal_stats = [
             entry["properties"]
             for entry in exact_extract(  # type: ignore
-                raster, mpas, stat_ops, include_cols="name_en"
+                raster,
+                mpas,
+                stat_ops,
+                include_cols="name_en",
             )
         ]
         if stats_records.get(indicator_name) is None:
@@ -170,7 +175,9 @@ def aggregate_indicators_per_mpas(
                 }
             )
     data = MarineProtectedAreasIndex.model_validate(mpas_indicator_data)
-    return data.model_dump(mode="json")
+    # Dump and load shenanigans to serialize correctly all the NaN and inf to null
+    # Not the best way but at least it is a way.
+    return json.loads(data.model_dump_json())
 
 
 def mpas_list(mpas: gpd.GeoDataFrame) -> pd.DataFrame:
