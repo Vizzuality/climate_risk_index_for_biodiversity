@@ -9,6 +9,7 @@ from data_processing.pipelines.processing.nodes import (
     aggregate_indicators_per_mpas,
     concat_marine_protected_area,
     grid_table_to_rasters,
+    join_admin_region,
     rename_protected_areas_columns,
 )
 
@@ -50,6 +51,12 @@ def create_pipeline(**kwargs) -> Pipeline:
                     "conservation_network_reseau_renamed",
                     "marine_protected_areas_renamed",
                 ],
+                "marine_protected_areas_no_region",
+                tags="mpas",
+            ),
+            node(
+                join_admin_region,
+                ["marine_protected_areas_no_region", "admin_boundaries"],
                 "marine_protected_areas",
                 tags="mpas",
             ),

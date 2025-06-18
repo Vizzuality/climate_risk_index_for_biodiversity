@@ -95,6 +95,16 @@ def concat_marine_protected_area(
     return df
 
 
+def join_admin_region(
+    mpas: gpd.GeoDataFrame, admin_region: gpd.GeoDataFrame
+) -> gpd.GeoDataFrame:
+    return mpas.sjoin(
+        admin_region.loc[:, ["NAME_E", "geometry"]].rename(
+            columns={"NAME_E": "admin_region"}
+        ),
+    )
+
+
 def aggregate_indicators_per_mpas(
     mpas: gpd.GeoDataFrame,
     rasters: dict[str, Callable[[], xr.DataArray]],

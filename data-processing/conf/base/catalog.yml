@@ -28,6 +28,12 @@ marine_protected_areas_raw:
   load_args:
     driver: "GeoJSON"
 
+admin_boundaries:
+  type: geopandas.GenericDataset
+  filepath: data/01_raw/administrative_boundaries_atlantic.geojson
+  load_args:
+    driver: "GeoJSON"
+
 marine_protected_areas:
   type: geopandas.GenericDataset
   filepath: data/03_primary/marine_protected_areas.geojson
