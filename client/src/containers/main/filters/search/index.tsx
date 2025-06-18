@@ -20,7 +20,7 @@ import {
 import { searchAtom } from "@/containers/main/store";
 import { useAtom } from "jotai";
 
-import data from "@/data/areas_old";
+import data from "@/data/wdpa.json";
 import { Area } from "@/containers/main/table/columns";
 
 const areas = (data as Area[]).map((area) => ({

@@ -1,7 +1,8 @@
 import * as React from "react";
 
-import areas from "@/data/areas_old";
+import areas from "@/data/wdpa.json";
 import { useParams } from "next/navigation";
+import { Area } from "@/containers/main/table/columns";
 
 export function useSelectedArea() {
   const params = useParams();
@@ -11,7 +12,9 @@ export function useSelectedArea() {
     if (!areaId || typeof window === "undefined") return null;
 
     return (
-      areas.find((a) => a.name_en === window.decodeURIComponent(areaId)) || null
+      (areas as Area[]).find(
+        (a) => a.name_en === window.decodeURIComponent(areaId),
+      ) || null
     );
   }, [areaId]);
 }
