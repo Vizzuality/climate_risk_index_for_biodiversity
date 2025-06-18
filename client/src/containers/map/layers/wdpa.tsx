@@ -9,13 +9,13 @@ const WDPALayer = () => {
     <Source
       id="wdpa-source"
       type={"vector"}
-      url="mapbox://crib2025.boh9hmga"
+      url="mapbox://crib2025.mpas-tiles"
       promoteId="name_en"
     >
       <Layer
         id="wdpa-layer"
         type="fill"
-        source-layer="marine_protected_areas-cg767v"
+        source-layer="marine-protected-areas"
         source={"wdpa-source"}
         paint={{
           "fill-color": "transparent",
