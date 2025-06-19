@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "fillzoom": 12,
+  "layers": {
+    "marine-protected-areas": {
+      "source": "mapbox://tileset-source/crib2025/mpas-source",
+      "minzoom": 0,
+      "maxzoom": 12
+    }
+  }
+}

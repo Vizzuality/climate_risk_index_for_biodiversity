@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "type": "raster",
+  "sources": [
+    {
+      "uri": "mapbox://tileset-source/crib2025/climrisk-low-source"
+    }
+  ],
+  "minzoom": 0,
+  "maxzoom": 8
+}
