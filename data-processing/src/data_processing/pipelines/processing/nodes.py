@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 import polars as pl
 import polars.selectors as cs
+import rasterio.features
 import xarray as xr
 from exactextract import exact_extract
 from polars.dependencies import json
@@ -182,3 +183,22 @@ def aggregate_indicators_per_mpas(
 
 def mpas_list(mpas: gpd.GeoDataFrame) -> pd.DataFrame:
     return pd.DataFrame(mpas.drop(columns="geometry"))
+
+
+def clip_to_aoi_and_vectorize(
+    rasters: dict[str, Callable[[], xr.DataArray]],
+    aoi: dict[str, float],
+    grid_layer: str,
+) -> gpd.GeoDataFrame:
+    raster_loader = rasters[grid_layer]
+    raster = raster_loader().rio.clip_box(**aoi)
+    geoms = [
+        {"properties": {"val": v}, "geometry": s}
+        for s, v in rasterio.features.shapes(
+            raster.values,
+            mask=raster.where(raster != raster.rio.nodata).astype(bool),
+            transform=raster.rio.transform(),
+        )
+    ]
+    polygonized_raster = gpd.GeoDataFrame.from_features(geoms)
+    return polygonized_raster

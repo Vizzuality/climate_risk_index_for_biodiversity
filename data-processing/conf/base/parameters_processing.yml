@@ -23,3 +23,11 @@ marine_protected_areas_columns:
   O_AREA_HA: area_ha
   TYPE_E: type
   IUCN_CAT: iucn_category
+
+aoi_bbox:
+  minx: -71.03883885640943
+  miny: 40.04343083174228
+  maxx: -47.69751888944774
+  maxy: 60.99999999975432
+
+grid_layer_source: ClimRisk_high

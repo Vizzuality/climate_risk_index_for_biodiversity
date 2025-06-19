@@ -7,6 +7,7 @@ from kedro.pipeline import Pipeline, node, pipeline
 
 from data_processing.pipelines.processing.nodes import (
     aggregate_indicators_per_mpas,
+    clip_to_aoi_and_vectorize,
     concat_marine_protected_area,
     grid_table_to_rasters,
     join_admin_region,
@@ -25,6 +26,12 @@ def create_pipeline(**kwargs) -> Pipeline:
                     "params:grid_risk_categorical_map",
                 ],
                 "indicator_rasters",
+                tags="raster",
+            ),
+            node(
+                clip_to_aoi_and_vectorize,
+                ["indicator_rasters", "params:aoi_bbox", "params:grid_layer_source"],
+                "polygon_grid",
                 tags="raster",
             ),
             node(
