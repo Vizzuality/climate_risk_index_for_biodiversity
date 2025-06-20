@@ -40,9 +40,15 @@ marine_protected_areas:
   save_args:
     driver: "GeoJSON"
 
-polygon_grid:
+polygon_grid_high:
   type: geopandas.GenericDataset
-  filepath: data/03_primary/grid.geojson
+  filepath: data/03_primary/grid_high.geojson
+  save_args:
+    driver: "GeoJSON"
+
+polygon_grid_low:
+  type: geopandas.GenericDataset
+  filepath: data/03_primary/grid_low.geojson
   save_args:
     driver: "GeoJSON"
 

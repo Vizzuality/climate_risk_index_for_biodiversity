@@ -30,4 +30,7 @@ aoi_bbox:
   maxx: -47.69751888944774
   maxy: 60.99999999975432
 
-grid_layer_source: ClimRisk_high
+grid_layer_high: ClimRisk_high
+grid_layer_low: ClimRisk_low
+
+mapbox_username: crib2025

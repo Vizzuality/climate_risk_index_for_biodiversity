@@ -11,6 +11,7 @@ from data_processing.pipelines.processing.nodes import (
     concat_marine_protected_area,
     grid_table_to_rasters,
     join_admin_region,
+    publish_mapbox_tileset,
     rename_protected_areas_columns,
 )
 
@@ -18,6 +19,7 @@ from data_processing.pipelines.processing.nodes import (
 def create_pipeline(**kwargs) -> Pipeline:
     return pipeline(
         [
+            # Grid nodes
             node(
                 grid_table_to_rasters,
                 [
@@ -30,10 +32,41 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
             node(
                 clip_to_aoi_and_vectorize,
-                ["indicator_rasters", "params:aoi_bbox", "params:grid_layer_source"],
-                "polygon_grid",
+                ["indicator_rasters", "params:aoi_bbox", "params:grid_layer_high"],
+                "polygon_grid_high",
                 tags="raster",
             ),
+            node(
+                clip_to_aoi_and_vectorize,
+                ["indicator_rasters", "params:aoi_bbox", "params:grid_layer_low"],
+                "polygon_grid_low",
+                tags="raster",
+            ),
+            node(
+                publish_mapbox_tileset,
+                [
+                    "polygon_grid_high",
+                    "params:grid_layer_high",
+                    "params:mapbox_access_token",  # must be input manually in the terminal as --params
+                    "params:mapbox_username",
+                ],
+                None,
+                tags="raster",
+            ),
+            node(
+                publish_mapbox_tileset,
+                [
+                    "polygon_grid_low",
+                    "params:grid_layer_low",
+                    "params:mapbox_access_token",  # must be input manually in the terminal as --params
+                    "params:mapbox_username",
+                ],
+                None,
+                tags="raster",
+            ),
+            # -----------------
+            # MPAs related node
+            # -----------------
             node(
                 rename_protected_areas_columns,
                 [

@@ -3,11 +3,13 @@ This is a boilerplate pipeline 'processing'
 generated using Kedro 0.19.13
 """
 
+import io
 import logging
 from collections.abc import Callable
 from typing import Any
 
 import geopandas as gpd
+import httpx
 import numpy as np
 import pandas as pd
 import polars as pl
@@ -201,4 +203,77 @@ def clip_to_aoi_and_vectorize(
         )
     ]
     polygonized_raster = gpd.GeoDataFrame.from_features(geoms)
+    polygonized_raster.name = grid_layer
     return polygonized_raster
+
+
+def publish_mapbox_tileset(
+    gdf: gpd.GeoDataFrame, tileset_name: str, access_token: str, mapbox_username: str
+) -> None:
+    log = logging.getLogger(__name__)
+
+    tileset_name = tileset_name.lower().replace("_", "-")
+    tileset_id = f"{mapbox_username}.{tileset_name}"
+
+    geojson = io.BytesIO()
+    gdf.to_file(geojson, driver="GeoJSONSeq")
+    # Create tileset source
+    source_id = tileset_name + "-source"
+    try:
+        source_creation_res = httpx.post(
+            f"https://api.mapbox.com/tilesets/v1/sources/{mapbox_username}/{source_id}?access_token={access_token}",
+            files={
+                "file": (
+                    "data.geojson",
+                    geojson,
+                    "application/json",
+                )
+            },
+        )
+        source_creation_res.raise_for_status()
+        source_creation_data = source_creation_res.json()
+    except httpx.HTTPStatusError as exc:
+        log.error(
+            f"Error response {exc.response.status_code} with content: {exc.response.text}"
+        )
+        raise exc
+
+    # Create the tileset job
+    recipe = {
+        "recipe": {
+            "version": 1,
+            "layers": {
+                tileset_name: {
+                    "source": source_creation_data["id"],
+                    "minzoom": 0,
+                    "maxzoom": 6,
+                }
+            },
+        },
+        "name": tileset_name,
+    }
+    try:
+        tileset_creation_res = httpx.post(
+            f"https://api.mapbox.com/tilesets/v1/{tileset_id}?access_token={access_token}",
+            json=recipe,
+        )
+        tileset_creation_res.raise_for_status()
+    except httpx.HTTPStatusError as exc:
+        log.error(
+            f"Error response {exc.response.status_code} with content: {exc.response.text}"
+        )
+        raise exc
+
+    # Execute the job and publish
+    try:
+        publish_res = httpx.post(
+            f"https://api.mapbox.com/tilesets/v1/{tileset_id}/publish?access_token={access_token}"
+        )
+        publish_res.raise_for_status()
+    except httpx.HTTPStatusError as exc:
+        log.error(
+            f"Error response {exc.response.status_code} with content: {exc.response.text}"
+        )
+        raise exc
+
+    log.info(publish_res.text)
