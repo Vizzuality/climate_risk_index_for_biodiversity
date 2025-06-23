@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { CheckIcon } from "lucide-react";
+import { CheckIcon, XIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/command";
 import {
   Popover,
+  PopoverClose,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
@@ -34,19 +35,37 @@ export default function Search() {
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="w-full justify-start shrink text-left"
-        >
-          {searchValue
-            ? (areas.find((area) => area.value === searchValue)?.label ??
-              searchValue)
-            : "Choose an area"}
-        </Button>
-      </PopoverTrigger>
+      <div className="relative w-full flex">
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="w-full justify-start text-left relative"
+          >
+            <span className="inline-block max-w-[90%] overflow-hidden truncate">
+              {searchValue
+                ? (areas.find((area) => area.value === searchValue)?.label ??
+                  searchValue)
+                : "Choose an area"}
+            </span>
+          </Button>
+        </PopoverTrigger>
+        {searchValue && (
+          <PopoverClose asChild className="absolute right-3">
+            <button
+              type="button"
+              onClick={() => {
+                setSearch("");
+                setOpen(false);
+              }}
+            >
+              <XIcon className="absolute right-2 w-4 h-4 top-1/2 translate-y-[calc(50%+4px)]" />
+            </button>
+          </PopoverClose>
+        )}
+      </div>
+
       <PopoverContent className="w-[337px] p-0">
         <Command
           filter={() => {

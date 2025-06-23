@@ -4,17 +4,33 @@ const HighEmissionsLayer = () => {
   return (
     <Source
       id="high-emissions-source"
-      type={"raster"}
-      tiles={[
-        `https://api.mapbox.com/v4/crib2025.4ogu7510/{z}/{x}/{y}.png?access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`,
-      ]}
+      type="vector"
+      url="mapbox://crib2025.climrisk-high"
+      scheme="xyz"
     >
       <Layer
         id="high-emissions-layer"
-        type="raster"
+        type="fill"
+        beforeId="wdpa-layer"
+        source-layer="climrisk-high"
         paint={{
-          "raster-opacity": 1,
-          "raster-resampling": "nearest",
+          "fill-color": [
+            "interpolate",
+            ["linear"],
+            ["get", "val"],
+            0,
+            "#000000",
+            1,
+            "#45B9C7",
+            2,
+            "#B5E2D1",
+            3,
+            "#F1BC83",
+            4,
+            "#DA5730",
+          ],
+          "fill-opacity": 0.75,
+          "fill-outline-color": "#000",
         }}
       />
     </Source>

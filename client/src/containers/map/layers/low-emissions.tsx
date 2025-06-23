@@ -4,15 +4,33 @@ const LowEmissionsLayer = () => {
   return (
     <Source
       id="low-emissions-source"
-      type={"raster"}
-      url="mapbox://crib2025.c8cusqs5"
-      scheme={"xyz"}
+      type="vector"
+      url="mapbox://crib2025.climrisk-low"
+      scheme="xyz"
     >
       <Layer
         id="low-emissions-layer"
-        type="raster"
+        type="fill"
+        beforeId="wdpa-layer"
+        source-layer="climrisk-low"
         paint={{
-          "raster-resampling": "nearest",
+          "fill-color": [
+            "interpolate",
+            ["linear"],
+            ["get", "val"],
+            0,
+            "#000000",
+            1,
+            "#45B9C7",
+            2,
+            "#B5E2D1",
+            3,
+            "#F1BC83",
+            4,
+            "#DA5730",
+          ],
+          "fill-opacity": 0.75,
+          "fill-outline-color": "#000",
         }}
       />
     </Source>

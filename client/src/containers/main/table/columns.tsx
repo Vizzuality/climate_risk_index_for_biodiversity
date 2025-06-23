@@ -11,8 +11,7 @@ export type Area = {
   type: string;
   website_url: string;
   area_ha: number;
-  region: string;
-  iucn_category: 1 | 2 | 3 | 4;
+  admin_region: string;
   bbox: [number, number, number, number];
   indicator: {
     name: string;

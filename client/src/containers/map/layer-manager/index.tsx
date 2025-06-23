@@ -1,15 +1,18 @@
 "use client";
 
 import WDPALayer from "@/containers/map/layers/wdpa";
+import { useScenario } from "@/store";
+import LowEmissionsLayer from "@/containers/map/layers/low-emissions";
+import HighEmissionsLayer from "@/containers/map/layers/high-emissions";
 
 export default function LayerManager() {
-  // const [scenario] = useScenario();
+  const [scenario] = useScenario();
 
   return (
     <>
-      {/*{scenario === "high" && <HighEmissionsLayer />}*/}
-      {/*{scenario === "low" && <LowEmissionsLayer />}*/}
       <WDPALayer />
+      {scenario === "high" && <HighEmissionsLayer />}
+      {scenario === "low" && <LowEmissionsLayer />}
     </>
   );
 }
