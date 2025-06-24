@@ -11,6 +11,9 @@ import { useParams, useRouter } from "next/navigation";
 
 import data from "@/data/wdpa.json";
 import { Area } from "@/containers/main/table/columns";
+import { useAtom } from "jotai";
+import { popupAtom } from "@/store";
+import { Popup } from "react-map-gl/mapbox";
 
 const style = { width: "100%", height: "100%" };
 
@@ -23,6 +26,7 @@ const Map: React.FC<React.PropsWithChildren> = ({ children }) => {
   const mapRef = useRef<MapRef>(null);
   const router = useRouter();
   const params = useParams<{ area: string }>();
+  const [popup, setPopup] = useAtom(popupAtom);
 
   const areaBbox =
     typeof window !== "undefined"
@@ -41,12 +45,26 @@ const Map: React.FC<React.PropsWithChildren> = ({ children }) => {
     }
   };
 
+  const handleHover = (evt: MapMouseEvent) => {
+    if (evt.features?.length) {
+      const feature = evt.features[0];
+      if (feature?.layer?.id === "wdpa-layer") {
+        setPopup({
+          lngLat: evt.lngLat,
+          ...feature,
+        });
+      }
+    } else {
+      setPopup(null);
+    }
+  };
+
   return (
     <ReactMapGL
       ref={mapRef}
       mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
       style={style}
-      mapStyle="mapbox://styles/mapbox/dark-v10"
+      mapStyle="mapbox://styles/crib2025/cmc9e61rp00a601sh2jgretdw"
       projection="mercator"
       initialViewState={{
         bounds: areaBbox
@@ -68,8 +86,22 @@ const Map: React.FC<React.PropsWithChildren> = ({ children }) => {
       }}
       interactiveLayerIds={["wdpa-layer"]}
       onClick={handleClick}
+      onMouseMove={handleHover}
     >
-      {children}
+      <>
+        {children}
+        {popup && (
+          <Popup
+            longitude={popup.lngLat.lng}
+            latitude={popup.lngLat.lat}
+            closeButton={false}
+          >
+            <div className="text-sm text-center text-slate-600">
+              {popup.properties?.name_en || popup.id}
+            </div>
+          </Popup>
+        )}
+      </>
     </ReactMapGL>
   );
 };

@@ -17,7 +17,7 @@ const WDPALayer = () => {
         type="fill"
         source-layer="marine-protected-areas"
         source={"wdpa-source"}
-        beforeId={"road-label"}
+        beforeId={"maritimes-region-b5kyh8"}
         paint={{
           "fill-color": "transparent",
           "fill-outline-color": "#EAF3ED",
@@ -36,7 +36,7 @@ const WDPALayer = () => {
         type="line"
         source-layer="marine-protected-areas"
         source={"wdpa-source"}
-        beforeId={"road-label"}
+        beforeId={"maritimes-region-b5kyh8"}
         paint={{
           "line-color": "#8ABAA5",
           "line-offset": -1,
@@ -55,9 +55,8 @@ const WDPALayer = () => {
         type="line"
         source-layer="marine-protected-areas"
         source={"wdpa-source"}
-        beforeId={"road-label"}
+        beforeId={"maritimes-region-b5kyh8"}
         paint={{
-          // "fill-color": "#39FF14",
           "line-color": "#8ABAA5",
           "line-offset": 1,
         }}

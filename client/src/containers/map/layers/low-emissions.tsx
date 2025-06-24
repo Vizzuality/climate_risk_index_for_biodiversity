@@ -11,7 +11,7 @@ const LowEmissionsLayer = () => {
       <Layer
         id="low-emissions-layer"
         type="fill"
-        beforeId="wdpa-layer"
+        beforeId="country-boundaries"
         source-layer="climrisk-low"
         paint={{
           "fill-color": [
@@ -29,7 +29,7 @@ const LowEmissionsLayer = () => {
             4,
             "#DA5730",
           ],
-          "fill-opacity": 0.75,
+          "fill-opacity": 0.8,
           "fill-outline-color": "#000",
         }}
       />
