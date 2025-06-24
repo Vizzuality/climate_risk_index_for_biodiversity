@@ -1,0 +1,92 @@
+{
+  "Sens.TSMr": {
+    "name": "Thermal safety margin",
+    "group": "sensitivity",
+    "type": "index"
+  },
+  "Sens.rlstatus": {
+    "name": "Conservation status",
+    "group": "sensitivity",
+    "type": "index"
+  },
+  "Sens.HII": {
+    "name": "Cumulative impacts",
+    "group": "sensitivity",
+    "type": "index"
+  },
+  "Sens.vind": {
+    "name": "Habitat variability and use",
+    "group": "sensitivity",
+    "type": "index"
+  },
+  "ClimSens": {
+    "name": "Sensitivity",
+    "group": "sensitivity",
+    "type": "overall_score"
+  },
+  "ClimSensRisk": {
+    "name": "Climate Sensitivity Risk",
+    "group": "sensitivity",
+    "type": "categorical"
+  },
+  "Adapt.tvar": {
+    "name": "Thermal habitat variability and use",
+    "group": "adaptivity",
+    "type": "index"
+  },
+  "Adapt.lmax": {
+    "name": "Maximum body length",
+    "group": "adaptivity",
+    "type": "index"
+  },
+  "Adapt.hfrag": {
+    "name": "Habitat fragmentation",
+    "group": "adaptivity",
+    "type": "index"
+  },
+  "Adapt.hrange": {
+    "name": "Geographic range extent",
+    "group": "adaptivity",
+    "type": "index"
+  },
+  "ClimAdapt": {
+    "name": "Adaptivity",
+    "group": "adaptivity",
+    "type": "overall_score"
+  },
+  "ClimAdaptRisk": {
+    "name": "Climate adaptivity risk",
+    "group": "adaptivity",
+    "type": "categorical"
+  },
+  "Expo.vel": {
+    "name": "Climate velocity",
+    "group": "exposure",
+    "type": "index"
+  },
+  "Expo.plost": {
+    "name": "Ecosystem disruption",
+    "group": "exposure",
+    "type": "index"
+  },
+  "Expo.tow": {
+    "name": "Climate emergence",
+    "group": "exposure",
+    "type": "index"
+  },
+  "Expo.nrchng": {
+    "name": "Projected loss",
+    "group": "exposure",
+    "type": "index"
+  },
+  "ClimExpo": {
+    "name": "Exposure",
+    "group": "exposure",
+    "type": "overall_score"
+  },
+  "ClimExpoRisk": {
+    "name": "Climate exposure risk",
+    "group": "exposure",
+    "type": "categorical"
+  }
+}

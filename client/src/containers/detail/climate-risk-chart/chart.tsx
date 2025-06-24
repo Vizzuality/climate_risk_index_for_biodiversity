@@ -7,9 +7,11 @@ import { useRef, useEffect, useState } from "react";
 import * as d3 from "d3";
 import { useSelectedArea } from "@/hooks/use-selected-area";
 import { useScenario } from "@/store";
+import categoriesMetadata from "@/data/categories-metadata.json";
 
 interface DataPoint {
   category: string;
+  name: string;
   value: number;
   color: string;
 }
@@ -91,8 +93,11 @@ export default function RadarChart() {
   const area = useSelectedArea();
   const [scenario] = useScenario();
 
+  console.log({ categoriesMetadata });
+
   const data: DataPoint[] = area?.indicator.map((ind, _index) => ({
     category: ind.name,
+    name: categoriesMetadata[ind.name]?.name ?? ind.name,
     value: ind.scenario[scenario].mean,
     color: getColorByValue(ind.scenario[scenario].mean),
     angle: _index * 18,
@@ -192,7 +197,7 @@ export default function RadarChart() {
           visible: true,
           x: mouseX,
           y: mouseY,
-          content: `${d.data.category}: ${d.data.value.toFixed(2)}`,
+          content: `${d.data.name}: ${d.data.value.toFixed(2)}`,
         });
       })
       .on("mousemove", (event) => {
