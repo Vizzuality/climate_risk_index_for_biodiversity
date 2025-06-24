@@ -32,13 +32,13 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
             node(
                 clip_to_aoi_and_vectorize,
-                ["indicator_rasters", "params:aoi_bbox", "params:grid_layer_high"],
+                ["indicator_rasters", "params:grid_layer_high"],
                 "polygon_grid_high",
                 tags="raster",
             ),
             node(
                 clip_to_aoi_and_vectorize,
-                ["indicator_rasters", "params:aoi_bbox", "params:grid_layer_low"],
+                ["indicator_rasters", "params:grid_layer_low"],
                 "polygon_grid_low",
                 tags="raster",
             ),

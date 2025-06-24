@@ -42,7 +42,10 @@ def grid_table_to_rasters(
     )
     df = (
         grid_table.group_by("Lat", "Lon", "Experiment")
-        .agg(cs.float().median(), cs.by_name(category_columns).max())
+        .agg(
+            cs.float().median(),
+            cs.by_name(category_columns).mode().first(),
+        )
         .collect()
     )
 
@@ -189,11 +192,10 @@ def mpas_list(mpas: gpd.GeoDataFrame) -> pd.DataFrame:
 
 def clip_to_aoi_and_vectorize(
     rasters: dict[str, Callable[[], xr.DataArray]],
-    aoi: dict[str, float],
     grid_layer: str,
 ) -> gpd.GeoDataFrame:
     raster_loader = rasters[grid_layer]
-    raster = raster_loader().rio.clip_box(**aoi)
+    raster = raster_loader()
     geoms = [
         {"properties": {"val": v}, "geometry": s}
         for s, v in rasterio.features.shapes(

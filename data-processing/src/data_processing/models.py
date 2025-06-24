@@ -42,8 +42,7 @@ class MarineProtectedAreasEntity(BaseModel):
     model_config = ConfigDict(ser_json_inf_nan="null")
 
     name_en: str
-    # TODO: ADMIN REGION
-    # admin_region: str
+    admin_region: str
     area_ha: float
     type: str
     website_url: str | None
