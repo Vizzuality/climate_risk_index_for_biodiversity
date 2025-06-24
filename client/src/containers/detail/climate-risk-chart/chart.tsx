@@ -93,15 +93,15 @@ export default function RadarChart() {
   const area = useSelectedArea();
   const [scenario] = useScenario();
 
-  console.log({ categoriesMetadata });
-
-  const data: DataPoint[] = area?.indicator.map((ind, _index) => ({
-    category: ind.name,
-    name: categoriesMetadata[ind.name]?.name ?? ind.name,
-    value: ind.scenario[scenario].mean,
-    color: getColorByValue(ind.scenario[scenario].mean),
-    angle: _index * 18,
-  }));
+  const data: DataPoint[] = area?.indicator
+    .filter((d) => d.type === "numerical")
+    .map((ind, _index) => ({
+      category: ind.name,
+      name: categoriesMetadata[ind.name]?.name ?? ind.name,
+      value: ind.scenario[scenario].mean,
+      color: getColorByValue(ind.scenario[scenario].mean),
+      angle: _index * 22.5,
+    }));
 
   const [tooltip, setTooltip] = useState<{
     visible: boolean;
