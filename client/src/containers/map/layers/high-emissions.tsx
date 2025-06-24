@@ -11,7 +11,7 @@ const HighEmissionsLayer = () => {
       <Layer
         id="high-emissions-layer"
         type="fill"
-        beforeId="wdpa-layer"
+        beforeId="country-boundaries"
         source-layer="climrisk-high"
         paint={{
           "fill-color": [
@@ -29,7 +29,7 @@ const HighEmissionsLayer = () => {
             4,
             "#DA5730",
           ],
-          "fill-opacity": 0.6,
+          "fill-opacity": 0.8,
           "fill-outline-color": "#000",
         }}
       />

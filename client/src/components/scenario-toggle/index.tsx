@@ -7,7 +7,7 @@ export default function ScenarioToggle() {
   const [scenario, setScenario] = useScenario();
   return (
     <div className="absolute z-10 inline-flex top-4 right-4 items-center justify-center bg-background rounded-lg py-1 px-4 gap-2">
-      <span className="uppercase font-semibold text-xs tracking-wide">
+      <span className="uppercase font-semibold text-xs tracking-wide font-sans">
         Emissions scenario
       </span>
       <div className="flex gap-1 items-center">

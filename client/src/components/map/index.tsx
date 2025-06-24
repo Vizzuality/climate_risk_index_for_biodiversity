@@ -66,6 +66,7 @@ const Map: React.FC<React.PropsWithChildren> = ({ children }) => {
       style={style}
       mapStyle="mapbox://styles/crib2025/cmc9e61rp00a601sh2jgretdw"
       projection="mercator"
+      maxBounds={DEFAULT_BOUNDS}
       initialViewState={{
         bounds: areaBbox
           ? [

@@ -5,52 +5,98 @@
 
 import { useRef, useEffect, useState } from "react";
 import * as d3 from "d3";
+import { useSelectedArea } from "@/hooks/use-selected-area";
+import { useScenario } from "@/store";
 
 interface DataPoint {
   category: string;
   value: number;
   color: string;
-  angle: number;
 }
 
-const data: DataPoint[] = [
-  { category: "Projected loss", value: 0.8, color: "#E74C3C", angle: 0 },
-  {
-    category: "Thermal safety margin",
-    value: 0.7,
-    color: "#E74C3C",
-    angle: 30,
-  },
-  { category: "Exposure", value: 0.4, color: "#E74C3C", angle: 60 },
-  { category: "Ecosystem disruption", value: 0.6, color: "#E74C3C", angle: 90 },
-  { category: "Climate change", value: 0.5, color: "#E74C3C", angle: 120 },
-  { category: "Adaptivity", value: 0.3, color: "#52C4B0", angle: 150 },
-  {
-    category: "Habitat fragmentation",
-    value: 0.4,
-    color: "#52C4B0",
-    angle: 180,
-  },
-  { category: "Maximum body length", value: 0.3, color: "#F39C12", angle: 210 },
-  {
-    category: "Precipitation change",
-    value: 0.2,
-    color: "#52C4B0",
-    angle: 240,
-  },
-  { category: "Cumulative threats", value: 0.6, color: "#E74C3C", angle: 270 },
-  { category: "Sensitivity", value: 0.8, color: "#E74C3C", angle: 300 },
-  { category: "Species status", value: 0.5, color: "#52C4B0", angle: 330 },
-];
+const indicatorKeys = {
+  sensitivity: ["Sens.HII", "Sens.TSMr", "Sens.vind"],
+  exposure: ["Expo.nrchng", "Expo.plost", "Expo.tow", "Expo.vel"],
+  climate: [
+    "ClimAdaptRisk",
+    "ClimAdapt",
+    "ClimExpoRisk",
+    "ClimExpo",
+    "ClimRisk",
+    "ClimSensRisk",
+    "ClimVulnSD",
+    "ClimVuln",
+  ],
+  adaptivity: ["Adapt.hfrag", "Adapt.hrange", "Adapt.lmax", "Adapt.tvar"],
+};
 
-const mainMetrics = [
-  { label: "Sensitivity", value: 0.8, position: { x: -180, y: -120 } },
-  { label: "Exposure", value: 0.4, position: { x: 180, y: -120 } },
-  { label: "Adaptivity", value: 0.3, position: { x: 0, y: 180 } },
-];
+const getColorByValue = (value: number): string => {
+  if (value >= 0.25) return "#b5e2d1";
+  if (value >= 0.5) return "#f1bc83";
+  if (value >= 0.75) return "#d95730";
+  return "#45b9c7";
+};
+
+const getMainMetrics = (data: DataPoint) => {
+  const sensitivityMean = d3
+    .mean(
+      data
+        .filter((d) => indicatorKeys.sensitivity.includes(d.category))
+        .map((d) => d.value),
+    )
+    ?.toFixed(2);
+
+  const exposureMean = d3
+    .mean(
+      data
+        .filter((d) => indicatorKeys.exposure.includes(d.category))
+        .map((d) => d.value),
+    )
+    ?.toFixed(2);
+
+  const adaptivityMean = d3
+    .mean(
+      data
+        .filter((d) => indicatorKeys.adaptivity.includes(d.category))
+        .map((d) => d.value),
+    )
+    ?.toFixed(2);
+
+  const climateMean = d3
+    .mean(
+      data
+        .filter((d) => indicatorKeys.climate.includes(d.category))
+        .map((d) => d.value),
+    )
+    ?.toFixed(2);
+
+  return [
+    {
+      label: "Adaptivity",
+      value: adaptivityMean,
+      position: { x: 180, y: -190 },
+    },
+    {
+      label: "Sensitivity",
+      value: sensitivityMean,
+      position: { x: -180, y: -190 },
+    },
+    { label: "Climate", value: climateMean, position: { x: 180, y: 190 } },
+    { label: "Exposure", value: exposureMean, position: { x: -180, y: 190 } },
+  ];
+};
 
 export default function RadarChart() {
   const svgRef = useRef<SVGSVGElement>(null);
+  const area = useSelectedArea();
+  const [scenario] = useScenario();
+
+  const data: DataPoint[] = area?.indicator.map((ind, _index) => ({
+    category: ind.name,
+    value: ind.scenario[scenario].mean,
+    color: getColorByValue(ind.scenario[scenario].mean),
+    angle: _index * 18,
+  }));
 
   const [tooltip, setTooltip] = useState<{
     visible: boolean;
@@ -146,7 +192,7 @@ export default function RadarChart() {
           visible: true,
           x: mouseX,
           y: mouseY,
-          content: `${d.data.category}: ${d.data.value}`,
+          content: `${d.data.category}: ${d.data.value.toFixed(2)}`,
         });
       })
       .on("mousemove", (event) => {
@@ -178,13 +224,15 @@ export default function RadarChart() {
         .attr("text-anchor", "middle")
         .attr("dominant-baseline", "middle")
         .attr("font-size", "10px")
-        .attr("font-family", "Arial, sans-serif")
+        .attr("font-family", "Red Hat Display")
         .attr("fill", "#374151")
         .text(d.category)
         .call(wrap, 60);
     });
 
-    // Add main metric labels outside the chart
+    //Add main metric labels outside the chart
+    const mainMetrics = getMainMetrics(data);
+
     mainMetrics.forEach((metric) => {
       const metricGroup = svg
         .append("g")
