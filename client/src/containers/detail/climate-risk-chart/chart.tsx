@@ -33,9 +33,9 @@ const indicatorKeys = {
 };
 
 const getColorByValue = (value: number): string => {
-  if (value >= 0.25) return "#b5e2d1";
-  if (value >= 0.5) return "#f1bc83";
   if (value >= 0.75) return "#d95730";
+  if (value >= 0.5) return "#f1bc83";
+  if (value >= 0.25) return "#b5e2d1";
   return "#45b9c7";
 };
 
@@ -102,6 +102,8 @@ export default function RadarChart() {
       color: getColorByValue(ind.scenario[scenario].mean),
       angle: _index * 22.5,
     }));
+
+  console.log(data);
 
   const [tooltip, setTooltip] = useState<{
     visible: boolean;
