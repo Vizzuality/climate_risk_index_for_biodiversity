@@ -103,8 +103,6 @@ export default function RadarChart() {
       angle: _index * 22.5,
     }));
 
-  console.log(data);
-
   const [tooltip, setTooltip] = useState<{
     visible: boolean;
     x: number;
@@ -117,8 +115,10 @@ export default function RadarChart() {
     content: "",
   });
 
+  const noData = data.some((d) => d.value === null || d.value === undefined);
+
   useEffect(() => {
-    if (!svgRef.current) return;
+    if (!svgRef.current || noData) return;
 
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
@@ -304,6 +304,14 @@ export default function RadarChart() {
       });
     }
   }, []);
+
+  if (noData) {
+    return (
+      <div className="flex items-center justify-center my-12">
+        <p className="text-gray-500">No data available for this area.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="relative flex flex-col items-center ">
