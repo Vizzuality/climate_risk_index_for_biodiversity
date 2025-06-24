@@ -1,6 +1,5 @@
 "use client";
 
-import { ExternalLinkIcon } from "lucide-react";
 import { useSelectedArea } from "@/hooks/use-selected-area";
 
 export default function AreaStats() {
@@ -26,7 +25,7 @@ export default function AreaStats() {
       </li>
       <li className="flex items-center gap-1 py-2 border-b border-dashed border-b-slate-300 text-slate-600">
         <span className="flex-1 uppercase font-semibold text-xs">DFO site</span>
-        <span className="flex flex-1 gap-1 items-center">
+        <span className="flex flex-1">
           {area?.website_url ? (
             <>
               <a
@@ -36,7 +35,6 @@ export default function AreaStats() {
               >
                 {area.website_url}
               </a>
-              <ExternalLinkIcon className="text-slate-700 h-4 w-4" />
             </>
           ) : (
             "N/A"
