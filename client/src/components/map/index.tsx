@@ -17,9 +17,9 @@ import { Popup } from "react-map-gl/mapbox";
 
 const style = { width: "100%", height: "100%" };
 
-const DEFAULT_BOUNDS: LngLatBoundsLike = [
-  [-71.03883885640943, 40.04343083174228],
-  [-47.69751888944774, 60.99999999975432],
+const MAX_BOUNDS: LngLatBoundsLike = [
+  [-115.16461062577055, 37.04747746729123],
+  [-39.29512032198744, 63.75431351899553],
 ];
 
 const Map: React.FC<React.PropsWithChildren> = ({ children }) => {
@@ -66,14 +66,15 @@ const Map: React.FC<React.PropsWithChildren> = ({ children }) => {
       style={style}
       mapStyle="mapbox://styles/crib2025/cmc9e61rp00a601sh2jgretdw"
       projection="mercator"
-      maxBounds={DEFAULT_BOUNDS}
+      maxBounds={MAX_BOUNDS}
       initialViewState={{
+        zoom: 1,
         bounds: areaBbox
           ? [
               [areaBbox[0], areaBbox[1]],
               [areaBbox[2], areaBbox[3]],
             ]
-          : DEFAULT_BOUNDS,
+          : MAX_BOUNDS,
         fitBoundsOptions: {
           ...(areaBbox && {
             padding: {

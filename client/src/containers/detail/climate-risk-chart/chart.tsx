@@ -115,7 +115,7 @@ export default function RadarChart() {
     content: "",
   });
 
-  const noData = data.some((d) => d.value === null || d.value === undefined);
+  const noData = data?.some((d) => d.value === null || d.value === undefined);
 
   useEffect(() => {
     if (!svgRef.current || noData) return;
@@ -303,7 +303,7 @@ export default function RadarChart() {
         }
       });
     }
-  }, []);
+  }, [data, noData]);
 
   if (noData) {
     return (
