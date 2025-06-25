@@ -17,6 +17,7 @@ import {
 
 import { Area, columns } from "./columns";
 
+import DataTableLegend from "@/containers/main/table/legend";
 import data from "@/data/wdpa.json";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useMemo } from "react";
@@ -39,9 +40,17 @@ export default function DataTable() {
     getCoreRowModel: getCoreRowModel(),
   });
 
+  if (!filteredData?.length) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <span className="text-gray-500">No conservation areas found.</span>
+      </div>
+    );
+  }
+
   return (
     <>
-      {filteredData?.length && (
+      {filteredData.length && (
         <span>Total of {filteredData.length} conservation areas</span>
       )}
       <ScrollArea className="flex-1 h-full overflow-hidden pb-12">
@@ -97,6 +106,7 @@ export default function DataTable() {
           </TableBody>
         </Table>
       </ScrollArea>
+      <DataTableLegend />
     </>
   );
 }
