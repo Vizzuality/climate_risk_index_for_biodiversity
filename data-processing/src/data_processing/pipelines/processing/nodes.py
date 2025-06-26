@@ -219,6 +219,7 @@ def publish_mapbox_tileset(
 
     geojson = io.BytesIO()
     gdf.to_file(geojson, driver="GeoJSONSeq")
+
     # Create tileset source
     source_id = tileset_name + "-source"
     try:

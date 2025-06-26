@@ -21,6 +21,7 @@ dependencies = [
     "pydantic>=2.11.7",
     "mapbox-tilesets>=1.14.0",
     "httpx>=0.28.1",
+    "s3fs>=2025.5.1",
 ]
 
 [dependency-groups]

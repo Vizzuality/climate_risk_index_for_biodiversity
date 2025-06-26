@@ -3,10 +3,40 @@
 # Documentation for this file format can be found in "The Data Catalog"
 # Link: https://docs.kedro.org/en/stable/data/data_catalog.html
 
+# -----------------
+# PRIMARY datasets
+# -----------------
+
 grid_raw:
   type: polars.LazyPolarsDataset
-  filepath: data/01_raw/Boyce_etal_2022_NATCC_Species_SpatRes.csv
-  file_format: csv
+  filepath: s3://vizz-science-team/climate-risk-index-for-biodiversity/Boyce_etal_2022_NATCC_Species_SpatRes.parquet
+  file_format: parquet
+  credentials: s3_credentials
+
+conservation_network_reseau_raw:
+  type: geopandas.GenericDataset
+  filepath: s3://vizz-science-team/climate-risk-index-for-biodiversity/network_reseau_20240320_WGS.geojson
+  credentials: s3_credentials
+  load_args:
+    driver: "GeoJSON"
+
+marine_protected_areas_raw:
+  type: geopandas.GenericDataset
+  filepath: s3://vizz-science-team/climate-risk-index-for-biodiversity/marine_protected_areas_2023_atlantic.geojson
+  credentials: s3_credentials
+  load_args:
+    driver: "GeoJSON"
+
+admin_boundaries:
+  type: geopandas.GenericDataset
+  filepath: s3://vizz-science-team/climate-risk-index-for-biodiversity/administrative_boundaries_atlantic.geojson
+  credentials: s3_credentials
+  load_args:
+    driver: "GeoJSON"
+
+# ---------------------
+# Intermediate datasets
+# ---------------------
 
 indicator_rasters:
   type: partitions.PartitionedDataset
@@ -16,23 +46,9 @@ indicator_rasters:
   dataset:
     type: data_processing.datasets.raster.RasterDataset
 
-conservation_network_reseau_raw:
-  type: geopandas.GenericDataset
-  filepath: data/01_raw/network_reseau_20240320_WGS.geojson
-  load_args:
-    driver: "GeoJSON"
-
-marine_protected_areas_raw:
-  type: geopandas.GenericDataset
-  filepath: data/01_raw/marine_protected_areas_2023_atlantic.geojson
-  load_args:
-    driver: "GeoJSON"
-
-admin_boundaries:
-  type: geopandas.GenericDataset
-  filepath: data/01_raw/administrative_boundaries_atlantic.geojson
-  load_args:
-    driver: "GeoJSON"
+# -----------------
+# FINAL datasets
+# -----------------
 
 marine_protected_areas:
   type: geopandas.GenericDataset
