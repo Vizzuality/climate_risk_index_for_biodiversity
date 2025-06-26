@@ -29,7 +29,7 @@ const HighEmissionsLayer = () => {
             4,
             "#DA5730",
           ],
-          "fill-opacity": 0.8,
+          "fill-opacity": 1,
           "fill-outline-color": "#000",
         }}
       />
