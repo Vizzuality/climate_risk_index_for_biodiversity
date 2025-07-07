@@ -32,13 +32,31 @@ const WDPALayer = () => {
       />
 
       <Layer
+        id="wdpa-layer-outline"
+        type="line"
+        source-layer="marine-protected-areas"
+        source={"wdpa-source"}
+        beforeId={"maritimes-region-b5kyh8"}
+        paint={{
+          "line-color": "#1e3152",
+        }}
+        {...(area && {
+          filter: [
+            "any",
+            false,
+            ["==", ["get", "name_en"], window.decodeURIComponent(area)],
+          ],
+        })}
+      />
+
+      <Layer
         id="wdpa-layer-outline-left"
         type="line"
         source-layer="marine-protected-areas"
         source={"wdpa-source"}
         beforeId={"maritimes-region-b5kyh8"}
         paint={{
-          "line-color": "#8ABAA5",
+          "line-color": "#5eead4",
           "line-offset": -1,
         }}
         {...(area && {
@@ -57,7 +75,7 @@ const WDPALayer = () => {
         source={"wdpa-source"}
         beforeId={"maritimes-region-b5kyh8"}
         paint={{
-          "line-color": "#8ABAA5",
+          "line-color": "#5eead4",
           "line-offset": 1,
         }}
         {...(area && {

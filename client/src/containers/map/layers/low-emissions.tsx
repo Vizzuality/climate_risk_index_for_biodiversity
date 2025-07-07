@@ -30,7 +30,7 @@ const LowEmissionsLayer = () => {
             "#DA5730",
           ],
           "fill-opacity": 1,
-          "fill-outline-color": "#000",
+          "fill-outline-color": "transparent",
         }}
       />
     </Source>

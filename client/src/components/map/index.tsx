@@ -18,8 +18,8 @@ import { Popup } from "react-map-gl/mapbox";
 const style = { width: "100%", height: "100%" };
 
 const MAX_BOUNDS: LngLatBoundsLike = [
-  [-115.16461062577055, 37.04747746729123],
-  [-39.29512032198744, 63.75431351899553],
+  -224.17459662506633, 30.196000914813084, -16.362485879322406,
+  75.22947015173992,
 ];
 
 const Map: React.FC<React.PropsWithChildren> = ({ children }) => {
