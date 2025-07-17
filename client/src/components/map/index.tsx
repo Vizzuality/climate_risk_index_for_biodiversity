@@ -37,7 +37,7 @@ const Map: React.FC<React.PropsWithChildren> = ({ children }) => {
 
   const handleClick = (evt: MapMouseEvent) => {
     if (evt.features) {
-      const feature = evt.features[0];
+      const feature = evt.features[evt.features.length - 1];
       if (feature?.layer?.id === "wdpa-layer") {
         const name = feature.id;
         router.push(`/${name}`);
@@ -47,8 +47,12 @@ const Map: React.FC<React.PropsWithChildren> = ({ children }) => {
 
   const handleHover = (evt: MapMouseEvent) => {
     if (evt.features?.length) {
-      const feature = evt.features[0];
-      if (feature?.layer?.id === "wdpa-layer") {
+      const feature = evt.features[evt.features.length - 1];
+      if (
+        ["wdpa-layer", "atlantic-bioregions-layer"].includes(
+          feature?.layer?.id ?? "",
+        )
+      ) {
         setPopup({
           lngLat: evt.lngLat,
           ...feature,
@@ -86,7 +90,7 @@ const Map: React.FC<React.PropsWithChildren> = ({ children }) => {
           }),
         },
       }}
-      interactiveLayerIds={["wdpa-layer"]}
+      interactiveLayerIds={["wdpa-layer", "atlantic-bioregions-layer"]}
       onClick={handleClick}
       onMouseMove={handleHover}
     >
