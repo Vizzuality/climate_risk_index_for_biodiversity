@@ -9,7 +9,7 @@ const AtlanticBioregionsLayer = () => {
       promoteId="NAME_E"
     >
       <Layer
-        id="atlantic-bioregions-layer-outline"
+        id="atlantic-bioregions-layer"
         type="fill"
         source-layer="AtlanticBioregions-14vrei"
         source={"atlantic-bioregions-source"}
