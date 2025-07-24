@@ -3,7 +3,7 @@ This is a boilerplate pipeline 'processing'
 generated using Kedro 0.19.13
 """
 
-from kedro.pipeline import Pipeline, node, pipeline
+from kedro.pipeline import Node, Pipeline
 
 from data_processing.pipelines.processing.nodes import (
     aggregate_indicators_per_mpas,
@@ -11,16 +11,15 @@ from data_processing.pipelines.processing.nodes import (
     concat_marine_protected_area,
     grid_table_to_rasters,
     join_admin_region,
-    publish_mapbox_tileset,
     rename_protected_areas_columns,
 )
 
 
 def create_pipeline(**kwargs) -> Pipeline:
-    return pipeline(
+    return Pipeline(
         [
-            # Grid nodes
-            node(
+            # Grid Nodes
+            Node(
                 grid_table_to_rasters,
                 [
                     "grid_raw",
@@ -29,45 +28,24 @@ def create_pipeline(**kwargs) -> Pipeline:
                 ],
                 "indicator_rasters",
                 tags="raster",
+                name="table_to_rasters",
             ),
-            node(
+            Node(
                 clip_to_aoi_and_vectorize,
                 ["indicator_rasters", "params:grid_layer_high"],
                 "polygon_grid_high",
                 tags="raster",
             ),
-            node(
+            Node(
                 clip_to_aoi_and_vectorize,
                 ["indicator_rasters", "params:grid_layer_low"],
                 "polygon_grid_low",
                 tags="raster",
             ),
-            node(
-                publish_mapbox_tileset,
-                [
-                    "polygon_grid_high",
-                    "params:grid_layer_high",
-                    "params:mapbox_access_token",  # must be input manually in the terminal as --params
-                    "params:mapbox_username",
-                ],
-                None,
-                tags="raster",
-            ),
-            node(
-                publish_mapbox_tileset,
-                [
-                    "polygon_grid_low",
-                    "params:grid_layer_low",
-                    "params:mapbox_access_token",  # must be input manually in the terminal as --params
-                    "params:mapbox_username",
-                ],
-                None,
-                tags="raster",
-            ),
             # -----------------
-            # MPAs related node
+            # MPAs related Node
             # -----------------
-            node(
+            Node(
                 rename_protected_areas_columns,
                 [
                     "conservation_network_reseau_raw",
@@ -76,7 +54,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                 "conservation_network_reseau_renamed",
                 tags="mpas",
             ),
-            node(
+            Node(
                 rename_protected_areas_columns,
                 [
                     "marine_protected_areas_raw",
@@ -85,7 +63,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                 "marine_protected_areas_renamed",
                 tags="mpas",
             ),
-            node(
+            Node(
                 concat_marine_protected_area,
                 [
                     "conservation_network_reseau_renamed",
@@ -94,13 +72,13 @@ def create_pipeline(**kwargs) -> Pipeline:
                 "marine_protected_areas_no_region",
                 tags="mpas",
             ),
-            node(
+            Node(
                 join_admin_region,
                 ["marine_protected_areas_no_region", "admin_boundaries"],
                 "marine_protected_areas",
                 tags="mpas",
             ),
-            node(
+            Node(
                 aggregate_indicators_per_mpas,
                 [
                     "marine_protected_areas",

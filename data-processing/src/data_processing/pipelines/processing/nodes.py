@@ -43,7 +43,7 @@ def grid_table_to_rasters(
     df = (
         grid_table.group_by("Lat", "Lon", "Experiment")
         .agg(
-            cs.float().median(),
+            (cs.numeric() - cs.by_name(category_columns)).median(),
             cs.by_name(category_columns).mode().first(),
         )
         .collect()
