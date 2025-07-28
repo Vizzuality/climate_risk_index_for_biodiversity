@@ -24,6 +24,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                 [
                     "grid_raw",
                     "params:grid_risk_category_columns",
+                    "params:grid_indicator_columns",
                     "params:grid_risk_categorical_map",
                 ],
                 "indicator_rasters",

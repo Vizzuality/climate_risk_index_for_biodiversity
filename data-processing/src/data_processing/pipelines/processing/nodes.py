@@ -32,7 +32,10 @@ def _pivot_to_raster(df: pl.DataFrame, column: str) -> np.ndarray:
 
 
 def grid_table_to_rasters(
-    grid_table: pl.LazyFrame, category_columns: list[str], category_map: dict[str, int]
+    grid_table: pl.LazyFrame,
+    category_columns: list[str],
+    indicator_columns: list[str],
+    category_map: dict[str, int],
 ) -> dict[str, xr.DataArray]:
     LOW_SCENARIO_EXPERIMENT = 2.6
     HIGH_SCNEARIO_EXPERIMENT = 8.5
@@ -43,7 +46,7 @@ def grid_table_to_rasters(
     df = (
         grid_table.group_by("Lat", "Lon", "Experiment")
         .agg(
-            (cs.numeric() - cs.by_name(category_columns)).median(),
+            cs.by_name(indicator_columns).median(),
             cs.by_name(category_columns).mode().first(),
         )
         .collect()

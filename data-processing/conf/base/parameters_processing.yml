@@ -4,6 +4,25 @@ grid_risk_category_columns:
   - ClimExpoRisk
   - ClimRisk
 
+grid_indicator_columns:
+  - Sens.TSMr
+  - Sens.RLstatus
+  - Sens.HII
+  - Sens.vind
+  - Adapt.hfrag
+  - Adapt.lmax
+  - Adapt.hrange
+  - Adapt.tvar
+  - Expo.tow
+  - Expo.vel
+  - Expo.plost
+  - Expo.nrchng
+  - ClimSens
+  - ClimAdapt
+  - ClimExpo
+  - ClimVuln
+  - ClimVulnSD
+
 grid_risk_categorical_map:
   N: 1
   M: 2
