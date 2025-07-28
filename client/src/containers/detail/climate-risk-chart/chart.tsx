@@ -8,6 +8,8 @@ import * as d3 from "d3";
 import { useSelectedArea } from "@/hooks/use-selected-area";
 import { useScenario } from "@/store";
 import categoriesMetadata from "@/data/categories-metadata.json";
+import { Area } from "@/containers/main/table/columns";
+import { SCENARIO } from "@/types";
 
 interface DataPoint {
   category: string;
@@ -16,20 +18,10 @@ interface DataPoint {
   color: string;
 }
 
-const indicatorKeys = {
-  sensitivity: ["Sens.HII", "Sens.TSMr", "Sens.vind"],
-  exposure: ["Expo.nrchng", "Expo.plost", "Expo.tow", "Expo.vel"],
-  climate: [
-    "ClimAdaptRisk",
-    "ClimAdapt",
-    "ClimExpoRisk",
-    "ClimExpo",
-    "ClimRisk",
-    "ClimSensRisk",
-    "ClimVulnSD",
-    "ClimVuln",
-  ],
-  adaptivity: ["Adapt.hfrag", "Adapt.hrange", "Adapt.lmax", "Adapt.tvar"],
+const MEAN_INDICATOR_KEYS = {
+  sensitivity: "ClimSens",
+  exposure: "ClimExpo",
+  adaptivity: "ClimAdapt",
 };
 
 const getColorByValue = (value: number): string => {
@@ -39,38 +31,18 @@ const getColorByValue = (value: number): string => {
   return "#45b9c7";
 };
 
-const getMainMetrics = (data: DataPoint) => {
-  const sensitivityMean = d3
-    .mean(
-      data
-        .filter((d) => indicatorKeys.sensitivity.includes(d.category))
-        .map((d) => d.value),
-    )
-    ?.toFixed(2);
+const getMainMetrics = (data: Area["indicator"], scenario: SCENARIO) => {
+  const sensitivityMean = data
+    .find((d) => d.name === MEAN_INDICATOR_KEYS.sensitivity)
+    ?.scenario[scenario]?.mean?.toFixed(3);
 
-  const exposureMean = d3
-    .mean(
-      data
-        .filter((d) => indicatorKeys.exposure.includes(d.category))
-        .map((d) => d.value),
-    )
-    ?.toFixed(2);
+  const exposureMean = data
+    .find((d) => d.name === MEAN_INDICATOR_KEYS.exposure)
+    ?.scenario[scenario]?.mean?.toFixed(3);
 
-  const adaptivityMean = d3
-    .mean(
-      data
-        .filter((d) => indicatorKeys.adaptivity.includes(d.category))
-        .map((d) => d.value),
-    )
-    ?.toFixed(2);
-
-  const climateMean = d3
-    .mean(
-      data
-        .filter((d) => indicatorKeys.climate.includes(d.category))
-        .map((d) => d.value),
-    )
-    ?.toFixed(2);
+  const adaptivityMean = data
+    .find((d) => d.name === MEAN_INDICATOR_KEYS.adaptivity)
+    ?.scenario[scenario]?.mean?.toFixed(3);
 
   return [
     {
@@ -83,8 +55,7 @@ const getMainMetrics = (data: DataPoint) => {
       value: sensitivityMean,
       position: { x: -180, y: -190 },
     },
-    { label: "Climate", value: climateMean, position: { x: 180, y: 190 } },
-    { label: "Exposure", value: exposureMean, position: { x: -180, y: 190 } },
+    { label: "Exposure", value: exposureMean, position: { x: 180, y: 190 } },
   ];
 };
 
@@ -95,12 +66,14 @@ export default function RadarChart() {
 
   const data: DataPoint[] = area?.indicator
     .filter((d) => d.type === "numerical")
+    // removes climate-related indicators
+    .filter((d) => !d.name.startsWith("Clim"))
     .map((ind, _index) => ({
       category: ind.name,
       name: categoriesMetadata[ind.name]?.name ?? ind.name,
       value: ind.scenario[scenario].mean,
       color: getColorByValue(ind.scenario[scenario].mean),
-      angle: _index * 22.5,
+      angle: _index * 30,
     }));
 
   const [tooltip, setTooltip] = useState<{
@@ -238,7 +211,7 @@ export default function RadarChart() {
     });
 
     //Add main metric labels outside the chart
-    const mainMetrics = getMainMetrics(data);
+    const mainMetrics = getMainMetrics(area?.indicator, scenario);
 
     mainMetrics.forEach((metric) => {
       const metricGroup = svg
