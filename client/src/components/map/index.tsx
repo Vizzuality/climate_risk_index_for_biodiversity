@@ -68,7 +68,7 @@ const Map: React.FC<React.PropsWithChildren> = ({ children }) => {
       ref={mapRef}
       mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
       style={style}
-      mapStyle="mapbox://styles/crib2025/cmc9e61rp00a601sh2jgretdw"
+      mapStyle="mapbox://styles/a-irvine/cmf43ty13003l01qscdneh6wp"
       projection="mercator"
       maxBounds={MAX_BOUNDS}
       initialViewState={{
