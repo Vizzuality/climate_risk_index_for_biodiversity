@@ -3,7 +3,7 @@ FROM node:24.18.0-alpine3.24 AS base
 FROM base AS deps
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml* .pnpm-workspace.yaml* ./
+COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml* ./
 RUN corepack enable pnpm && pnpm i --frozen-lockfile;
 
 
