@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
+import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 
 import {
   Table,
@@ -50,9 +46,7 @@ export default function DataTable() {
 
   return (
     <>
-      {filteredData.length && (
-        <span>Total of {filteredData.length} conservation areas</span>
-      )}
+      {filteredData.length && <span>Total of {filteredData.length} conservation areas</span>}
       <ScrollArea className="flex-1 h-full overflow-hidden pb-12">
         <Table className="h-full table-fixed">
           <TableHeader>
@@ -60,16 +54,10 @@ export default function DataTable() {
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead
-                      key={header.id}
-                      className="w-1/2 max-w-1/2 font-medium"
-                    >
+                    <TableHead key={header.id} className="w-1/2 max-w-1/2 font-medium">
                       {header.isPlaceholder
                         ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
+                        : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   );
                 })}
@@ -79,26 +67,17 @@ export default function DataTable() {
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
+                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
+                <TableCell colSpan={columns.length} className="h-24 text-center">
                   No results.
                 </TableCell>
               </TableRow>

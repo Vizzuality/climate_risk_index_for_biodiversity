@@ -4,7 +4,5 @@ export function filterByAreaName(areas: Area[], searchTerm: string): Area[] {
   if (!searchTerm) return areas;
 
   const lowerCaseSearchTerm = searchTerm.toLowerCase();
-  return areas.filter((area) =>
-    area.name_en.toLowerCase().includes(lowerCaseSearchTerm),
-  );
+  return areas.filter((area) => area.name_en.toLowerCase().includes(lowerCaseSearchTerm));
 }

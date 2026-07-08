@@ -10,6 +10,4 @@ export const useScenario = () =>
     serialize: (value) => value,
   });
 
-export const popupAtom = atom<(GeoJSONFeature & { lngLat: LngLat }) | null>(
-  null,
-);
+export const popupAtom = atom<(GeoJSONFeature & { lngLat: LngLat }) | null>(null);

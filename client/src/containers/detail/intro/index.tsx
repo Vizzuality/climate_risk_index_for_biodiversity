@@ -17,9 +17,9 @@ export default function DetailIntro() {
       </div>
       <h2 className="text-2xl text-slate-700 font-semibold">{area?.name_en}</h2>
       <p className="text-slate-400 mt-4">
-        Below you’ll find the key parameters of your selected area, as well as
-        the twelve indicators that make up the Climate Risk Index. Lastly,
-        you’ll see the species assessed within the area.
+        Below you’ll find the key parameters of your selected area, as well as the twelve indicators
+        that make up the Climate Risk Index. Lastly, you’ll see the species assessed within the
+        area.
       </p>
     </div>
   );
