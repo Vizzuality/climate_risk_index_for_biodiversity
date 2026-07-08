@@ -1,8 +1,4 @@
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 const formatter = new Intl.NumberFormat("en-US", {
   minimumFractionDigits: 2,
@@ -52,22 +48,13 @@ export default function RiskIndexChart({
             <PopoverContent className="w-auto" side="top" sideOffset={30}>
               <ul className="flex flex-col gap-1 text-xs">
                 <li>
-                  Min:{" "}
-                  <span className="font-semibold">
-                    {formatter.format(values.min)}
-                  </span>
+                  Min: <span className="font-semibold">{formatter.format(values.min)}</span>
                 </li>
                 <li>
-                  Mean:{" "}
-                  <span className="font-semibold">
-                    {formatter.format(values.mean)}
-                  </span>
+                  Mean: <span className="font-semibold">{formatter.format(values.mean)}</span>
                 </li>
                 <li>
-                  Max:{" "}
-                  <span className="font-semibold">
-                    {formatter.format(values.max)}
-                  </span>
+                  Max: <span className="font-semibold">{formatter.format(values.max)}</span>
                 </li>
               </ul>
             </PopoverContent>

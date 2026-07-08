@@ -111,9 +111,7 @@ export default function RadarChart() {
     const radiusScale = d3.scaleLinear().domain([0, 1]).range([0, radius]);
 
     // Create main group
-    const g = svg
-      .append("g")
-      .attr("transform", `translate(${centerX}, ${centerY})`);
+    const g = svg.append("g").attr("transform", `translate(${centerX}, ${centerY})`);
 
     // Draw concentric circles (grid)
     const gridLevels = [0.2, 0.4, 0.6, 0.8, 1.0];
@@ -239,10 +237,7 @@ export default function RadarChart() {
     });
 
     // Text wrapping function
-    function wrap(
-      text: d3.Selection<SVGTextElement, never, never, never>,
-      width: number,
-    ) {
+    function wrap(text: d3.Selection<SVGTextElement, never, never, never>, width: number) {
       text.each(function () {
         const text = d3.select(this);
         const words = text.text().split(/\s+/).reverse();

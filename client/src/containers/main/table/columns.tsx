@@ -35,8 +35,7 @@ const NameCell = ({ name }: { name: string }) => {
   const router = useRouter();
   const { default: map } = useMap();
 
-  const areaBbox =
-    (data as Area[]).find((area) => area.name_en === name)?.bbox || null;
+  const areaBbox = (data as Area[]).find((area) => area.name_en === name)?.bbox || null;
 
   const onClick = () => {
     router.push(`/${name}`);
@@ -72,9 +71,7 @@ const NameCell = ({ name }: { name: string }) => {
 
 const IndicatorCell = ({ indicators }: { indicators: Area["indicator"] }) => {
   const [scenario] = useScenario();
-  const climVuln = indicators.find(
-    (indicator) => indicator.name === "ClimVuln",
-  );
+  const climVuln = indicators.find((indicator) => indicator.name === "ClimVuln");
 
   if (!climVuln) return null;
 

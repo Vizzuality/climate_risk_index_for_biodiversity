@@ -11,10 +11,6 @@ export function useSelectedArea() {
   return React.useMemo(() => {
     if (!areaId || typeof window === "undefined") return null;
 
-    return (
-      (areas as Area[]).find(
-        (a) => a.name_en === window.decodeURIComponent(areaId),
-      ) || null
-    );
+    return (areas as Area[]).find((a) => a.name_en === window.decodeURIComponent(areaId)) || null;
   }, [areaId]);
 }

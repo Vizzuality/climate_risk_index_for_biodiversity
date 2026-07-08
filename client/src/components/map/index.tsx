@@ -18,8 +18,7 @@ import { Popup } from "react-map-gl/mapbox";
 const style = { width: "100%", height: "100%" };
 
 const MAX_BOUNDS: LngLatBoundsLike = [
-  -224.17459662506633, 30.196000914813084, -16.362485879322406,
-  75.22947015173992,
+  -224.17459662506633, 30.196000914813084, -16.362485879322406, 75.22947015173992,
 ];
 
 const Map: React.FC<React.PropsWithChildren> = ({ children }) => {
@@ -30,9 +29,8 @@ const Map: React.FC<React.PropsWithChildren> = ({ children }) => {
 
   const areaBbox =
     typeof window !== "undefined"
-      ? (data as Area[]).find(
-          (area) => area.name_en === window.decodeURIComponent(params.area),
-        )?.bbox || null
+      ? (data as Area[]).find((area) => area.name_en === window.decodeURIComponent(params.area))
+          ?.bbox || null
       : null;
 
   const handleClick = (evt: MapMouseEvent) => {
@@ -48,11 +46,7 @@ const Map: React.FC<React.PropsWithChildren> = ({ children }) => {
   const handleHover = (evt: MapMouseEvent) => {
     if (evt.features?.length) {
       const feature = evt.features[evt.features.length - 1];
-      if (
-        ["wdpa-layer", "atlantic-bioregions-layer"].includes(
-          feature?.layer?.id ?? "",
-        )
-      ) {
+      if (["wdpa-layer", "atlantic-bioregions-layer"].includes(feature?.layer?.id ?? "")) {
         setPopup({
           lngLat: evt.lngLat,
           ...feature,
@@ -97,11 +91,7 @@ const Map: React.FC<React.PropsWithChildren> = ({ children }) => {
       <>
         {children}
         {popup && (
-          <Popup
-            longitude={popup.lngLat.lng}
-            latitude={popup.lngLat.lat}
-            closeButton={false}
-          >
+          <Popup longitude={popup.lngLat.lng} latitude={popup.lngLat.lat} closeButton={false}>
             <div className="text-sm text-center text-slate-600">
               {popup.properties?.name_en || popup.id}
             </div>

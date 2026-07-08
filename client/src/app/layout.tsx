@@ -1,11 +1,7 @@
 import type { Metadata } from "next";
 import { Red_Hat_Display } from "next/font/google";
 import "./globals.css";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarProvider,
-} from "@/components/ui/sidebar";
+import { Sidebar, SidebarContent, SidebarProvider } from "@/components/ui/sidebar";
 import QueryProvider from "@/app/react-query-provider";
 import MapProvider from "@/app/map-provider";
 import Navigation from "@/components/navigation";
