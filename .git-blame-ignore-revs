@@ -1,0 +1,5 @@
+# Mechanical formatting sweeps — keep git blame useful
+# Configure locally with: git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+# style(client): format with oxfmt (prettier -> oxfmt migration)
+572fa3a66ef80ea9eba9e04b29dee7e8daff1395
