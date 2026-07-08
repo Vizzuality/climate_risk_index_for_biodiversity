@@ -1,0 +1,11 @@
+services:
+  client:
+    build:
+      context: ./client
+      args:
+        NEXT_PUBLIC_MAPBOX_TOKEN: ${NEXT_PUBLIC_MAPBOX_TOKEN}
+    image: crib-client:latest
+    container_name: crib-client-prod
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
