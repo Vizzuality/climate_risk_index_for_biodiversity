@@ -9,7 +9,7 @@
     "lint": "oxlint",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
-    "prepare": "prek install"
+    "prepare": "git rev-parse --git-dir >/dev/null 2>&1 && prek install || true"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.14",
