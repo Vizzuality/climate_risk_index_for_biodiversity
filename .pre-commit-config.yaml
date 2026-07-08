@@ -17,3 +17,20 @@ repos:
 
       - id: ruff-format
         types_or: [python, pyi, jupyter]
+
+  - repo: local
+    hooks:
+      - id: oxfmt
+        name: oxfmt (client)
+        entry: client/node_modules/.bin/oxfmt
+        language: system
+        files: ^client/
+        exclude: pnpm-lock\.yaml$
+        types_or: [javascript, jsx, ts, tsx, json, yaml, css, markdown]
+
+      - id: oxlint
+        name: oxlint (client)
+        entry: client/node_modules/.bin/oxlint
+        language: system
+        files: ^client/
+        types_or: [javascript, jsx, ts, tsx]
