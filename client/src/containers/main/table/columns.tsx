@@ -3,8 +3,6 @@ import RiskIndexChart from "@/containers/main/table/risk-index-chart";
 import { useScenario } from "@/store";
 import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { useMap } from "react-map-gl/mapbox";
-import data from "@/data/wdpa.json";
 
 export type Area = {
   name_en: string;
@@ -33,30 +31,9 @@ export type Area = {
 
 const NameCell = ({ name }: { name: string }) => {
   const navigate = useNavigate();
-  const { default: map } = useMap();
-
-  const areaBbox = (data as Area[]).find((area) => area.name_en === name)?.bbox || null;
 
   const onClick = () => {
     navigate({ to: "/$area", params: { area: name } });
-
-    if (areaBbox) {
-      map?.fitBounds(
-        [
-          [areaBbox[0], areaBbox[1]],
-          [areaBbox[2], areaBbox[3]],
-        ],
-        {
-          animate: true,
-          padding: {
-            top: 50,
-            bottom: 50,
-            left: 630,
-            right: 50,
-          },
-        },
-      );
-    }
   };
   return (
     <Button

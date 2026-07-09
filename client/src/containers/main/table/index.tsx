@@ -9,11 +9,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { Area, columns } from "./columns";
+import { columns } from "./columns";
 
 import DataTableLegend from "@/containers/main/table/legend";
-import data from "@/data/wdpa.json";
+import { useAreas } from "@/hooks/use-areas";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useMemo } from "react";
 import { useAtomValue } from "jotai";
 
@@ -21,18 +22,29 @@ import { searchAtom } from "@/containers/main/store";
 import { filterByAreaName } from "@/utils/filters";
 export default function DataTable() {
   const searchValue = useAtomValue(searchAtom);
+  const { data, isPending } = useAreas();
 
   const filteredData = useMemo(() => {
-    let x = data as Area[];
+    let x = data ?? [];
     if (searchValue !== "") x = filterByAreaName(x, searchValue);
     return x;
-  }, [searchValue]);
+  }, [data, searchValue]);
 
   const table = useReactTable({
     data: filteredData,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
+
+  if (isPending) {
+    return (
+      <div className="flex flex-col gap-3 pt-2">
+        {Array.from({ length: 8 }, (_, i) => (
+          <Skeleton key={i} className="h-10 w-full" />
+        ))}
+      </div>
+    );
+  }
 
   if (!filteredData?.length) {
     return (
