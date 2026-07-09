@@ -42,7 +42,6 @@
   },
   "devDependencies": {
     "@j178/prek": "0.4.8",
-    "@tailwindcss/postcss": "4.1.8",
     "@tailwindcss/vite": "4.3.2",
     "@tanstack/nitro-v2-vite-plugin": "1.155.0",
     "@types/d3": "7.4.3",
