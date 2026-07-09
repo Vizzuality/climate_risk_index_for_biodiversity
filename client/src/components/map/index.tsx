@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import ReactMapGL from "react-map-gl/mapbox";
 
 import type { MapRef } from "react-map-gl/mapbox";
@@ -7,8 +7,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import { LngLatBoundsLike, MapMouseEvent } from "mapbox-gl";
 import { useNavigate, useParams } from "@tanstack/react-router";
 
-import data from "@/data/wdpa.json";
-import { Area } from "@/containers/main/table/columns";
+import { useAreas } from "@/hooks/use-areas";
 import { useAtom } from "jotai";
 import { popupAtom } from "@/store";
 import { Popup } from "react-map-gl/mapbox";
@@ -24,10 +23,29 @@ const Map: React.FC<React.PropsWithChildren> = ({ children }) => {
   const navigate = useNavigate();
   const params = useParams({ strict: false });
   const [popup, setPopup] = useAtom(popupAtom);
+  const [mapLoaded, setMapLoaded] = useState(false);
+  const { data: areas } = useAreas();
 
   const areaBbox = params.area
-    ? (data as Area[]).find((area) => area.name_en === params.area)?.bbox || null
+    ? areas?.find((area) => area.name_en === params.area)?.bbox || null
     : null;
+
+  // areas load async, so the selected-area viewport can't be an initialViewState;
+  // this also makes the map follow route changes from the table and map clicks.
+  // Gated on the map's load event — camera calls before it are dropped.
+  useEffect(() => {
+    if (!areaBbox || !mapLoaded) return;
+    mapRef.current?.fitBounds(
+      [
+        [areaBbox[0], areaBbox[1]],
+        [areaBbox[2], areaBbox[3]],
+      ],
+      {
+        animate: true,
+        padding: { top: 50, bottom: 50, left: 630, right: 50 },
+      },
+    );
+  }, [areaBbox, mapLoaded]);
 
   const handleClick = (evt: MapMouseEvent) => {
     if (evt.features) {
@@ -65,24 +83,10 @@ const Map: React.FC<React.PropsWithChildren> = ({ children }) => {
       maxBounds={MAX_BOUNDS}
       initialViewState={{
         zoom: 1,
-        bounds: areaBbox
-          ? [
-              [areaBbox[0], areaBbox[1]],
-              [areaBbox[2], areaBbox[3]],
-            ]
-          : MAX_BOUNDS,
-        fitBoundsOptions: {
-          ...(areaBbox && {
-            padding: {
-              top: 50,
-              bottom: 50,
-              left: 630,
-              right: 50,
-            },
-          }),
-        },
+        bounds: MAX_BOUNDS,
       }}
       interactiveLayerIds={["wdpa-layer", "atlantic-bioregions-layer"]}
+      onLoad={() => setMapLoaded(true)}
       onClick={handleClick}
       onMouseMove={handleHover}
     >
