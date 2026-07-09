@@ -11,10 +11,6 @@ export default defineConfig({
       "@": path.resolve(import.meta.dirname, "src"),
     },
   },
-  build: {
-    // calibrated to mapbox-gl (~1.5 MB), a monolithic non-tree-shakeable chunk
-    chunkSizeWarningLimit: 1600,
-  },
   plugins: [
     tailwindcss(),
     tanstackStart(),
