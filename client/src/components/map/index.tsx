@@ -18,7 +18,7 @@ const MAX_BOUNDS: LngLatBoundsLike = [
   -224.17459662506633, 30.196000914813084, -16.362485879322406, 75.22947015173992,
 ];
 
-const Map: React.FC<React.PropsWithChildren> = ({ children }) => {
+export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
   const mapRef = useRef<MapRef>(null);
   const navigate = useNavigate();
   const params = useParams({ strict: false });
@@ -103,5 +103,3 @@ const Map: React.FC<React.PropsWithChildren> = ({ children }) => {
     </ReactMapGL>
   );
 };
-
-export default Map;
