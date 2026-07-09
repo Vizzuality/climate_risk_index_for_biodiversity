@@ -1,5 +1,3 @@
-"use client";
-
 import { useRef } from "react";
 import ReactMapGL from "react-map-gl/mapbox";
 
@@ -7,7 +5,7 @@ import type { MapRef } from "react-map-gl/mapbox";
 
 import "mapbox-gl/dist/mapbox-gl.css";
 import { LngLatBoundsLike, MapMouseEvent } from "mapbox-gl";
-import { useParams, useRouter } from "next/navigation";
+import { useNavigate, useParams } from "@tanstack/react-router";
 
 import data from "@/data/wdpa.json";
 import { Area } from "@/containers/main/table/columns";
@@ -23,22 +21,22 @@ const MAX_BOUNDS: LngLatBoundsLike = [
 
 const Map: React.FC<React.PropsWithChildren> = ({ children }) => {
   const mapRef = useRef<MapRef>(null);
-  const router = useRouter();
-  const params = useParams<{ area: string }>();
+  const navigate = useNavigate();
+  const params = useParams({ strict: false });
   const [popup, setPopup] = useAtom(popupAtom);
 
-  const areaBbox =
-    typeof window !== "undefined"
-      ? (data as Area[]).find((area) => area.name_en === window.decodeURIComponent(params.area))
-          ?.bbox || null
-      : null;
+  const areaBbox = params.area
+    ? (data as Area[]).find((area) => area.name_en === params.area)?.bbox || null
+    : null;
 
   const handleClick = (evt: MapMouseEvent) => {
     if (evt.features) {
       const feature = evt.features[evt.features.length - 1];
       if (feature?.layer?.id === "wdpa-layer") {
         const name = feature.id;
-        router.push(`/${name}`);
+        if (name) {
+          navigate({ to: "/$area", params: { area: String(name) } });
+        }
       }
     }
   };
@@ -60,7 +58,7 @@ const Map: React.FC<React.PropsWithChildren> = ({ children }) => {
   return (
     <ReactMapGL
       ref={mapRef}
-      mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
+      mapboxAccessToken={import.meta.env.VITE_MAPBOX_TOKEN}
       style={style}
       mapStyle="mapbox://styles/crib2025/cmc9e61rp00a601sh2jgretdw"
       projection="mercator"

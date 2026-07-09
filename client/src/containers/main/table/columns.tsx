@@ -1,7 +1,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import RiskIndexChart from "@/containers/main/table/risk-index-chart";
 import { useScenario } from "@/store";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { useMap } from "react-map-gl/mapbox";
 import data from "@/data/wdpa.json";
@@ -32,13 +32,13 @@ export type Area = {
 };
 
 const NameCell = ({ name }: { name: string }) => {
-  const router = useRouter();
+  const navigate = useNavigate();
   const { default: map } = useMap();
 
   const areaBbox = (data as Area[]).find((area) => area.name_en === name)?.bbox || null;
 
   const onClick = () => {
-    router.push(`/${name}`);
+    navigate({ to: "/$area", params: { area: name } });
 
     if (areaBbox) {
       map?.fitBounds(

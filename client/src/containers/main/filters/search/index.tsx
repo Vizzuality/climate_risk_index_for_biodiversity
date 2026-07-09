@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import { searchAtom } from "@/containers/main/store";
 import { useAtom } from "jotai";

@@ -1,7 +1,5 @@
-"use client";
-
 import { useSelectedArea } from "@/hooks/use-selected-area";
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 
 export default function DetailIntro() {
   const area = useSelectedArea();
@@ -9,7 +7,7 @@ export default function DetailIntro() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex gap-1 items-center text-xs text-slate-400">
-        <Link href="/" className="italic">
+        <Link to="/" className="italic">
           Marine conservation areas
         </Link>
         <span className="text-slate-400 text-base">{">"}</span>

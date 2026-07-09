@@ -1,8 +1,8 @@
 import { Source, Layer } from "react-map-gl/mapbox";
-import { useParams } from "next/navigation";
+import { useParams } from "@tanstack/react-router";
 
 const WDPALayer = () => {
-  const params = useParams<{ area: string }>();
+  const params = useParams({ strict: false });
   const { area } = params;
 
   return (
@@ -18,7 +18,7 @@ const WDPALayer = () => {
           "fill-outline-color": "#EAF3ED",
         }}
         {...(area && {
-          filter: ["any", false, ["==", ["get", "name_en"], window.decodeURIComponent(area)]],
+          filter: ["any", false, ["==", ["get", "name_en"], area]],
         })}
       />
 
@@ -32,7 +32,7 @@ const WDPALayer = () => {
           "line-color": "#1e3152",
         }}
         {...(area && {
-          filter: ["any", false, ["==", ["get", "name_en"], window.decodeURIComponent(area)]],
+          filter: ["any", false, ["==", ["get", "name_en"], area]],
         })}
       />
 
@@ -47,7 +47,7 @@ const WDPALayer = () => {
           "line-offset": -1,
         }}
         {...(area && {
-          filter: ["any", false, ["==", ["get", "name_en"], window.decodeURIComponent(area)]],
+          filter: ["any", false, ["==", ["get", "name_en"], area]],
         })}
       />
 
@@ -62,7 +62,7 @@ const WDPALayer = () => {
           "line-offset": 1,
         }}
         {...(area && {
-          filter: ["any", false, ["==", ["get", "name_en"], window.decodeURIComponent(area)]],
+          filter: ["any", false, ["==", ["get", "name_en"], area]],
         })}
       />
     </Source>
