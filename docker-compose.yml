@@ -3,7 +3,7 @@ services:
     build:
       context: ./client
       args:
-        NEXT_PUBLIC_MAPBOX_TOKEN: ${NEXT_PUBLIC_MAPBOX_TOKEN}
+        VITE_MAPBOX_TOKEN: ${VITE_MAPBOX_TOKEN}
     image: crib-client:latest
     container_name: crib-client-prod
     ports:

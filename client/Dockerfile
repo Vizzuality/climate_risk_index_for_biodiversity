@@ -12,10 +12,8 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-ARG NEXT_PUBLIC_MAPBOX_TOKEN
-ENV NEXT_PUBLIC_MAPBOX_TOKEN=$NEXT_PUBLIC_MAPBOX_TOKEN
-
-ENV NEXT_TELEMETRY_DISABLED=1
+ARG VITE_MAPBOX_TOKEN
+ENV VITE_MAPBOX_TOKEN=$VITE_MAPBOX_TOKEN
 
 RUN corepack enable pnpm && pnpm run build;
 
@@ -23,21 +21,16 @@ FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+RUN adduser --system --uid 1001 tanstack
 
-COPY --from=builder /app/public ./public
+COPY --from=builder --chown=tanstack:nodejs /app/.output ./.output
 
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-USER nextjs
+USER tanstack
 
 EXPOSE 3000
 
 ENV PORT=3000
 
-ENV HOSTNAME="0.0.0.0"
-CMD ["node", "server.js"]
+CMD ["node", ".output/server/index.mjs"]

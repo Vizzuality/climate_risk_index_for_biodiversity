@@ -1,8 +1,6 @@
 // oxlint-disable-next-line typescript/ban-ts-comment
 // @ts-nocheck
 
-"use client";
-
 import { useRef, useEffect, useState } from "react";
 import * as d3 from "d3";
 import { useSelectedArea } from "@/hooks/use-selected-area";

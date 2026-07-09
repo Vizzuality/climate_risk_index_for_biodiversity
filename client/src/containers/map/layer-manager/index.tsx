@@ -1,5 +1,3 @@
-"use client";
-
 import WDPALayer from "@/containers/map/layers/wdpa";
 import { useScenario } from "@/store";
 import LowEmissionsLayer from "@/containers/map/layers/low-emissions";

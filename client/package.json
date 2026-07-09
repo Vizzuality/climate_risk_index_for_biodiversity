@@ -2,16 +2,18 @@
   "name": "climate-risk-index-for-biodiversity-client",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build",
-    "start": "next start",
+    "dev": "vite dev",
+    "build": "vite build",
+    "start": "node .output/server/index.mjs",
     "lint": "oxlint",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
     "prepare": "git rev-parse --git-dir >/dev/null 2>&1 && prek install || true"
   },
   "dependencies": {
+    "@fontsource/red-hat-display": "5.2.8",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-popover": "1.1.14",
     "@radix-ui/react-scroll-area": "1.2.9",
@@ -19,6 +21,8 @@
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-tooltip": "^1.2.7",
     "@tanstack/react-query": "5.80.6",
+    "@tanstack/react-router": "1.170.17",
+    "@tanstack/react-start": "1.168.27",
     "@tanstack/react-table": "8.21.3",
     "@types/mapbox-gl": "3.4.1",
     "class-variance-authority": "^0.7.1",
@@ -28,8 +32,7 @@
     "jotai": "2.12.5",
     "lucide-react": "^0.511.0",
     "mapbox-gl": "3.12.0",
-    "next": "15.3.8",
-    "nuqs": "2.4.3",
+    "nuqs": "2.9.0",
     "query-string": "9.2.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -40,15 +43,19 @@
   "devDependencies": {
     "@j178/prek": "0.4.8",
     "@tailwindcss/postcss": "^4",
+    "@tailwindcss/vite": "4.3.2",
+    "@tanstack/nitro-v2-vite-plugin": "1.155.0",
     "@types/d3": "7.4.3",
-    "@types/node": "^20",
+    "@types/node": "^24.13.3",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "6.0.3",
     "oxfmt": "0.58.0",
     "oxlint": "1.73.0",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.3.2",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vite": "8.1.3"
   },
   "engines": {
     "node": "24.x"

@@ -1,5 +1,3 @@
-"use client";
-
 import { useSelectedArea } from "@/hooks/use-selected-area";
 
 export default function AreaStats() {
