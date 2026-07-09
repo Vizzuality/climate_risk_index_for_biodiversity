@@ -18,7 +18,7 @@ import { Sidebar, SidebarContent, SidebarProvider } from "@/components/ui/sideba
 import { QueryProvider } from "@/providers/react-query";
 import { MapProvider } from "@/providers/map";
 import Navigation from "@/components/navigation";
-import MapView from "@/components/map";
+import { MapView } from "@/components/map";
 import ScenarioToggle from "@/components/scenario-toggle";
 import LayerManager from "@/containers/map/layer-manager";
 
