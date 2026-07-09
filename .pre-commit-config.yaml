@@ -25,7 +25,7 @@ repos:
         entry: client/node_modules/.bin/oxfmt
         language: system
         files: ^client/
-        exclude: pnpm-lock\.yaml$
+        exclude: (pnpm-lock\.yaml|routeTree\.gen\.ts)$
         types_or: [javascript, jsx, ts, tsx, json, yaml, css, markdown]
 
       - id: oxlint
@@ -33,4 +33,5 @@ repos:
         entry: client/node_modules/.bin/oxlint
         language: system
         files: ^client/
+        exclude: routeTree\.gen\.ts$
         types_or: [javascript, jsx, ts, tsx]
