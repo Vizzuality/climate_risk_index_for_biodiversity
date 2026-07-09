@@ -1,0 +1,32 @@
+name: Client tests
+
+on:
+  pull_request:
+    paths:
+      - "client/**"
+      - ".github/workflows/client-tests.yml"
+  push:
+    branches: [main]
+    paths:
+      - "client/**"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: client
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: client/pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm test

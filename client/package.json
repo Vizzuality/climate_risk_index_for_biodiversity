@@ -7,6 +7,8 @@
     "dev": "vite dev",
     "build": "vite build",
     "start": "node .output/server/index.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "lint": "oxlint",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
@@ -44,17 +46,21 @@
     "@j178/prek": "0.4.8",
     "@tailwindcss/vite": "4.3.2",
     "@tanstack/nitro-v2-vite-plugin": "1.155.0",
+    "@testing-library/jest-dom": "6.9.1",
+    "@testing-library/react": "16.3.2",
     "@types/d3": "7.4.3",
     "@types/node": "24.13.3",
     "@types/react": "19.1.6",
     "@types/react-dom": "19.1.5",
     "@vitejs/plugin-react": "6.0.3",
+    "jsdom": "29.1.1",
     "oxfmt": "0.58.0",
     "oxlint": "1.73.0",
     "tailwindcss": "4.1.8",
     "tw-animate-css": "1.3.2",
     "typescript": "5.8.3",
-    "vite": "8.1.3"
+    "vite": "8.1.3",
+    "vitest": "4.1.10"
   },
   "engines": {
     "node": "24.x"
