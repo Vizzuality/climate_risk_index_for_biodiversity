@@ -11,10 +11,14 @@ export default defineConfig({
       "@": path.resolve(import.meta.dirname, "src"),
     },
   },
+  build: {
+    // calibrated to mapbox-gl (~1.5 MB), a monolithic non-tree-shakeable chunk
+    chunkSizeWarningLimit: 1600,
+  },
   plugins: [
     tailwindcss(),
     tanstackStart(),
-    nitroV2Plugin(),
+    nitroV2Plugin({ compatibilityDate: "2026-07-09" }),
     // react's vite plugin must come after start's vite plugin
     viteReact(),
   ],
