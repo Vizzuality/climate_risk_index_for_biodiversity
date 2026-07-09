@@ -22,8 +22,8 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 tanstack
+RUN addgroup --system --gid 1001 nodejs \
+  && adduser --system --uid 1001 tanstack
 
 COPY --from=builder --chown=tanstack:nodejs /app/.output ./.output
 
