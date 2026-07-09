@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import ReactMapGL from "react-map-gl/mapbox";
+import ReactMapGL, { Popup } from "react-map-gl/mapbox";
 
 import type { MapRef } from "react-map-gl/mapbox";
 
@@ -10,7 +10,6 @@ import { useNavigate, useParams } from "@tanstack/react-router";
 import { useAreas } from "@/hooks/use-areas";
 import { useAtom } from "jotai";
 import { popupAtom } from "@/store";
-import { Popup } from "react-map-gl/mapbox";
 
 const style = { width: "100%", height: "100%" };
 
