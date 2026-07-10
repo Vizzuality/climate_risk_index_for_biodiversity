@@ -21,11 +21,9 @@ export default function AreaStats() {
         <span className="flex-1 uppercase font-semibold text-xs">DFO site</span>
         <span className="flex flex-1">
           {area?.website_url ? (
-            <>
-              <a href={area?.website_url} target="_blank" rel="noopener noreferrer">
-                {area.website_url}
-              </a>
-            </>
+            <a href={area?.website_url} target="_blank" rel="noopener noreferrer">
+              {area.website_url}
+            </a>
           ) : (
             "N/A"
           )}
