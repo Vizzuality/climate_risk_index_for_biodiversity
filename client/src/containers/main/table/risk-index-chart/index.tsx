@@ -8,7 +8,7 @@ const formatter = new Intl.NumberFormat("en-US", {
 export default function RiskIndexChart({
   range,
   values,
-}: {
+}: Readonly<{
   range: {
     min: number;
     max: number;
@@ -18,7 +18,7 @@ export default function RiskIndexChart({
     max: number;
     mean: number;
   };
-}) {
+}>) {
   return (
     <div className="h-full flex items-center justify-center">
       <div className="h-[1px] bg-slate-300 w-full relative">
