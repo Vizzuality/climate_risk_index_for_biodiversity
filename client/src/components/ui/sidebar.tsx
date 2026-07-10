@@ -236,24 +236,22 @@ function Sidebar({
           data-slot="sidebar-inner"
           className="bg-sidebar group-data-[variant=floating]:border-sidebar-border flex h-full w-full flex-col group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:shadow-sm"
         >
-          <>
-            {children}
+          {children}
 
-            <Button
-              type="button"
-              variant="ghost"
-              className="absolute cursor-pointer right-0 bottom-8 h-10 w-6 translate-x-full rounded-l-none rounded-r-lg border-l-0 transition-transform group-data-[collapsible=offcanvas]:translate-x-full bg-slate-200 "
-              onClick={() => setOpen(!open)}
-            >
-              <span className="sr-only">Toggle sidebar</span>
-              <div className="relative">
-                <ChevronsLeft
-                  className="group-data-[collapsible=offcanvas]:rotate-180 text-black"
-                  aria-hidden
-                />
-              </div>
-            </Button>
-          </>
+          <Button
+            type="button"
+            variant="ghost"
+            className="absolute cursor-pointer right-0 bottom-8 h-10 w-6 translate-x-full rounded-l-none rounded-r-lg border-l-0 transition-transform group-data-[collapsible=offcanvas]:translate-x-full bg-slate-200 "
+            onClick={() => setOpen(!open)}
+          >
+            <span className="sr-only">Toggle sidebar</span>
+            <div className="relative">
+              <ChevronsLeft
+                className="group-data-[collapsible=offcanvas]:rotate-180 text-black"
+                aria-hidden
+              />
+            </div>
+          </Button>
         </div>
       </div>
     </div>
