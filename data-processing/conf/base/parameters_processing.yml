@@ -53,3 +53,49 @@ grid_layer_high: ClimRisk_high
 grid_layer_low: ClimRisk_low
 
 mapbox_username: crib2025
+
+# Settings for the `build_species_grid_zarr_cube` node, pipeline `zarr_cube`
+# (src/data_processing/pipelines/zarr_cube/species_grid_zarr.py), which turns the
+# partitioned species x grid-cell parquet table into a single analysis-ready zarr
+# cube with dims (experiment, species, lat, lon).
+#
+# NOTE: source_parquet_glob currently points at a local copy outside this repo
+# (a sibling `crib_experiments` checkout). This is a stand-in until the dataset is
+# published somewhere this pipeline can reach directly (e.g. the same S3 bucket
+# `grid_raw` uses above) -- update this path (and consider adding s3_credentials)
+# once that's in place.
+#
+# That directory also contains a `chunk_*.parquet` naming variant of every
+# `part-*.parquet` file (byte-identical duplicates, ~78 files for 39 unique
+# datasets) -- the glob deliberately matches only `part-*` to avoid ingesting
+# every row twice.
+species_grid_zarr:
+  source_parquet_glob: "../../crib_experiments/data/CRIB_VSEspecies_SSP126_585_2100_Canada_parquet/part-*.parquet"
+  zarr_path: data/02_intermediate/species_climate_risk_cube.zarr
+  species_chunk: 1
+  spatial_chunk: 100
+  # Set to a small int (e.g. 2) to build a quick partial cube for testing; leave
+  # null / omit for a full production build.
+  file_limit: null
+
+# Settings for `build_general_climate_risk_cogs` / `build_species_climate_risk_cogs`,
+# pipeline `climate_risk_cogs`
+# (src/data_processing/pipelines/climate_risk_cogs/climate_risk_cog.py), which read
+# the zarr cube built by the `zarr_cube` pipeline and write Cloud-Optimized
+# GeoTIFFs of the `ClimRisk` category (0=no data, 1=Low, 2=Moderate, 3=High,
+# 4=Critical). Note there's no `zarr_path` here: it's read from
+# `species_grid_zarr_build_summary` (the `zarr_cube` pipeline's output) instead,
+# so kedro's DAG enforces that pipeline having run rather than both pipelines
+# independently agreeing on a path via parameters.
+#
+# - general: one COG per experiment/scenario, majority-vote category across all
+#   species present in each cell (ties -> the higher-risk class).
+# - species: one COG per (species, experiment), cropped to that species' own
+#   footprint, no aggregation.
+climate_risk_cog:
+  general_output_dir: data/03_primary/general_climate_risk_cogs
+  species_output_dir: data/03_primary/species_climate_risk_cogs
+  lat_band_size: 100
+  # Set to a small int (e.g. 10) to only build COGs for the first N species, for
+  # a quick test run; leave null / omit for all ~5,330 species.
+  species_limit: null

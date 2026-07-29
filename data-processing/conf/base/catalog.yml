@@ -46,6 +46,37 @@ indicator_rasters:
   dataset:
     type: data_processing.datasets.raster.RasterDataset
 
+# Output of the `build_species_grid_zarr_cube` node (pipeline `zarr_cube`). The
+# zarr store itself (path set by parameters_processing.yml's
+# species_grid_zarr.zarr_path) is written directly by the node rather than through
+# a kedro dataset, since it's built incrementally file-by-file rather than as one
+# in-memory object; this entry just captures the build's summary stats (row/species
+# counts, output shape) for provenance -- and is also what the `climate_risk_cogs`
+# pipeline takes as an input so kedro's DAG knows it depends on this cube existing.
+species_grid_zarr_build_summary:
+  type: json.JSONDataset
+  filepath: data/02_intermediate/species_grid_zarr_build_summary.json
+  save_args:
+    indent: 2
+
+# Outputs of `build_general_climate_risk_cogs` / `build_species_climate_risk_cogs`
+# (pipeline `climate_risk_cogs`). Like the zarr cube above, the COG files
+# themselves are written directly by the node (there's no single in-memory object
+# to hand to a kedro dataset for ~10k output files); these entries just capture
+# each build's summary for provenance. See parameters_processing.yml's
+# `climate_risk_cog` block for the actual output directories.
+general_climate_risk_cog_summary:
+  type: json.JSONDataset
+  filepath: data/03_primary/general_climate_risk_cog_summary.json
+  save_args:
+    indent: 2
+
+species_climate_risk_cog_summary:
+  type: json.JSONDataset
+  filepath: data/03_primary/species_climate_risk_cog_summary.json
+  save_args:
+    indent: 2
+
 # -----------------
 # FINAL datasets
 # -----------------

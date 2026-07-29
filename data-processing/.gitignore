@@ -9,14 +9,20 @@ conf/local/**
 # ignore potentially sensitive credentials files
 conf/**/*credentials*
 
-# ignore everything in the following folders
-data/**
-
-# except their sub-folders
-!data/**/
-
-# also keep all .gitkeep files
-!.gitkeep
+# Ignore everything in data/'s known subfolders except their .gitkeep, without
+# re-including nested directories (avoid `!data/**/` here -- it re-includes every
+# directory at every depth, forcing git to walk deeply nested trees like the
+# zarr cube's hundreds of thousands of chunk files on every git status/add).
+data/*
+!data/01_raw/
+!data/02_intermediate/
+!data/03_primary/
+data/01_raw/*
+data/02_intermediate/*
+data/03_primary/*
+!data/01_raw/.gitkeep
+!data/02_intermediate/.gitkeep
+!data/03_primary/.gitkeep
 
 # ignore kedro-viz metadata
 .viz
