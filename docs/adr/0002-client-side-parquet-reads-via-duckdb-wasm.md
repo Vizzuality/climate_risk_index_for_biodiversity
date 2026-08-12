@@ -27,11 +27,15 @@ from the pmtiles) joins the stats to feed the existing `Area[]` UI shape.
 
 ## Consequences
 
-- ~9 MB gzip of wasm downloads before the first query (mitigate with
-  immutable caching of hashed assets); boot latency is user-visible once.
-- First parquet query fetches the parquet extension from
-  `extensions.duckdb.org` — a runtime third-party dependency; self-host
-  it if this ever blocks deployment.
+- ~9 MB gzip of wasm downloads before the first query; boot latency is
+  user-visible once. Hashed assets and the extension path are served
+  `immutable` via nitro `routeRules` so repeat visits pay ~nothing.
+- The duckdb parquet extension is self-hosted under
+  `client/public/duckdb-extensions/<duckdb version>/wasm_mvp/` and pinned
+  at boot via `SET custom_extension_repository` /
+  `autoinstall_extension_repository` — no runtime dependency on
+  `extensions.duckdb.org`. When bumping duckdb-wasm, re-download the
+  extension matching the embedded duckdb version (`SELECT version()`).
 - duckdb-wasm is not on the Vizzuality Tech Radar (flagged to the team;
   acceptable for a technical prototype). PMTiles is Assess-tier — the
   tiles migration needs its own discussion.
