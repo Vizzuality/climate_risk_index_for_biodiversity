@@ -5,11 +5,12 @@ import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 
 export type Area = {
+  objectid: number;
   name_en: string;
   type: string;
-  website_url: string;
+  website_url?: string;
   area_ha: number;
-  admin_region: string;
+  admin_region?: string;
   bbox: [number, number, number, number];
   indicator: {
     name: string;
