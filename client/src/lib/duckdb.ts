@@ -11,19 +11,24 @@ let connection: Promise<duckdb.AsyncDuckDBConnection> | null = null;
 
 async function boot(): Promise<duckdb.AsyncDuckDBConnection> {
   const worker = new Worker(duckdbWorkerUrl);
-  const db = new duckdb.AsyncDuckDB(new duckdb.ConsoleLogger(duckdb.LogLevel.WARNING), worker);
-  await db.instantiate(duckdbWasmUrl);
-  // registerFileURL only records the URL; duckdb range-reads it per query,
-  // which is what makes a later swap to remote files a URL change.
-  const absolute = (url: string) => new URL(url, window.location.origin).href;
-  await db.registerFileURL(STATS_FILE, absolute(statsUrl), duckdb.DuckDBDataProtocol.HTTP, false);
-  await db.registerFileURL(
-    METADATA_FILE,
-    absolute(metadataUrl),
-    duckdb.DuckDBDataProtocol.HTTP,
-    false,
-  );
-  return db.connect();
+  try {
+    const db = new duckdb.AsyncDuckDB(new duckdb.ConsoleLogger(duckdb.LogLevel.WARNING), worker);
+    await db.instantiate(duckdbWasmUrl);
+    // registerFileURL only records the URL; duckdb range-reads it per query,
+    // which is what makes a later swap to remote files a URL change.
+    const absolute = (url: string) => new URL(url, window.location.origin).href;
+    await db.registerFileURL(STATS_FILE, absolute(statsUrl), duckdb.DuckDBDataProtocol.HTTP, false);
+    await db.registerFileURL(
+      METADATA_FILE,
+      absolute(metadataUrl),
+      duckdb.DuckDBDataProtocol.HTTP,
+      false,
+    );
+    return await db.connect();
+  } catch (error) {
+    worker.terminate();
+    throw error;
+  }
 }
 
 export function getDuckDBConnection(): Promise<duckdb.AsyncDuckDBConnection> {

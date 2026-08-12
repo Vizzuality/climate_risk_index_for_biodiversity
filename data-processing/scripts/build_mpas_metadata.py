@@ -2,7 +2,7 @@
 # requires-python = ">=3.12"
 # dependencies = ["pmtiles", "mapbox-vector-tile", "pyarrow"]
 # ///
-# ruff: noqa: PLR0913, T201
+# ruff: noqa: PLR0913, PLR0917, T201
 """Build client/src/data/mpas_metadata.parquet from client/data/mpas.pmtiles.
 
 One row per OBJECTID with display metadata and a lon/lat bbox, decoded from
@@ -27,7 +27,7 @@ LAYER = "marine_protected_areas_2023_atlantic"
 EXPECTED_FEATURES = 578
 
 
-def tile_px_to_lonlat(z: int, x: int, y: int, extent: int, px: float, py: float):  # noqa
+def tile_px_to_lonlat(z: int, x: int, y: int, extent: int, px: float, py: float):
     # clamp to the tile so buffer geometry doesn't bleed into the bbox
     px = min(max(px, 0), extent)
     py = min(max(py, 0), extent)
