@@ -24,7 +24,14 @@ async function boot(): Promise<duckdb.AsyncDuckDBConnection> {
       duckdb.DuckDBDataProtocol.HTTP,
       false,
     );
-    return await db.connect();
+    const conn = await db.connect();
+    // Point extension autoloading at the copy under public/ (layout:
+    // <repo>/<duckdb version>/<platform>/<name>.duckdb_extension.wasm) so the
+    // first parquet query doesn't depend on extensions.duckdb.org being up.
+    const extensionRepo = absolute("/duckdb-extensions");
+    await conn.query(`SET custom_extension_repository = '${extensionRepo}'`);
+    await conn.query(`SET autoinstall_extension_repository = '${extensionRepo}'`);
+    return conn;
   } catch (error) {
     worker.terminate();
     throw error;
