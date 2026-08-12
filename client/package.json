@@ -16,6 +16,7 @@
     "prepare": "git rev-parse --git-dir >/dev/null 2>&1 && prek install || true"
   },
   "dependencies": {
+    "@duckdb/duckdb-wasm": "1.32.0",
     "@fontsource/red-hat-display": "5.2.8",
     "@radix-ui/react-dialog": "1.1.14",
     "@radix-ui/react-popover": "1.1.14",
