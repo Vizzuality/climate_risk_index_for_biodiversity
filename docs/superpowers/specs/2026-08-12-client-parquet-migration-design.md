@@ -38,26 +38,44 @@ context for both.
 - `client/src/data/mpas_metadata.parquet` — **new**, one row per `OBJECTID`
   (578 expected):
   - `objectid` (join key), `name_en` (`NAME_E`), `type` (`TYPE_E`),
-    `area_ha` (`O_AREA_HA`), `admin_region` (best available source field —
-    candidate `OWNER_E` or `MGMT_E`, to be confirmed against real values;
-    null is acceptable, the detail view already renders "N/A"),
+    `area_ha` (`O_AREA_HA`), `owner_en` (`OWNER_E`) and `mgmt_en` (`MGMT_E`)
+    carried for later use,
   - `bbox_xmin`, `bbox_ymin`, `bbox_xmax`, `bbox_ymax` computed from decoded
     tile geometries.
+  - *(Verified during design, 2026-08-12)* `NAME_E` is **not unique**: 14
+    names cover multiple `OBJECTID`s (multi-zone areas, e.g.
+    Banc-des-Américains has 3 features). The pre-agreed fallback applies:
+    duplicated names get a deterministic ` (OBJECTID)` suffix in `name_en`,
+    used consistently as display name and route param.
+  - *(Verified)* No source field means "region" (`OWNER_E`/`MGMT_E` are
+    owner/ministry names), so `admin_region` is **not emitted**; the detail
+    view's existing "N/A" fallback renders. `ZONEDESC_E` is mostly null.
 - Prep script `data-processing/scripts/build_mpas_metadata.py`:
   self-contained PEP 723 script (`uv run scripts/build_mpas_metadata.py`),
   deps `pmtiles`, `mapbox-vector-tile`, `pyarrow` — does not touch the Kedro
-  environment. It decodes `client/data/mpas.pmtiles` at max zoom,
+  environment. It decodes `client/data/mpas.pmtiles` at **max zoom only**
+  (verified: z8 yields 577/578 features — lower zooms drop features),
   deduplicates features by `OBJECTID`, accumulates per-feature bboxes, and
-  **fails loudly** if `NAME_E` is not unique (the route param and
-  `useSelectedArea` depend on it) or if the row count ≠ 578.
-  Becoming a pipeline node is a later concern.
+  **fails loudly** if the row count ≠ 578 or names are still non-unique
+  after disambiguation. Becoming a pipeline node is a later concern.
 
-Known data losses vs wdpa.json, accepted for this iteration:
+Known data losses/drifts vs wdpa.json, accepted for this iteration:
 
 - No `website_url` (field becomes optional; UI link already conditional).
+- No `admin_region` (see above; UI shows "N/A").
 - Min/max exists only for `ClimVuln` (`ClimVuln_min`/`ClimVuln_max`); other
   indicators expose mean only (adapter sets min = max = mean).
+- No categorical indicators (`ClimRisk`, `Clim*Risk`) — *(verified)* every
+  UI consumer already filters to `type === "numerical"`, so nothing breaks.
+- Indicator naming drift: phase-2 uses `Expo.toe` / `Sens.RLstatus` where
+  wdpa.json and `categories-metadata.json` used `Expo.tow` /
+  `Sens.rlstatus`. The parquet names are authoritative; the two keys in
+  `categories-metadata.json` are renamed to match (labels unchanged).
 - 588 → 578 areas (phase-2 vintage).
+- Map-click navigation uses names promoted from the **phase-1 Mapbox
+  tileset**; clicks on features whose phase-1 name has no phase-2 match
+  (renamed, dropped, or suffix-disambiguated) land on an empty detail view.
+  Accepted until the pmtiles iteration replaces the tilesets.
 
 ## 2. DuckDB service — `client/src/lib/duckdb.ts`
 
