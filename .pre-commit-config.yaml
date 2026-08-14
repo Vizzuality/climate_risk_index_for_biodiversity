@@ -3,6 +3,8 @@ repos:
     rev: v6.0.0
     hooks:
       - id: check-yaml
+        # pnpm 12 lockfiles are multi-document YAML (package-manager pin + deps)
+        exclude: pnpm-lock\.yaml$
       - id: end-of-file-fixer
       - id: trailing-whitespace
       - id: debug-statements
