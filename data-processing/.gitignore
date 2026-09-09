@@ -160,3 +160,6 @@ venv.bak/
 
 # mlflow local runs
 mlruns/*
+
+
+__marimo__/

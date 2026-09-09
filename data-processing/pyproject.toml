@@ -52,6 +52,16 @@ show-fixes = true
 select = ["F", "W", "E", "I", "UP", "PL", "T201"]
 ignore = ["E501"]
 
+[tool.ruff.lint.per-file-ignores]
+# marimo notebooks: cell functions are auto-generated, exploratory code
+"notebooks/**/*.py" = [
+    "F841",    # unused variable
+    "PLC0415", # import not at top-level of file
+    "PLR0913", # too many arguments in function definition
+    "PLR0917", # too many positional arguments
+    "PLR1711", # useless `return` statement at end of function
+]
+
 [tool.ruff.format]
 docstring-code-format = true
 

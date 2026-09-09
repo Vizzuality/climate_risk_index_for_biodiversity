@@ -16,18 +16,19 @@ def _():
     import pathlib
 
     import duckdb
-    import xarray as xr
     import polars as pl
+    import rasterio
 
     DATAPATH = pathlib.Path.cwd() / "data"
-    DATASET = DATAPATH / "01_raw" / "CRIB_VSEspecies_SSP126_585_2100_Canada_parquet/*.parquet"
-    return DATAPATH, DATASET, duckdb, pl
+    DATASET = (
+        DATAPATH / "01_raw" / "CRIB_VSEspecies_SSP126_585_2100_Canada_parquet/*.parquet"
+    )
+    return DATAPATH, DATASET, duckdb, pl, rasterio
 
 
 @app.cell
 def _(DATASET, pl):
     pl.scan_parquet(DATASET).collect_schema().names()
-    return
 
 
 @app.cell(hide_code=True)
@@ -37,7 +38,6 @@ def _(mo):
 
     Average across species
     """)
-    return
 
 
 @app.cell
@@ -67,7 +67,7 @@ def _(DATASET, duckdb):
         "ClimAdaptSD",
         "ClimExpoSD",
         "ClimVuln",
-        "ClimVulnSD"
+        "ClimVulnSD",
     ]
 
     # Not used in the general aggregation
@@ -79,7 +79,6 @@ def _(DATASET, duckdb):
         "ClimExpoRisk",
         "ClimRisk",
     ]
-
 
     result = con.execute(
         """
@@ -93,14 +92,13 @@ def _(DATASET, duckdb):
         [dim_cols, var_numeric_cols],
     ).pl()
 
-    var_numeric_cols.append("n_distinct_specid") 
+    var_numeric_cols.append("n_distinct_specid")
     return con, dim_cols, result, var_numeric_cols
 
 
 @app.cell
 def _(result):
     result.head()
-    return
 
 
 @app.cell
@@ -118,20 +116,15 @@ def _(con, pl):
         """
     ).pl()
 
-    lon_dx.select(pl.col('dx').mean())
-    return
+    lon_dx.select(pl.col("dx").mean())
 
 
 @app.cell
-def _(DATAPATH, result, var_numeric_cols):
-    import rioxarray
-    import rasterio
-
+def _(DATAPATH, rasterio, result, var_numeric_cols):
     df = result.to_pandas()
 
     ds = (
-        df
-        .set_index(["Experiment", "Lat", "Lon"])
+        df.set_index(["Experiment", "Lat", "Lon"])
         .to_xarray()
         .sortby("Lat", ascending=False)  # North -> South
     )
@@ -141,16 +134,12 @@ def _(DATAPATH, result, var_numeric_cols):
     for experiment in ds.Experiment.values:
         ds_exp = ds.sel(Experiment=experiment)
         da = ds_exp[var_numeric_cols].to_array(dim="band")
-        da = (
-            da
-            .rio.set_spatial_dims(x_dim="Lon", y_dim="Lat")
-            .rio.write_crs(crs)
-        )
+        da = da.rio.set_spatial_dims(x_dim="Lon", y_dim="Lat").rio.write_crs(crs)
         filename = DATAPATH / "03_primary" / f"{experiment}.tif"
         da.rio.to_raster(filename)
         with rasterio.open(filename, "r+") as dst:
             dst.descriptions = tuple(da.band.values.astype(str))
-    return da, rasterio
+    return (da,)
 
 
 @app.cell(hide_code=True)
@@ -160,16 +149,20 @@ def _(mo):
 
     Use marine protected areas from phase 1 as placeholder
     """)
-    return
 
 
 @app.cell
 def _(DATAPATH):
-    from exactextract import exact_extract
     import geopandas as gpd
+    from exactextract import exact_extract
 
-    mpas = gpd.read_file(DATAPATH / "01_raw" / "old" / 'marine_protected_areas_2023_atlantic.geojson')
+    mpas = gpd.read_file(DATAPATH / "marine_conservation_areas_merged.gpkg")
     return exact_extract, mpas
+
+
+@app.cell
+def _(mpas):
+    mpas
 
 
 @app.cell
@@ -213,12 +206,11 @@ def _(DATAPATH, da, exact_extract, mpas, rasterio):
                 include_cols="OBJECTID",
                 output="pandas",
             ).rename(columns={"min": "ClimVuln_min", "max": "ClimVuln_max"})
-    
 
         zs = zs_mean.merge(
             zs_clim[["OBJECTID", "ClimVuln_min", "ClimVuln_max"]], on="OBJECTID"
         )
-    
+
         zs["experiment"] = exp
         res.append(zs)
     return (res,)
@@ -228,26 +220,23 @@ def _(DATAPATH, da, exact_extract, mpas, rasterio):
 def _(res):
     import pandas as pd
 
-    all = pd.concat(res).sort_values(["OBJECTID", 'experiment']).reset_index(drop=True)
+    all = pd.concat(res).sort_values(["OBJECTID", "experiment"]).reset_index(drop=True)
     return (all,)
 
 
 @app.cell
 def _(all):
     all.columns
-    return
 
 
 @app.cell
 def _(all):
     all.head()
-    return
 
 
 @app.cell
 def _(DATAPATH, all):
-    all.to_parquet(DATAPATH / '03_primary' / 'mpas_stats.parquet')
-    return
+    all.to_parquet(DATAPATH / "03_primary" / "mpas_stats.parquet")
 
 
 @app.cell(hide_code=True)
@@ -257,7 +246,6 @@ def _(mo):
 
     worth to keep non used snippeds
     """)
-    return
 
 
 @app.cell(disabled=True)
@@ -302,7 +290,6 @@ def _(
             ds_slice.to_zarr(out_zarr, mode="w")
         else:
             ds_slice.to_zarr(out_zarr, mode="a", append_dim=primary_dim)
-    return
 
 
 if __name__ == "__main__":

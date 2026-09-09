@@ -1,0 +1,4 @@
+
+
+mpas_pmtiles:
+    tippecanoe -o data/03_primary/mpas.pmtiles data/marine_conservation_areas_merged.gpkg
