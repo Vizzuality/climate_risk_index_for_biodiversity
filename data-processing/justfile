@@ -1,4 +1,7 @@
+DATA_DIR := "./data"
+RAW_DATA := DATA_DIR / "01_raw"
+PRIMARY_DATA := DATA_DIR / "03_primary"
 
 
 mpas_pmtiles:
-    tippecanoe -o data/03_primary/mpas.pmtiles data/marine_conservation_areas_merged.gpkg
+    gdal vector reproject -d epsg:4326 -f GeoJSON {{RAW_DATA}}/marine_conservation_areas_merged.gpkg /vsistdout/ | tippecanoe --force -z10 -o {{PRIMARY_DATA}}/mpas.pmtiles
