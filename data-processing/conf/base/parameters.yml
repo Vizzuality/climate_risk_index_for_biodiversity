@@ -1,0 +1,32 @@
+# Parameters for the 'processing' pipeline
+# (see src/data_processing/pipelines/processing)
+#
+# Only actual configuration lives here — column names, thresholds. Data
+# locations are catalog entries (conf/base/catalog.yml), not parameters.
+
+species_risk_dim_cols:
+  - Experiment
+  - Lon
+  - Lat
+
+species_risk_var_numeric_cols:
+  - Sens.TSMr
+  - Sens.RLstatus
+  - Sens.HII
+  - Sens.vind
+  - Adapt.hfrag
+  - Adapt.lmax
+  - Adapt.hrange
+  - Adapt.tvar
+  - Expo.toe
+  - Expo.vel
+  - Expo.plost
+  - Expo.nrchng
+  - ClimSens
+  - ClimAdapt
+  - ClimExpo
+  - ClimSensSD
+  - ClimAdaptSD
+  - ClimExpoSD
+  - ClimVuln
+  - ClimVulnSD

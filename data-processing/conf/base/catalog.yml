@@ -1,0 +1,23 @@
+species_risk_raw:
+  type: data_processing.datasets.DuckDBParquetGlobDataset
+  filepath: data/01_raw/CRIB_VSEspecies_SSP126_585_2100_Canada_parquet/*.parquet
+
+marine_conservation_areas:
+  type: geopandas.GenericDataset
+  filepath: data/01_raw/marine_conservation_areas_merged.gpkg
+
+species_risk_general_layer:
+  type: polars.EagerPolarsDataset
+  filepath: data/02_intermediate/species_risk_general_layer.parquet
+  file_format: parquet
+
+general_layer_rasters:
+  type: partitions.PartitionedDataset
+  path: data/03_primary/general_layer_rasters
+  dataset:
+    type: data_processing.datasets.RasterDataset
+  filename_suffix: ".tif"
+
+mpas_climate_risk_stats:
+  type: pandas.ParquetDataset
+  filepath: data/03_primary/mpas_stats.parquet

@@ -12,6 +12,7 @@ dependencies = [
     "jupyterlab>=3.0",
     "notebook",
     "kedro>=1.0",
+    "duckdb>=1.1.0",
     "polars>=1.30.0",
     "rasterio>=1.4.3",
     "xarray>=2024.7.0",
@@ -48,6 +49,8 @@ source_dir = "src"
 [tool.ruff]
 line-length = 88
 show-fixes = true
+output-prefer-rule-codes = true
+
 
 [tool.ruff.lint]
 select = ["F", "W", "E", "I", "UP", "PL", "T201"]
@@ -61,6 +64,9 @@ ignore = ["E501"]
     "PLR0913", # too many arguments in function definition
     "PLR0917", # too many positional arguments
     "PLR1711", # useless `return` statement at end of function
+]
+"tests/**/*.py" = [
+    "PLR6301", # unused self in method
 ]
 
 [tool.ruff.format]
