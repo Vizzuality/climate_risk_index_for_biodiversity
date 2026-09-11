@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.23.16"
+__generated_with = "0.24.1"
 app = marimo.App(width="medium")
 
 
@@ -29,6 +29,7 @@ def _():
 @app.cell
 def _(DATASET, pl):
     pl.scan_parquet(DATASET).collect_schema().names()
+    return
 
 
 @app.cell(hide_code=True)
@@ -38,6 +39,7 @@ def _(mo):
 
     Average across species
     """)
+    return
 
 
 @app.cell
@@ -99,6 +101,7 @@ def _(DATASET, duckdb):
 @app.cell
 def _(result):
     result.head()
+    return
 
 
 @app.cell
@@ -117,6 +120,7 @@ def _(con, pl):
     ).pl()
 
     lon_dx.select(pl.col("dx").mean())
+    return
 
 
 @app.cell
@@ -149,6 +153,7 @@ def _(mo):
 
     Use marine protected areas from phase 1 as placeholder
     """)
+    return
 
 
 @app.cell
@@ -163,6 +168,7 @@ def _(DATAPATH):
 @app.cell
 def _(mpas):
     mpas
+    return
 
 
 @app.cell
@@ -227,16 +233,19 @@ def _(res):
 @app.cell
 def _(all):
     all.columns
+    return
 
 
 @app.cell
 def _(all):
     all.head()
+    return
 
 
 @app.cell
 def _(DATAPATH, all):
     all.to_parquet(DATAPATH / "03_primary" / "mpas_stats.parquet")
+    return
 
 
 @app.cell(hide_code=True)
@@ -246,6 +255,7 @@ def _(mo):
 
     worth to keep non used snippeds
     """)
+    return
 
 
 @app.cell(disabled=True)
@@ -290,6 +300,7 @@ def _(
             ds_slice.to_zarr(out_zarr, mode="w")
         else:
             ds_slice.to_zarr(out_zarr, mode="a", append_dim=primary_dim)
+    return
 
 
 if __name__ == "__main__":

@@ -23,6 +23,7 @@ dependencies = [
     "httpx>=0.28.1",
     "s3fs>=2025.5.1",
     "marimo>=0.23.14",
+    "duckdb>=1.5.5",
 ]
 
 [dependency-groups]
