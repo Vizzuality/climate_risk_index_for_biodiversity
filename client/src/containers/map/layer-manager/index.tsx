@@ -1,8 +1,7 @@
 import WDPALayer from "@/containers/map/layers/wdpa";
 import { useScenario } from "@/store";
-import LowEmissionsLayer from "@/containers/map/layers/low-emissions";
-import HighEmissionsLayer from "@/containers/map/layers/high-emissions";
 import AtlanticBioregionsLayer from "@/containers/map/layers/atlantic-bioregions";
+import { ClimateRiskRasterLayer } from "@/containers/map/layers/climate-risk-raster";
 
 export default function LayerManager() {
   const [scenario] = useScenario();
@@ -11,8 +10,7 @@ export default function LayerManager() {
     <>
       <WDPALayer />
       <AtlanticBioregionsLayer />
-      {scenario === "high" && <HighEmissionsLayer />}
-      {scenario === "low" && <LowEmissionsLayer />}
+      <ClimateRiskRasterLayer scenario={scenario} />
     </>
   );
 }

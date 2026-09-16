@@ -75,3 +75,23 @@ your storage backend supports HTTP Byte Serving"). Vite dev and Vercel's
 static hosting answer 206; Nitro's `node-server` preset (`pnpm start`)
 answers 200, so the areas layer does not load under a local production
 run. Same constraint applies to any future remote bucket (CORS + Range).
+
+## Amendment (2026-09-16, rasters)
+
+The two emissions-scenario rasters moved from Mapbox-hosted vector
+tilesets (pre-classified `val` 1–4) to Cloud-Optimized GeoTIFFs bundled
+under `client/src/data/` (EPSG:3857, float32, band 1 = ClimVuln 0–1,
+band 2 = 0/255 alpha, NaN wherever there is no modelled value, about half the grid including open ocean, 2.7 MB each). They render
+through a deck.gl `MapboxOverlay` in interleaved mode using
+`@developmentseed/deck.gl-geotiff`'s `COGLayer`, which range-reads the
+COG overviews per tile. The library only infers a pipeline for unsigned
+integer data, so the layer supplies its own: upload the two-band tile as
+`rg32float`, discard NaN and alpha-0 pixels, then look up a 256-step
+colour ramp with the four legend classes at 0.25 intervals (the same
+thresholds as the chart). EPSG:3857 is resolved from a bundled PROJJSON
+instead of the library's default epsg.io lookup, so the raster layer has
+no third-party dependency on its critical path and any other CRS fails
+loudly. Tech Radar: deck.gl is
+Adopt; `@developmentseed/deck.gl-geotiff` is unlisted and pre-1.0
+(0.7.0), accepted for the prototype. Same range-request constraint as
+the parquet and PMTiles reads.
