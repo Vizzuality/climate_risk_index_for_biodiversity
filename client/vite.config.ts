@@ -35,4 +35,7 @@ export default defineConfig({
   build: {
     target: "esnext",
   },
+  // The GeoTIFF decoder worker pulls in a dependency that uses top-level
+  // await, which the default iife worker bundle cannot express.
+  worker: { format: "es" },
 });
