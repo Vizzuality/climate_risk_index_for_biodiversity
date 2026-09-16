@@ -10,6 +10,7 @@ import { useNavigate, useParams } from "@tanstack/react-router";
 import { useAreas } from "@/hooks/use-areas";
 import { useAtom } from "jotai";
 import { popupAtom } from "@/store";
+import { pickAreaFeature, pickHoverFeature } from "@/lib/pick-area-feature";
 
 const style = { width: "100%", height: "100%" };
 
@@ -47,26 +48,16 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
   }, [areaBbox, mapLoaded]);
 
   const handleClick = (evt: MapMouseEvent) => {
-    if (evt.features) {
-      const feature = evt.features[evt.features.length - 1];
-      if (feature?.layer?.id === "wdpa-layer") {
-        const id = feature.id;
-        if (id !== undefined && id !== null) {
-          navigate({ to: "/$area", params: { area: String(id) } });
-        }
-      }
+    const id = pickAreaFeature(evt.features ?? [])?.id;
+    if (id !== undefined && id !== null) {
+      navigate({ to: "/$area", params: { area: String(id) } });
     }
   };
 
   const handleHover = (evt: MapMouseEvent) => {
-    if (evt.features?.length) {
-      const feature = evt.features[evt.features.length - 1];
-      if (["wdpa-layer", "atlantic-bioregions-layer"].includes(feature?.layer?.id ?? "")) {
-        setPopup({
-          lngLat: evt.lngLat,
-          ...feature,
-        });
-      }
+    const feature = pickHoverFeature(evt.features ?? []);
+    if (feature) {
+      setPopup({ lngLat: evt.lngLat, ...feature });
     } else {
       setPopup(null);
     }
