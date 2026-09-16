@@ -26,7 +26,7 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
   const { data: areas } = useAreas();
 
   const areaBbox = params.area
-    ? areas?.find((area) => area.name_en === params.area)?.bbox || null
+    ? areas?.find((area) => area.id === params.area)?.bbox || null
     : null;
 
   // areas load async, so the selected-area viewport can't be an initialViewState;
@@ -50,9 +50,9 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
     if (evt.features) {
       const feature = evt.features[evt.features.length - 1];
       if (feature?.layer?.id === "wdpa-layer") {
-        const name = feature.id;
-        if (name) {
-          navigate({ to: "/$area", params: { area: String(name) } });
+        const id = feature.id;
+        if (id !== undefined && id !== null) {
+          navigate({ to: "/$area", params: { area: String(id) } });
         }
       }
     }
@@ -94,7 +94,7 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
         {popup && (
           <Popup longitude={popup.lngLat.lng} latitude={popup.lngLat.lat} closeButton={false}>
             <div className="text-sm text-center text-slate-600">
-              {popup.properties?.name_en || popup.id}
+              {popup.properties?.name || popup.id}
             </div>
           </Popup>
         )}
