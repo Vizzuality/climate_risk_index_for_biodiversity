@@ -25,6 +25,11 @@ const RASTER_URLS: Record<SCENARIO, string> = {
 
 type TileData = { texture: Texture; byteLength: number; width: number; height: number };
 
+// The basemap style has terrain. Interleaved deck layers are depth-tested
+// against Mapbox's terrain depth, which drops the flat rasters on every
+// frame while the camera moves; they are 2D, so skip the depth test.
+const RASTER_PARAMETERS = { depthCompare: "always", depthWriteEnabled: false } as const;
+
 // The rasters are EPSG:3857; resolving the code locally keeps the library's
 // epsg.io lookup off the critical path and rejects any other CRS.
 const WEB_MERCATOR = parseWkt(epsg3857 as Parameters<typeof parseWkt>[0]);
@@ -102,5 +107,12 @@ export function ClimateRiskRasterLayer({ scenario }: { scenario: SCENARIO }) {
     beforeId: "country-boundaries",
   });
 
-  return <DeckGLOverlay layers={[layer]} interleaved onDeviceInitialized={setDevice} />;
+  return (
+    <DeckGLOverlay
+      layers={[layer]}
+      interleaved
+      parameters={RASTER_PARAMETERS}
+      onDeviceInitialized={setDevice}
+    />
+  );
 }
