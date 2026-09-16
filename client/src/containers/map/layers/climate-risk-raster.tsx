@@ -34,6 +34,14 @@ async function epsgResolver(code: number): Promise<ProjectionDefinition> {
   throw new Error(`Unsupported raster CRS EPSG:${code}`);
 }
 
+// GLSL does not guarantee NaN survives a texture fetch, so the alpha band
+// alone must be enough to hide unmodelled pixels.
+function maskUnmodelled(data: ArrayLike<number> & { [i: number]: number }) {
+  for (let i = 0; i < data.length; i += 2) {
+    if (Number.isNaN(data[i])) data[i + 1] = 0;
+  }
+}
+
 async function getTileData(
   image: GeoTIFF | Overview,
   { device, x, y, pool, signal }: GetTileDataOptions,
@@ -43,6 +51,7 @@ async function getTileData(
     throw new Error("Expected a pixel-interleaved raster");
   }
   const { width, height, data } = array;
+  maskUnmodelled(data);
   const texture = device.createTexture({
     data,
     format: "rg32float",
