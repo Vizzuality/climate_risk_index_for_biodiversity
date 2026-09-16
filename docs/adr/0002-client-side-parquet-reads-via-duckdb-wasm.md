@@ -41,3 +41,15 @@ from the pmtiles) joins the stats to feed the existing `Area[]` UI shape.
   tiles migration needs its own discussion.
 - Remote data (S3) becomes a URL swap in `src/lib/duckdb.ts`, but needs
   bucket CORS + `Range` support (see the PoC README findings).
+
+## Amendment (2026-09-16)
+
+The second phase-2 extract (1202 areas across Atlantic and Pacific
+sources) keys areas on a string `id` and carries its own display
+metadata (`name`, `source`, `designation_type`, `manager`, `url`,
+`area_km2`, …). `mpas_metadata.parquet` and its join were removed; the
+client reads `mpas_stats.parquet` alone and `id` is the route param and
+the map-layer filter key. About a third of the areas have no indicator
+values; they are kept and shown as "No data". Bbox is not in the extract,
+so the fly-to is skipped until the next iteration decodes it from the
+matching pmtiles, keyed on `id`.

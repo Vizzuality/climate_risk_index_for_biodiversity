@@ -11,6 +11,6 @@ export function useSelectedArea() {
   return React.useMemo(() => {
     if (!areaId) return null;
 
-    return areas?.find((a) => a.name_en === areaId) || null;
+    return areas?.find((a) => a.id === areaId) || null;
   }, [areaId, areas]);
 }

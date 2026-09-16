@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { filterByAreaName } from "@/utils/filters";
 import { Area } from "@/containers/main/table/columns";
 
-const area = (name_en: string) => ({ name_en }) as Area;
+const area = (name: string) => ({ name }) as Area;
 
 const areas = [
   area("Bird Islands"),
