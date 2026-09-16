@@ -58,7 +58,7 @@ matching pmtiles, keyed on `id`.
 
 The area geometries moved from the Mapbox-hosted tileset to
 `client/src/data/mpas.pmtiles` (16 MB, 1202 features, layer `mpas`,
-zoom 4–10), read directly by Mapbox GL JS: since 3.21 it detects the
+zoom 0–10), read directly by Mapbox GL JS: since 3.21 it detects the
 `.pmtiles` extension on a vector source `url` and lazily loads its
 official PMTiles provider from `api.mapbox.com` (the same host the
 basemap already depends on). `mapbox-gl` was bumped 3.12 → 3.30 for it;
