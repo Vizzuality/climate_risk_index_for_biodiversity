@@ -18,6 +18,10 @@ function makeRow(experiment: number, base: number, overrides: Partial<AreaQueryR
     area_km2: 10.9,
     ClimVuln_min: base - 0.1,
     ClimVuln_max: base + 0.1,
+    bbox_xmin: -60.41,
+    bbox_ymin: 46.35,
+    bbox_xmax: -60.35,
+    bbox_ymax: 46.39,
     ...Object.fromEntries(INDICATOR_COLUMNS.map((c, i) => [c, base + i / 100])),
     ...overrides,
   } as AreaQueryRow;
@@ -40,7 +44,7 @@ describe("buildAreas", () => {
     expect(area.id).toBe("42");
     expect(area.name).toBe("Bird Islands");
     expect(area.designation_type).toBe("Migratory Bird Sanctuary");
-    expect(area.bbox).toBeNull();
+    expect(area.bbox).toEqual([-60.41, 46.35, -60.35, 46.39]);
     expect(area.indicator).toHaveLength(INDICATOR_COLUMNS.length);
 
     const hfrag = area.indicator.find((i) => i.name === "Adapt.hfrag");
@@ -60,6 +64,13 @@ describe("buildAreas", () => {
     expect(climVuln?.scenario.low.max).toBeCloseTo(0.3);
     expect(climVuln?.scenario.high.min).toBeCloseTo(0.5);
     expect(climVuln?.scenario.high.max).toBeCloseTo(0.7);
+  });
+
+  it("leaves bbox null when the area has no row in the bbox file", () => {
+    const noBbox = { bbox_xmin: null, bbox_ymin: null, bbox_xmax: null, bbox_ymax: null };
+    const [area] = buildAreas([makeRow(126, 0.2, noBbox), makeRow(585, 0.6, noBbox)]);
+
+    expect(area.bbox).toBeNull();
   });
 
   it("keeps areas whose indicators are null and passes the nulls through", () => {

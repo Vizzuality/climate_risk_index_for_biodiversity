@@ -2,8 +2,10 @@ import * as duckdb from "@duckdb/duckdb-wasm";
 import duckdbWasmUrl from "@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm?url";
 import duckdbWorkerUrl from "@duckdb/duckdb-wasm/dist/duckdb-browser-mvp.worker.js?url";
 import statsUrl from "@/data/mpas_stats.parquet?url";
+import bboxUrl from "@/data/mpas_bbox.parquet?url";
 
 export const STATS_FILE = "mpas_stats.parquet";
+export const BBOX_FILE = "mpas_bbox.parquet";
 
 let connection: Promise<duckdb.AsyncDuckDBConnection> | null = null;
 
@@ -16,6 +18,7 @@ async function boot(): Promise<duckdb.AsyncDuckDBConnection> {
     // which is what makes a later swap to remote files a URL change.
     const absolute = (url: string) => new URL(url, window.location.origin).href;
     await db.registerFileURL(STATS_FILE, absolute(statsUrl), duckdb.DuckDBDataProtocol.HTTP, false);
+    await db.registerFileURL(BBOX_FILE, absolute(bboxUrl), duckdb.DuckDBDataProtocol.HTTP, false);
     const conn = await db.connect();
     // Point extension autoloading at the copy under public/ (layout:
     // <repo>/<duckdb version>/<platform>/<name>.duckdb_extension.wasm) so the
