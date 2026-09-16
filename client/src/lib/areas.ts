@@ -1,5 +1,5 @@
 import { Area, IndicatorStats } from "@/containers/main/table/columns";
-import { getDuckDBConnection, STATS_FILE } from "@/lib/duckdb";
+import { BBOX_FILE, getDuckDBConnection, STATS_FILE } from "@/lib/duckdb";
 import { EXPERIMENT_TO_SCENARIO, INDICATOR_COLUMNS } from "@/lib/indicators";
 import { SCENARIO } from "@/types";
 
@@ -18,16 +18,31 @@ export type AreaQueryRow = {
   area_km2: number | null;
   ClimVuln_min: number | null;
   ClimVuln_max: number | null;
+  bbox_xmin: number | null;
+  bbox_ymin: number | null;
+  bbox_xmax: number | null;
+  bbox_ymax: number | null;
 } & Record<(typeof INDICATOR_COLUMNS)[number], number | null>;
 
 // BIGINT columns are cast in SQL so Arrow yields numbers, not BigInts.
 const AREAS_QUERY = `
-  SELECT * REPLACE (
-    CAST(experiment AS INTEGER) AS experiment,
-    NULLIF(url, '') AS url
-  )
-  FROM '${STATS_FILE}'
+  SELECT
+    s.* REPLACE (
+      CAST(s.experiment AS INTEGER) AS experiment,
+      NULLIF(s.url, '') AS url
+    ),
+    b.bbox_xmin, b.bbox_ymin, b.bbox_xmax, b.bbox_ymax
+  FROM '${STATS_FILE}' s
+  LEFT JOIN '${BBOX_FILE}' b USING (id)
 `;
+
+function bbox(row: AreaQueryRow): Area["bbox"] {
+  const { bbox_xmin, bbox_ymin, bbox_xmax, bbox_ymax } = row;
+  if (bbox_xmin === null || bbox_ymin === null || bbox_xmax === null || bbox_ymax === null) {
+    return null;
+  }
+  return [bbox_xmin, bbox_ymin, bbox_xmax, bbox_ymax];
+}
 
 function scenarioStats(
   row: AreaQueryRow,
@@ -67,7 +82,7 @@ export function buildAreas(rows: AreaQueryRow[]): Area[] {
       manager: low.manager,
       url: low.url,
       area_km2: low.area_km2,
-      bbox: null,
+      bbox: bbox(low),
       indicator: INDICATOR_COLUMNS.map((name) => ({
         name,
         type: "numerical" as const,
