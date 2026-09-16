@@ -1,12 +1,4 @@
-import {
-  ClientOnly,
-  createRootRoute,
-  HeadContent,
-  Outlet,
-  retainSearchParams,
-  Scripts,
-} from "@tanstack/react-router";
-import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
+import { ClientOnly, createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
 
 import "@fontsource/red-hat-display/400.css";
 import "@fontsource/red-hat-display/500.css";
@@ -21,11 +13,10 @@ import Navigation from "@/components/navigation";
 import { MapView } from "@/components/map";
 import ScenarioToggle from "@/components/scenario-toggle";
 import LayerManager from "@/containers/map/layer-manager";
+import { scenarioSearch } from "@/store";
 
 export const Route = createRootRoute({
-  search: {
-    middlewares: [retainSearchParams(true)],
-  },
+  ...scenarioSearch,
   head: () => ({
     meta: [
       { charSet: "utf-8" },
@@ -44,30 +35,28 @@ export const Route = createRootRoute({
 function RootComponent() {
   return (
     <RootDocument>
-      <NuqsAdapter>
-        <SidebarProvider>
-          <QueryProvider>
-            <MapProvider>
-              <div className="absolute h-full">
-                <Navigation />
-                <Sidebar className="left-[5.125rem]">
-                  <SidebarContent>
-                    <Outlet />
-                  </SidebarContent>
-                </Sidebar>
-              </div>
-              <div className="h-screen w-full">
-                <ClientOnly fallback={null}>
-                  <MapView>
-                    <ScenarioToggle />
-                    <LayerManager />
-                  </MapView>
-                </ClientOnly>
-              </div>
-            </MapProvider>
-          </QueryProvider>
-        </SidebarProvider>
-      </NuqsAdapter>
+      <SidebarProvider>
+        <QueryProvider>
+          <MapProvider>
+            <div className="absolute h-full">
+              <Navigation />
+              <Sidebar className="left-[5.125rem]">
+                <SidebarContent>
+                  <Outlet />
+                </SidebarContent>
+              </Sidebar>
+            </div>
+            <div className="h-screen w-full">
+              <ClientOnly fallback={null}>
+                <MapView>
+                  <ScenarioToggle />
+                  <LayerManager />
+                </MapView>
+              </ClientOnly>
+            </div>
+          </MapProvider>
+        </QueryProvider>
+      </SidebarProvider>
     </RootDocument>
   );
 }
