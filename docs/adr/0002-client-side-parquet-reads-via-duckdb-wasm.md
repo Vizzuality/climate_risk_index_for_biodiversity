@@ -91,7 +91,10 @@ colour ramp with the four legend classes at 0.25 intervals (the same
 thresholds as the chart). EPSG:3857 is resolved from a bundled PROJJSON
 instead of the library's default epsg.io lookup, so the raster layer has
 no third-party dependency on its critical path and any other CRS fails
-loudly. Tech Radar: deck.gl is
+loudly. The overlay renders with the depth test disabled: the basemap
+style has terrain, and interleaved deck layers share Mapbox's depth
+buffer, so the flat rasters were culled against the terrain on every
+frame while the camera moved and reappeared at rest. Tech Radar: deck.gl is
 Adopt; `@developmentseed/deck.gl-geotiff` is unlisted and pre-1.0
 (0.7.0), accepted for the prototype. Same range-request constraint as
 the parquet and PMTiles reads.
