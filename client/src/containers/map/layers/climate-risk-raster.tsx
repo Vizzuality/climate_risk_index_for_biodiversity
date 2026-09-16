@@ -67,7 +67,7 @@ async function getTileData(
   return { texture, byteLength: data.byteLength, width, height };
 }
 
-export function ClimateRiskRasterLayer({ scenario }: { scenario: SCENARIO }) {
+export function ClimateRiskRasterLayer({ scenario }: Readonly<{ scenario: SCENARIO }>) {
   const [device, setDevice] = useState<Device | null>(null);
 
   const colormap = useMemo(
