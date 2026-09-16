@@ -6,7 +6,7 @@ const WDPALayer = () => {
   const { area } = params;
 
   return (
-    <Source id="wdpa-source" type={"vector"} url="mapbox://crib2025.mpas-tiles" promoteId="name_en">
+    <Source id="wdpa-source" type={"vector"} url="mapbox://crib2025.mpas-tiles" promoteId="id">
       <Layer
         id="wdpa-layer"
         type="fill"
@@ -18,7 +18,7 @@ const WDPALayer = () => {
           "fill-outline-color": "#EAF3ED",
         }}
         {...(area && {
-          filter: ["any", false, ["==", ["get", "name_en"], area]],
+          filter: ["==", ["to-string", ["get", "id"]], area],
         })}
       />
 
@@ -32,7 +32,7 @@ const WDPALayer = () => {
           "line-color": "#1e3152",
         }}
         {...(area && {
-          filter: ["any", false, ["==", ["get", "name_en"], area]],
+          filter: ["==", ["to-string", ["get", "id"]], area],
         })}
       />
 
@@ -47,7 +47,7 @@ const WDPALayer = () => {
           "line-offset": -1,
         }}
         {...(area && {
-          filter: ["any", false, ["==", ["get", "name_en"], area]],
+          filter: ["==", ["to-string", ["get", "id"]], area],
         })}
       />
 
@@ -62,7 +62,7 @@ const WDPALayer = () => {
           "line-offset": 1,
         }}
         {...(area && {
-          filter: ["any", false, ["==", ["get", "name_en"], area]],
+          filter: ["==", ["to-string", ["get", "id"]], area],
         })}
       />
     </Source>
