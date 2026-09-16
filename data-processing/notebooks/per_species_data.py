@@ -23,7 +23,6 @@ def _():
     DATASET = (
         DATAPATH / "01_raw" / "CRIB_VSEspecies_SSP126_585_2100_Canada_parquet/*.parquet"
     )
-
     return DATAPATH, DATASET, duckdb, np, pl, rasterio
 
 
@@ -63,13 +62,13 @@ def _(DATASET, duckdb):
         "ClimExpoRisk",
         "ClimRisk",
     ]
-
     return con, var_numeric_cols
 
 
 @app.cell
 def _(con):
     con.execute("select * from data limit 10").pl()
+    return
 
 
 @app.cell
@@ -101,12 +100,37 @@ def _(con):
         """
     ).fetchnumpy()
     species_ids
-    return (species_ids,)
+    return
 
 
 @app.cell
-def _(DATAPATH, RES, con, np, rasterio, species_ids, var_numeric_cols):
-    for spec_id in species_ids["SpecID"].tolist():
+def _(con):
+    # used to apply fix to single pixel rasters
+
+    species_ids_one_pixel = con.execute(
+        """
+        SELECT
+            SpecID
+        FROM data
+        GROUP BY SpecID
+        HAVING count(*)=2
+        """
+    ).fetchnumpy()
+    len(species_ids_one_pixel["SpecID"])
+    return (species_ids_one_pixel,)
+
+
+@app.cell
+def _(
+    DATAPATH,
+    RES,
+    con,
+    np,
+    rasterio,
+    species_ids_one_pixel,
+    var_numeric_cols,
+):
+    for spec_id in species_ids_one_pixel["SpecID"].tolist():
         df = con.execute("select * from data where SpecID=?", [spec_id]).df()
         ds = (
             df.set_index(["Experiment", "Lat", "Lon"])
@@ -153,11 +177,13 @@ def _(DATAPATH, RES, con, np, rasterio, species_ids, var_numeric_cols):
             )
             with rasterio.open(filename, "r+") as dst:
                 dst.descriptions = tuple(da.band.values.astype(str))
+    return
 
 
 @app.cell
 def _(con):
     con.execute("select * from data where SpecID=130044").pl()
+    return
 
 
 @app.cell

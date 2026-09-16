@@ -162,17 +162,17 @@ def _(DATAPATH):
     from exactextract import exact_extract
 
     mpas = gpd.read_file(DATAPATH / "marine_conservation_areas_merged.gpkg")
-    return exact_extract, mpas
+    mpas = mpas.reset_index(names="id")
+
+    cols_to_keep = mpas.columns.drop(["geometry", "year_established"]).tolist()
+    mpas = mpas.to_crs("epsg:4326")
+    return cols_to_keep, exact_extract, mpas
 
 
 @app.cell
-def _(mpas):
-    mpas
-    return
+def _(DATAPATH, cols_to_keep, da, exact_extract, mpas, rasterio):
+    from functools import partial
 
-
-@app.cell
-def _(DATAPATH, da, exact_extract, mpas, rasterio):
     from exactextract.raster import RasterioRasterSource
 
     band_names = da.band.values.astype(str)
@@ -183,12 +183,16 @@ def _(DATAPATH, da, exact_extract, mpas, rasterio):
 
     experiments = (126, 585)
 
-    def rename_col_to_band_name(s: str) -> str:
+    def rename_col_to_band_name(keep_cols: list, s: str) -> str:
         # col names for each band is like band_1_mean, band_2_mean...
+        if s in keep_cols:
+            return s
         parts = s.split("_")
         if len(parts) > 1:
             return band_names[int(parts[1]) - 1]
         return s
+
+    renamer = partial(rename_col_to_band_name, cols_to_keep)
 
     res = []
 
@@ -199,9 +203,9 @@ def _(DATAPATH, da, exact_extract, mpas, rasterio):
             tif_path,
             mpas,
             ops=["mean"],
-            include_cols="OBJECTID",
+            include_cols=cols_to_keep,
             output="pandas",
-        ).rename(columns=rename_col_to_band_name)
+        ).rename(columns=renamer)
 
         with rasterio.open(tif_path) as src:
             # 1. Compute min & max for ClimVuln
@@ -209,13 +213,11 @@ def _(DATAPATH, da, exact_extract, mpas, rasterio):
                 RasterioRasterSource(src, clim_idx),
                 mpas,
                 ops=["min", "max"],
-                include_cols="OBJECTID",
+                include_cols="id",
                 output="pandas",
             ).rename(columns={"min": "ClimVuln_min", "max": "ClimVuln_max"})
 
-        zs = zs_mean.merge(
-            zs_clim[["OBJECTID", "ClimVuln_min", "ClimVuln_max"]], on="OBJECTID"
-        )
+        zs = zs_mean.merge(zs_clim[["id", "ClimVuln_min", "ClimVuln_max"]], on="id")
 
         zs["experiment"] = exp
         res.append(zs)
@@ -226,7 +228,7 @@ def _(DATAPATH, da, exact_extract, mpas, rasterio):
 def _(res):
     import pandas as pd
 
-    all = pd.concat(res).sort_values(["OBJECTID", "experiment"]).reset_index(drop=True)
+    all = pd.concat(res).sort_values(["id", "experiment"]).reset_index(drop=True)
     return (all,)
 
 
@@ -245,6 +247,13 @@ def _(all):
 @app.cell
 def _(DATAPATH, all):
     all.to_parquet(DATAPATH / "03_primary" / "mpas_stats.parquet")
+    return
+
+
+@app.cell
+def _(DATAPATH, mpas):
+    with open(DATAPATH / "03_primary" / "mpas_indexed.json", "w") as f:
+        f.write(mpas.to_json(to_wgs84=True))
     return
 
 
