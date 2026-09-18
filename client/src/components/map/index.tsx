@@ -10,6 +10,7 @@ import { useNavigate, useParams } from "@tanstack/react-router";
 import { useAreas } from "@/hooks/use-areas";
 import { useAtom } from "jotai";
 import { popupAtom } from "@/store";
+import { pickAreaFeature, pickHoverFeature } from "@/lib/pick-area-feature";
 
 const style = { width: "100%", height: "100%" };
 
@@ -26,7 +27,7 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
   const { data: areas } = useAreas();
 
   const areaBbox = params.area
-    ? areas?.find((area) => area.name_en === params.area)?.bbox || null
+    ? areas?.find((area) => area.id === params.area)?.bbox || null
     : null;
 
   // areas load async, so the selected-area viewport can't be an initialViewState;
@@ -47,26 +48,16 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
   }, [areaBbox, mapLoaded]);
 
   const handleClick = (evt: MapMouseEvent) => {
-    if (evt.features) {
-      const feature = evt.features[evt.features.length - 1];
-      if (feature?.layer?.id === "wdpa-layer") {
-        const name = feature.id;
-        if (name) {
-          navigate({ to: "/$area", params: { area: String(name) } });
-        }
-      }
+    const id = pickAreaFeature(evt.features ?? [])?.id;
+    if (id !== undefined && id !== null) {
+      navigate({ to: "/$area", params: { area: String(id) } });
     }
   };
 
   const handleHover = (evt: MapMouseEvent) => {
-    if (evt.features?.length) {
-      const feature = evt.features[evt.features.length - 1];
-      if (["wdpa-layer", "atlantic-bioregions-layer"].includes(feature?.layer?.id ?? "")) {
-        setPopup({
-          lngLat: evt.lngLat,
-          ...feature,
-        });
-      }
+    const feature = pickHoverFeature(evt.features ?? []);
+    if (feature) {
+      setPopup({ lngLat: evt.lngLat, ...feature });
     } else {
       setPopup(null);
     }
@@ -94,7 +85,7 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
         {popup && (
           <Popup longitude={popup.lngLat.lng} latitude={popup.lngLat.lat} closeButton={false}>
             <div className="text-sm text-center text-slate-600">
-              {popup.properties?.name_en || popup.id}
+              {popup.properties?.name || popup.id}
             </div>
           </Popup>
         )}

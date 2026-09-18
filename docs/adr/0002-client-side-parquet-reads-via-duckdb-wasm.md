@@ -41,3 +41,37 @@ from the pmtiles) joins the stats to feed the existing `Area[]` UI shape.
   tiles migration needs its own discussion.
 - Remote data (S3) becomes a URL swap in `src/lib/duckdb.ts`, but needs
   bucket CORS + `Range` support (see the PoC README findings).
+
+## Amendment (2026-09-16)
+
+The second phase-2 extract (1202 areas across Atlantic and Pacific
+sources) keys areas on a string `id` and carries its own display
+metadata (`name`, `source`, `designation_type`, `manager`, `url`,
+`area_km2`, …). `mpas_metadata.parquet` and its join were removed; the
+client reads `mpas_stats.parquet` alone and `id` is the route param and
+the map-layer filter key. About a third of the areas have no indicator
+values; they are kept and shown as "No data". Bbox is not in the extract,
+so the fly-to is skipped until the next iteration decodes it from the
+matching pmtiles, keyed on `id`.
+
+## Amendment (2026-09-16, tiles)
+
+The area geometries moved from the Mapbox-hosted tileset to
+`client/src/data/mpas.pmtiles` (16 MB, 1202 features, layer `mpas`,
+zoom 0–10), read directly by Mapbox GL JS: since 3.21 it detects the
+`.pmtiles` extension on a vector source `url` and lazily loads its
+official PMTiles provider from `api.mapbox.com` (the same host the
+basemap already depends on). `mapbox-gl` was bumped 3.12 → 3.30 for it;
+no `pmtiles` npm dependency and no tile server are needed. Vite serves
+the archive as a hashed `/assets/*.pmtiles` with range requests, so the
+remote-data iteration remains a URL swap. Per-area bbox is decoded from
+the archive by `data-processing/scripts/build_mpas_bbox.py` into
+`mpas_bbox.parquet`, left-joined to the stats on `id`. PMTiles is still
+Assess-tier on the Tech Radar; acceptable for the prototype, flagged for
+the production discussion.
+
+The provider refuses servers that ignore `Range` (it throws "Check that
+your storage backend supports HTTP Byte Serving"). Vite dev and Vercel's
+static hosting answer 206; Nitro's `node-server` preset (`pnpm start`)
+answers 200, so the areas layer does not load under a local production
+run. Same constraint applies to any future remote bucket (CORS + Range).

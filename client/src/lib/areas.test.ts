@@ -2,21 +2,37 @@ import { describe, expect, it } from "vitest";
 import { INDICATOR_COLUMNS } from "@/lib/indicators";
 import { buildAreas, type AreaQueryRow } from "@/lib/areas";
 
-function makeRow(experiment: number, base: number): AreaQueryRow {
+function makeRow(experiment: number, base: number, overrides: Partial<AreaQueryRow> = {}) {
   return {
-    objectid: 42,
+    id: "42",
     experiment,
-    name_en: "Bird Islands",
-    type: "Migratory Bird Sanctuary",
-    area_ha: 1092.9,
+    name: "Bird Islands",
+    name_fr: "Îles aux Oiseaux",
+    source: "CPCAD",
+    layer_type: "Protected Area",
+    status: "Designated",
+    designation_type: "Migratory Bird Sanctuary",
+    iucn_category: "IV",
+    manager: "Environment and Climate Change Canada",
+    url: null,
+    area_km2: 10.9,
+    ClimVuln_min: base - 0.1,
+    ClimVuln_max: base + 0.1,
     bbox_xmin: -60.41,
     bbox_ymin: 46.35,
     bbox_xmax: -60.35,
     bbox_ymax: 46.39,
-    ClimVuln_min: base - 0.1,
-    ClimVuln_max: base + 0.1,
     ...Object.fromEntries(INDICATOR_COLUMNS.map((c, i) => [c, base + i / 100])),
+    ...overrides,
   } as AreaQueryRow;
+}
+
+function nullIndicators(): Partial<AreaQueryRow> {
+  return {
+    ClimVuln_min: null,
+    ClimVuln_max: null,
+    ...Object.fromEntries(INDICATOR_COLUMNS.map((c) => [c, null])),
+  };
 }
 
 describe("buildAreas", () => {
@@ -25,8 +41,9 @@ describe("buildAreas", () => {
 
     expect(areas).toHaveLength(1);
     const area = areas[0];
-    expect(area.objectid).toBe(42);
-    expect(area.name_en).toBe("Bird Islands");
+    expect(area.id).toBe("42");
+    expect(area.name).toBe("Bird Islands");
+    expect(area.designation_type).toBe("Migratory Bird Sanctuary");
     expect(area.bbox).toEqual([-60.41, 46.35, -60.35, 46.39]);
     expect(area.indicator).toHaveLength(INDICATOR_COLUMNS.length);
 
@@ -49,18 +66,39 @@ describe("buildAreas", () => {
     expect(climVuln?.scenario.high.max).toBeCloseTo(0.7);
   });
 
-  it("drops areas missing one of the two experiments and sorts by name", () => {
-    const complete126 = { ...makeRow(126, 0.2), objectid: 1, name_en: "Zebra Reef" };
-    const complete585 = { ...makeRow(585, 0.6), objectid: 1, name_en: "Zebra Reef" };
-    const orphan = { ...makeRow(126, 0.4), objectid: 2, name_en: "Alpha Bay" };
+  it("leaves bbox null when the area has no row in the bbox file", () => {
+    const noBbox = { bbox_xmin: null, bbox_ymin: null, bbox_xmax: null, bbox_ymax: null };
+    const [area] = buildAreas([makeRow(126, 0.2, noBbox), makeRow(585, 0.6, noBbox)]);
+
+    expect(area.bbox).toBeNull();
+  });
+
+  it("keeps areas whose indicators are null and passes the nulls through", () => {
+    const [area] = buildAreas([
+      makeRow(126, 0.2, nullIndicators()),
+      makeRow(585, 0.6, nullIndicators()),
+    ]);
+
+    expect(area.id).toBe("42");
+    const climVuln = area.indicator.find((i) => i.name === "ClimVuln");
+    expect(climVuln?.scenario.low).toEqual({ min: null, mean: null, max: null });
+    expect(climVuln?.scenario.high).toEqual({ min: null, mean: null, max: null });
+  });
+
+  it("drops areas missing one of the two experiments and sorts by name, then id", () => {
+    const zebra = { id: "1", name: "Zebra Reef" };
+    const orphan = makeRow(126, 0.4, { id: "2", name: "Alpha Bay" });
+    const twin = { id: "7", name: "Bird Islands" };
     const areas = buildAreas([
       orphan,
-      complete126,
-      complete585,
+      makeRow(126, 0.2, zebra),
+      makeRow(585, 0.6, zebra),
+      makeRow(126, 0.2, twin),
+      makeRow(585, 0.6, twin),
       makeRow(126, 0.2),
       makeRow(585, 0.6),
     ]);
 
-    expect(areas.map((a) => a.name_en)).toEqual(["Bird Islands", "Zebra Reef"]);
+    expect(areas.map((a) => a.id)).toEqual(["42", "7", "1"]);
   });
 });
