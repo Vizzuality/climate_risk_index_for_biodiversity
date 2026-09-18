@@ -125,6 +125,10 @@ def _(con, pl):
 
 @app.cell
 def _(DATAPATH, rasterio, result, var_numeric_cols):
+    import numpy as np
+
+    NODATA = -9999
+
     df = result.to_pandas()
 
     ds = (
@@ -138,12 +142,20 @@ def _(DATAPATH, rasterio, result, var_numeric_cols):
     for experiment in ds.Experiment.values:
         ds_exp = ds.sel(Experiment=experiment)
         da = ds_exp[var_numeric_cols].to_array(dim="band")
+        da = da.fillna(NODATA)
+        da.rio.write_nodata(NODATA, inplace=True)
         da = da.rio.set_spatial_dims(x_dim="Lon", y_dim="Lat").rio.write_crs(crs)
         filename = DATAPATH / "03_primary" / f"{experiment}.tif"
-        da.rio.to_raster(filename)
+        da.rio.to_raster(filename, dtype=np.float32)
         with rasterio.open(filename, "r+") as dst:
             dst.descriptions = tuple(da.band.values.astype(str))
     return (da,)
+
+
+@app.cell
+def _(da):
+    da
+    return
 
 
 @app.cell(hide_code=True)
