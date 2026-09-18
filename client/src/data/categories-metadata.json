@@ -4,7 +4,7 @@
     "group": "sensitivity",
     "type": "index"
   },
-  "Sens.rlstatus": {
+  "Sens.RLstatus": {
     "name": "Conservation status",
     "group": "sensitivity",
     "type": "index"
@@ -69,7 +69,7 @@
     "group": "exposure",
     "type": "index"
   },
-  "Expo.tow": {
+  "Expo.toe": {
     "name": "Climate emergence",
     "group": "exposure",
     "type": "index"
