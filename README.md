@@ -37,22 +37,24 @@ The app is served on http://localhost:3000.
 
 The client runs on [Railway](https://railway.com) as the `client` service of the
 `CRIB` project (Vizzuality workspace, `production` environment), served at
-https://crib-vizzuality.up.railway.app.
-Railway builds the same `client/Dockerfile` that Docker Compose uses, so anything
-that builds locally with `docker compose up --build` deploys unchanged.
+https://crib-vizzuality.up.railway.app. Railway builds the same `client/Dockerfile`
+that Docker Compose uses, so anything that builds locally with
+`docker compose up --build` deploys unchanged.
 
-Deploys are pushed from your machine with the Railway CLI; no GitHub integration
-is configured:
+The service is connected to this GitHub repository with `/client` as its root
+directory, so every push to the tracked branch builds and deploys automatically.
+The tracked branch is set in the service settings (`railway open`); switch it to
+`main` once the Railway changes are merged.
+
+A deploy can also be pushed from a working tree with the Railway CLI, which
+uploads `client/` (honouring `client/.gitignore`) and builds it on Railway:
 
 ```bash
 cd client
 railway login              # once
 railway link               # once — pick the CRIB project and the client service
-railway up --ci            # upload client/, build the image on Railway, deploy
+railway up --ci
 ```
-
-`railway up` honours `client/.gitignore`, so local env files and build output are
-never uploaded.
 
 ### Mapbox token
 
