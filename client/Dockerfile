@@ -4,18 +4,20 @@ FROM base AS deps
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml* ./
-RUN corepack enable pnpm && pnpm i --frozen-lockfile;
-
+RUN npm install --global "pnpm@$(node -p "require('./package.json').devEngines.packageManager.version")" \
+  && pnpm install --frozen-lockfile
 
 FROM base AS builder
 WORKDIR /app
+COPY --from=deps /usr/local/lib/node_modules/pnpm /usr/local/lib/node_modules/pnpm
+COPY --from=deps /usr/local/bin/pnpm /usr/local/bin/pnpm
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 ARG VITE_MAPBOX_TOKEN
 ENV VITE_MAPBOX_TOKEN=$VITE_MAPBOX_TOKEN
 
-RUN corepack enable pnpm && pnpm run build;
+RUN pnpm run build
 
 FROM base AS runner
 WORKDIR /app
