@@ -1,7 +1,10 @@
-Dockerfile
-.dockerignore
-node_modules
-npm-debug.log
-README.md
-.next
 .git
+node_modules
+.output
+.nitro
+.tanstack
+dist
+coverage
+.env*
+.vercel
+*.log

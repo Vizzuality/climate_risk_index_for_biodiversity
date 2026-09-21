@@ -32,3 +32,40 @@ docker compose down             # stop and remove the container
 ```
 
 The app is served on http://localhost:3000.
+
+## Deploying the client to Railway
+
+The client runs on [Railway](https://railway.com) as the `client` service of the
+`CRIB` project (Vizzuality workspace, `production` environment), served at
+https://crib-vizzuality.up.railway.app.
+Railway builds the same `client/Dockerfile` that Docker Compose uses, so anything
+that builds locally with `docker compose up --build` deploys unchanged.
+
+Deploys are pushed from your machine with the Railway CLI; no GitHub integration
+is configured:
+
+```bash
+cd client
+railway login              # once
+railway link               # once — pick the CRIB project and the client service
+railway up --ci            # upload client/, build the image on Railway, deploy
+```
+
+`railway up` honours `client/.gitignore`, so local env files and build output are
+never uploaded.
+
+### Mapbox token
+
+`VITE_MAPBOX_TOKEN` is inlined at build time (see above), so it has to exist as a
+Railway **service variable** before the build runs — Railway passes service
+variables into the Dockerfile as build arguments. Set it once (the value is read
+from stdin so it never lands in your shell history), then redeploy:
+
+```bash
+cd client
+printf '%s' "<your-mapbox-token>" | railway variable set VITE_MAPBOX_TOKEN --stdin
+railway up --ci
+```
+
+Service settings that are not in the repo (region, healthcheck path `/`,
+restart policy, public domain) live in the Railway dashboard: `railway open`.
