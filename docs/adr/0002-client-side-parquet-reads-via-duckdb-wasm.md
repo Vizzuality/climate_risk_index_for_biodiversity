@@ -87,8 +87,10 @@ through a deck.gl `MapboxOverlay` in interleaved mode using
 COG overviews per tile. The library only infers a pipeline for unsigned
 integer data, so the layer supplies its own: upload the two-band tile as
 `rg32float`, discard NaN and alpha-0 pixels, then look up a 256-step
-colour ramp with the four legend classes at 0.25 intervals (the same
-thresholds as the chart). EPSG:3857 is resolved from a bundled PROJJSON
+colour ramp with the four legend classes at the Vulnerability breaks
+supplied with the rasters (0.235, 0.444, 0.650). The detail chart colours
+its indicator wedges through the same `riskColorFor`, so map and chart
+share one set of breaks until per-indicator ones are provided. EPSG:3857 is resolved from a bundled PROJJSON
 instead of the library's default epsg.io lookup, so the raster layer has
 no third-party dependency on its critical path and any other CRS fails
 loudly. The overlay renders with the depth test disabled: the basemap

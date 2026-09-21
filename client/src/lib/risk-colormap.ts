@@ -1,8 +1,11 @@
+// Class breaks for the Vulnerability indicator (tlow, tmed, thigh) as
+// supplied with the rasters; the detail chart applies them to every indicator
+// until per-indicator breaks are provided.
 export const RISK_CLASSES = [
   { min: 0, color: "#45B9C7" },
-  { min: 0.25, color: "#B5E2D1" },
-  { min: 0.5, color: "#F1BC83" },
-  { min: 0.75, color: "#D95730" },
+  { min: 0.2345909125689, color: "#B5E2D1" },
+  { min: 0.443899021417284, color: "#F1BC83" },
+  { min: 0.650018122866379, color: "#D95730" },
 ] as const;
 
 export const COLORMAP_WIDTH = 256;

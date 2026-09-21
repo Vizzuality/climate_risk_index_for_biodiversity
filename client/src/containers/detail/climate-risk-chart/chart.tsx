@@ -7,6 +7,7 @@ import { useSelectedArea } from "@/hooks/use-selected-area";
 import { useScenario } from "@/store";
 import categoriesMetadata from "@/data/categories-metadata.json";
 import { Area } from "@/containers/main/table/columns";
+import { riskColorFor } from "@/lib/risk-colormap";
 import { SCENARIO } from "@/types";
 
 interface DataPoint {
@@ -20,13 +21,6 @@ const MEAN_INDICATOR_KEYS = {
   sensitivity: "ClimSens",
   exposure: "ClimExpo",
   adaptivity: "ClimAdapt",
-};
-
-const getColorByValue = (value: number): string => {
-  if (value >= 0.75) return "#d95730";
-  if (value >= 0.5) return "#f1bc83";
-  if (value >= 0.25) return "#b5e2d1";
-  return "#45b9c7";
 };
 
 const getMainMetrics = (data: Area["indicator"], scenario: SCENARIO) => {
@@ -70,7 +64,7 @@ export default function RadarChart() {
       category: ind.name,
       name: categoriesMetadata[ind.name]?.name ?? ind.name,
       value: ind.scenario[scenario].mean,
-      color: getColorByValue(ind.scenario[scenario].mean),
+      color: riskColorFor(ind.scenario[scenario].mean),
       angle: _index * 30,
     }));
 
