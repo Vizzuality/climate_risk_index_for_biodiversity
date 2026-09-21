@@ -75,7 +75,7 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
         zoom: 1,
         bounds: MAX_BOUNDS,
       }}
-      interactiveLayerIds={["wdpa-layer", "atlantic-bioregions-layer"]}
+      interactiveLayerIds={["wdpa-layer", "bioregions-layer"]}
       onLoad={() => setMapLoaded(true)}
       onClick={handleClick}
       onMouseMove={handleHover}
