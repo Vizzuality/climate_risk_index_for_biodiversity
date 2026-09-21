@@ -44,6 +44,7 @@
     "clsx": "2.1.1",
     "cmdk": "1.1.1",
     "d3": "7.9.0",
+    "h3": "1.15.11",
     "jotai": "2.12.5",
     "lucide-react": "0.511.0",
     "mapbox-gl": "3.30.0",
@@ -52,6 +53,7 @@
     "react-dom": "19.1.0",
     "react-map-gl": "8.0.4",
     "rooks": "8.0.1",
+    "serve-static": "2.2.1",
     "tailwind-merge": "3.3.0"
   },
   "devDependencies": {
@@ -64,6 +66,7 @@
     "@types/node": "24.13.3",
     "@types/react": "19.1.6",
     "@types/react-dom": "19.1.5",
+    "@types/serve-static": "2.2.0",
     "@vitejs/plugin-react": "6.0.3",
     "jsdom": "29.1.1",
     "oxfmt": "0.58.0",

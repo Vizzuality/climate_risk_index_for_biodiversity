@@ -16,6 +16,15 @@ export default defineConfig({
     tanstackStart(),
     nitroV2Plugin({
       compatibilityDate: "2026-07-09",
+      // Nitro's own static handler cannot answer Range requests, which the
+      // PMTiles archive and the COGs depend on; serve-static can.
+      serveStatic: false,
+      handlers: [
+        {
+          middleware: true,
+          handler: path.resolve(import.meta.dirname, "src/server/static-assets.ts"),
+        },
+      ],
       // Content-hashed assets (duckdb wasm ~8MB gzip among them) and the
       // version-pathed duckdb extension are safe to cache forever; without
       // this Vercel serves them max-age=0 and re-downloads the wasm on
