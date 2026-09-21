@@ -42,9 +42,16 @@ that Docker Compose uses, so anything that builds locally with
 `docker compose up --build` deploys unchanged.
 
 The service is connected to this GitHub repository with `/client` as its root
-directory, so every push to the tracked branch builds and deploys automatically.
-The tracked branch is set in the service settings (`railway open`); switch it to
-`main` once the Railway changes are merged.
+directory, and deploys happen automatically in two ways:
+
+- **Production** tracks `main`: every push to it builds and deploys
+  https://crib-vizzuality.up.railway.app. The tracked branch is set in the
+  service settings (`railway open`).
+- **Pull requests** each get their own ephemeral environment, forked from
+  `production` (so it inherits the Mapbox token and the other service
+  variables), built from the PR branch and torn down when the PR closes. The
+  environment and its preview URL appear in the Railway dashboard next to
+  `production`.
 
 A deploy can also be pushed from a working tree with the Railway CLI, which
 uploads `client/` (honouring `client/.gitignore`) and builds it on Railway:
