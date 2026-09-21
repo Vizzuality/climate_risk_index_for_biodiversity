@@ -65,7 +65,9 @@ def main() -> None:
             if tiles % 20000 == 0:
                 print(f"  {tiles} tiles scanned, {len(bbox_by_id)} features…")
             raw = gzip.decompress(data) if data[:2] == b"\x1f\x8b" else data
-            layer = mapbox_vector_tile.decode(raw)[LAYER]
+            layer = mapbox_vector_tile.decode(raw).get(LAYER)
+            if layer is None:
+                continue
             extent = layer["extent"]
             for feat in layer["features"]:
                 fid = int(feat["properties"]["id"])
