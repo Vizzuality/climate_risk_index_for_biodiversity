@@ -111,7 +111,9 @@ the `Protected Area` layer type to `MPA`, and recomputes every indicator;
 254 areas (down from 382) have no Vulnerability value. The archive is now
 produced by the Kedro pipeline with tippecanoe `-zg`: 48 MB, zoom 0–11,
 and it bundles a second `bioregions` layer (12 polygons, `region` and
-`OCEAN_E`) that the client does not read yet — the bioregions map layer
-still comes from the Mapbox-hosted tileset. `build_mpas_bbox.py` skips
+`OCEAN_E`, covering Arctic, Atlantic and Pacific). The bioregions map
+layer now reads it instead of the Atlantic-only Mapbox-hosted tileset,
+through one shared vector source with a per-source-layer `promoteId`,
+so the archive is opened once and every tile is fetched once. `build_mpas_bbox.py` skips
 tiles that carry only that layer and was rerun; `mpas_bbox.parquet` must
 be regenerated with every archive because the ids are not stable.

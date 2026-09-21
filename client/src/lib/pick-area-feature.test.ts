@@ -10,7 +10,7 @@ function feature(layerId: string, id: string | number, area_km2?: number | null)
   } as unknown as GeoJSONFeature;
 }
 
-const bioregion = feature("atlantic-bioregions-layer", "Newfoundland-Labrador Shelves");
+const bioregion = feature("bioregions-layer", "Newfoundland-Labrador Shelves");
 const ebsa = feature(AREAS_LAYER_ID, 1049, 9399.66);
 const reserve = feature(AREAS_LAYER_ID, 1, 5);
 

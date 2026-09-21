@@ -1,25 +1,19 @@
-import { Source, Layer } from "react-map-gl/mapbox";
+import { Layer } from "react-map-gl/mapbox";
 import { useParams } from "@tanstack/react-router";
-import pmtilesUrl from "@/data/mpas.pmtiles?url";
+import { AREAS_SOURCE_ID, AREAS_SOURCE_LAYER } from "@/containers/map/layers/areas-source";
 
-const SOURCE_LAYER = "mpas";
-
-const WDPALayer = () => {
+export const WDPALayer = () => {
   const params = useParams({ strict: false });
   const { area } = params;
-  // Mapbox GL picks the PMTiles provider from the .pmtiles extension and
-  // fetches the archive from its worker, which needs an absolute URL.
-  const url =
-    typeof window === "undefined" ? pmtilesUrl : new URL(pmtilesUrl, window.location.origin).href;
   const selected = area ? { filter: ["==", ["to-string", ["get", "id"]], area] } : {};
 
   return (
-    <Source id="wdpa-source" type="vector" url={url} promoteId="id">
+    <>
       <Layer
         id="wdpa-layer"
         type="fill"
-        source-layer={SOURCE_LAYER}
-        source="wdpa-source"
+        source-layer={AREAS_SOURCE_LAYER}
+        source={AREAS_SOURCE_ID}
         beforeId="maritimes-region-b5kyh8"
         paint={{
           "fill-color": "transparent",
@@ -31,8 +25,8 @@ const WDPALayer = () => {
       <Layer
         id="wdpa-layer-outline"
         type="line"
-        source-layer={SOURCE_LAYER}
-        source="wdpa-source"
+        source-layer={AREAS_SOURCE_LAYER}
+        source={AREAS_SOURCE_ID}
         beforeId="maritimes-region-b5kyh8"
         paint={{
           "line-color": "#1e3152",
@@ -43,8 +37,8 @@ const WDPALayer = () => {
       <Layer
         id="wdpa-layer-outline-left"
         type="line"
-        source-layer={SOURCE_LAYER}
-        source="wdpa-source"
+        source-layer={AREAS_SOURCE_LAYER}
+        source={AREAS_SOURCE_ID}
         beforeId="maritimes-region-b5kyh8"
         paint={{
           "line-color": "#5eead4",
@@ -56,8 +50,8 @@ const WDPALayer = () => {
       <Layer
         id="wdpa-layer-outline-right"
         type="line"
-        source-layer={SOURCE_LAYER}
-        source="wdpa-source"
+        source-layer={AREAS_SOURCE_LAYER}
+        source={AREAS_SOURCE_ID}
         beforeId="maritimes-region-b5kyh8"
         paint={{
           "line-color": "#5eead4",
@@ -65,8 +59,6 @@ const WDPALayer = () => {
         }}
         {...selected}
       />
-    </Source>
+    </>
   );
 };
-
-export default WDPALayer;
