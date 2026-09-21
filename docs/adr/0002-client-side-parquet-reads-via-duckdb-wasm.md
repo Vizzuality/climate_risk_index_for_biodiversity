@@ -57,8 +57,8 @@ matching pmtiles, keyed on `id`.
 ## Amendment (2026-09-16, tiles)
 
 The area geometries moved from the Mapbox-hosted tileset to
-`client/src/data/mpas.pmtiles` (16 MB, 1202 features, layer `mpas`,
-zoom 0–10), read directly by Mapbox GL JS: since 3.21 it detects the
+`client/src/data/mpas.pmtiles` (at the time 16 MB, 1202 features, layer
+`mpas`, zoom 0–10), read directly by Mapbox GL JS: since 3.21 it detects the
 `.pmtiles` extension on a vector source `url` and lazily loads its
 official PMTiles provider from `api.mapbox.com` (the same host the
 basemap already depends on). `mapbox-gl` was bumped 3.12 → 3.30 for it;
@@ -100,3 +100,18 @@ frame while the camera moved and reappeared at rest. Tech Radar: deck.gl is
 Adopt; `@developmentseed/deck.gl-geotiff` is unlisted and pre-1.0
 (0.7.0), accepted for the prototype. Same range-request constraint as
 the parquet and PMTiles reads.
+
+## Amendment (2026-09-21, third extract)
+
+The third phase-2 extract renumbers the areas: 1201 areas (one draft
+network site dropped) and `id` is reassigned across the set, so `/$area`
+URLs from earlier builds resolve to different areas. `mpas_stats.parquet`
+adds `region` (comma-joined bioregion names) and `source_url`, renames
+the `Protected Area` layer type to `MPA`, and recomputes every indicator;
+254 areas (down from 382) have no Vulnerability value. The archive is now
+produced by the Kedro pipeline with tippecanoe `-zg`: 48 MB, zoom 0–11,
+and it bundles a second `bioregions` layer (12 polygons, `region` and
+`OCEAN_E`) that the client does not read yet — the bioregions map layer
+still comes from the Mapbox-hosted tileset. `build_mpas_bbox.py` skips
+tiles that carry only that layer and was rerun; `mpas_bbox.parquet` must
+be regenerated with every archive because the ids are not stable.
