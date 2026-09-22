@@ -1,0 +1,36 @@
+_duckdb: &duckdb
+  backend: duckdb
+  database: ":memory:"
+
+crib_species_canada:
+  type: ibis.FileDataset
+  filepath: data/01_raw/CRIB_VSEspecies_SSP126_585_2100_Canada_parquet/*.parquet
+  file_format: parquet
+  table_name: crib_species_canada
+  connection: *duckdb
+  metadata:
+    kedro-viz:
+      layer: raw
+
+crib_grid_summary:
+  type: ibis.FileDataset
+  filepath: data/02_intermediate/crib_grid_summary.parquet
+  file_format: parquet
+  connection: *duckdb
+  metadata:
+    kedro-viz:
+      layer: intermediate
+
+crib_grid_raster_ssp126:
+  type: data_processing.datasets.RasterDataset
+  filepath: data/03_primary/126.tif
+  metadata:
+    kedro-viz:
+      layer: primary
+
+crib_grid_raster_ssp585:
+  type: data_processing.datasets.RasterDataset
+  filepath: data/03_primary/585.tif
+  metadata:
+    kedro-viz:
+      layer: primary
