@@ -2,28 +2,53 @@ DATA_DIR := "./data"
 RAW_DATA := DATA_DIR / "01_raw"
 PRIMARY_DATA := DATA_DIR / "03_primary"
 
-bioregions-to-json:
-    gdal vector reproject -d epsg:4326 -f GeoJSON {{RAW_DATA}}/marine_administrative_boundaries.gpkg {{PRIMARY_DATA}}/bioregions.json
+BUCKET := "s3://crib-assets-732401078342-ca-central-1-an"
+DATA_ASSETS_PATH := BUCKET / "data"
 
+DISTRIBUTION_ID := "E3GMH6GBO0IVNA"  # cloudfront distribution id
+AWS_PROFILE := env("AWS_PROFILE", "crib")
+CDN_CACHE := "public, max-age=300, s-maxage=86400"
+
+bioregions-to-json:
+    gdal vector reproject -d epsg:4326 -f GeoJSON {{ RAW_DATA }}/marine_administrative_boundaries.gpkg {{ PRIMARY_DATA }}/bioregions.json
 
 pmtiles:
-    tippecanoe --force -zg -o {{PRIMARY_DATA}}/mpas.pmtiles \
-        -L '{"file": "{{PRIMARY_DATA}}/mpas_indexed.json", "layer":"mpas"}' \
-        -L '{"file": "{{PRIMARY_DATA}}/bioregions.json", "layer":"bioregions"}'
-
+    tippecanoe --force -zg -o {{ PRIMARY_DATA }}/mpas.pmtiles \
+        -L '{"file": "{{ PRIMARY_DATA }}/mpas_indexed.json", "layer":"mpas"}' \
+        -L '{"file": "{{ PRIMARY_DATA }}/bioregions.json", "layer":"bioregions"}'
 
 fill-nodata input output distance="1":
     #!/usr/bin/env bash
     set -euo pipefail
 
-    bands=$(gdalinfo {{input}} | grep -c '^Band ')
+    bands=$(gdalinfo {{ input }} | grep -c '^Band ')
     tmp_files=()
 
     for ((b=1; b<=bands; b++)); do
         tmp="/tmp/b${b}.tif"
-        gdal raster fill-nodata -b $b --max-distance {{distance}} {{input}} "$tmp" --overwrite
+        gdal raster fill-nodata -b $b --max-distance {{ distance }} {{ input }} "$tmp" --overwrite
         tmp_files+=("$tmp")
     done
 
-    gdal raster stack ${tmp_files[@]} {{output}} --overwrite
+    gdal raster stack ${tmp_files[@]} {{ output }} --overwrite
     rm "${tmp_files[@]}"
+
+sync-data-cdn:
+    aws s3 sync {{ PRIMARY_DATA }} {{ DATA_ASSETS_PATH }} --profile {{ AWS_PROFILE }} \
+        --exclude "*" --include "*_cog.tif" --exclude "*/*" \
+        --content-type "image/tiff; application=geotiff; profile=cloud-optimized" \
+        --cache-control "{{ CDN_CACHE }}"
+    aws s3 sync {{ PRIMARY_DATA }} {{ DATA_ASSETS_PATH }} --profile {{ AWS_PROFILE }} \
+        --exclude "*" --include "*.pmtiles" --exclude "*/*" \
+        --content-type "application/vnd.pmtiles" \
+        --cache-control "{{ CDN_CACHE }}"
+    aws s3 sync {{ PRIMARY_DATA }} {{ DATA_ASSETS_PATH }} --profile {{ AWS_PROFILE }} \
+        --exclude "*" --include "*.parquet" --exclude "*/*" \
+        --content-type "application/vnd.apache.parquet" \
+        --cache-control "{{ CDN_CACHE }}"
+
+invalidate-cache:
+    aws cloudfront create-invalidation --distribution-id {{ DISTRIBUTION_ID }} \
+        --paths "/*" --profile {{ AWS_PROFILE }}
+
+publish: sync-data-cdn invalidate-cache
