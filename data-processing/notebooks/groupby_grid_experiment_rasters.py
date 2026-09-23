@@ -16,14 +16,16 @@ def _():
     import pathlib
 
     import duckdb
+    import numpy as np
     import polars as pl
     import rasterio
+    import rioxarray  # noqa F401
 
     DATAPATH = pathlib.Path.cwd() / "data"
     DATASET = (
         DATAPATH / "01_raw" / "CRIB_VSEspecies_SSP126_585_2100_Canada_parquet/*.parquet"
     )
-    return DATAPATH, DATASET, duckdb, pl, rasterio
+    return DATAPATH, DATASET, duckdb, np, pl, rasterio
 
 
 @app.cell
@@ -124,8 +126,7 @@ def _(con, pl):
 
 
 @app.cell
-def _(DATAPATH, rasterio, result, var_numeric_cols):
-    import numpy as np
+def _(DATAPATH, np, rasterio, result, var_numeric_cols):
 
     NODATA = -9999
 
@@ -173,7 +174,9 @@ def _(DATAPATH):
     import geopandas as gpd
     from exactextract import exact_extract
 
-    mpas = gpd.read_file(DATAPATH / "marine_conservation_areas_merged.gpkg")
+    mpas = gpd.read_file(
+        DATAPATH / "01_raw" / "marine_conservation_areas_with_regions.gpkg"
+    )
     mpas = mpas.reset_index(names="id")
 
     cols_to_keep = mpas.columns.drop(["geometry", "year_established"]).tolist()
@@ -209,7 +212,7 @@ def _(DATAPATH, cols_to_keep, da, exact_extract, mpas, rasterio):
     res = []
 
     for exp in experiments:
-        tif_path = DATAPATH / "03_primary" / f"{exp}.tif"
+        tif_path = DATAPATH / "03_primary" / f"{exp}_fill.tif"
 
         zs_mean = exact_extract(
             tif_path,
@@ -242,6 +245,12 @@ def _(res):
 
     all = pd.concat(res).sort_values(["id", "experiment"]).reset_index(drop=True)
     return (all,)
+
+
+@app.cell
+def _(all):
+    all["ClimVuln"].isna().sum() // 2
+    return
 
 
 @app.cell
