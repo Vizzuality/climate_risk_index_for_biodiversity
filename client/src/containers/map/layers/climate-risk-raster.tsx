@@ -93,10 +93,9 @@ export function ClimateRiskRasterLayer({ scenario }: Readonly<{ scenario: SCENAR
     [colormap],
   );
 
-  const url = RASTER_URLS[scenario];
   const layer = new COGLayer<TileData>({
     id: `climate-risk-${scenario}`,
-    geotiff: typeof window === "undefined" ? url : new URL(url, window.location.origin).href,
+    geotiff: RASTER_URLS[scenario],
     epsgResolver,
     getTileData,
     renderTile,
