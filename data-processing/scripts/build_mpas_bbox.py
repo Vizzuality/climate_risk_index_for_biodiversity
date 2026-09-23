@@ -3,15 +3,18 @@
 # dependencies = ["pmtiles", "mapbox-vector-tile", "pyarrow"]
 # ///
 # ruff: noqa: PLR0913, PLR0917, T201
-"""Build client/src/data/mpas_bbox.parquet from client/src/data/mpas.pmtiles.
+"""Build client/src/data/mpas_bbox.parquet from the hosted mpas.pmtiles.
 
 One row per area `id` with a lon/lat bbox, decoded from the archive's
-max-zoom tiles (lower zooms drop features). Rerun whenever the archive
-is regenerated; the client joins it to mpas_stats.parquet on `id`.
+max-zoom tiles (lower zooms drop features). Rerun whenever the hosted
+archive changes; the client joins it to mpas_stats.parquet on `id`, and
+ids are reassigned with every extract.
 """
 
 import gzip
 import math
+import tempfile
+import urllib.request
 from pathlib import Path
 
 import mapbox_vector_tile
@@ -20,7 +23,7 @@ import pyarrow.parquet as pq
 from pmtiles.reader import MmapSource, Reader, all_tiles
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-PMTILES_PATH = REPO_ROOT / "client" / "src" / "data" / "mpas.pmtiles"
+ARCHIVE_URL = "https://d2g59ujvhm7q3s.cloudfront.net/data/mpas.pmtiles"
 OUT_PATH = REPO_ROOT / "client" / "src" / "data" / "mpas_bbox.parquet"
 LAYER = "mpas"
 
@@ -45,8 +48,8 @@ def iter_points(coords):
             yield from iter_points(part)
 
 
-def main() -> None:
-    with open(PMTILES_PATH, "rb") as f:
+def build(pmtiles_path: Path) -> None:
+    with open(pmtiles_path, "rb") as f:
         reader = Reader(MmapSource(f))
         max_zoom = reader.header()["max_zoom"]
         expected = next(
@@ -57,7 +60,7 @@ def main() -> None:
 
     bbox_by_id: dict[int, list[float]] = {}
     tiles = 0
-    with open(PMTILES_PATH, "rb") as f:
+    with open(pmtiles_path, "rb") as f:
         for (z, x, y), data in all_tiles(MmapSource(f)):
             if z != max_zoom:
                 continue
@@ -97,6 +100,14 @@ def main() -> None:
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     pq.write_table(table, OUT_PATH, compression="snappy")
     print(f"wrote {table.num_rows} rows to {OUT_PATH}")
+
+
+def main() -> None:
+    with tempfile.TemporaryDirectory() as tmp:
+        pmtiles_path = Path(tmp) / "mpas.pmtiles"
+        print(f"downloading {ARCHIVE_URL}…")
+        urllib.request.urlretrieve(ARCHIVE_URL, pmtiles_path)
+        build(pmtiles_path)
 
 
 if __name__ == "__main__":
