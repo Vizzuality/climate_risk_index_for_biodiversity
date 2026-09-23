@@ -27,7 +27,8 @@ ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs \
   && adduser --system --uid 1001 tanstack
 
-COPY --from=builder --chown=tanstack:nodejs /app/.output ./.output
+COPY --from=builder --chown=tanstack:nodejs /app/dist/client ./dist/client
+COPY --from=builder --chown=tanstack:nodejs /app/dist/server.mjs ./dist/server.mjs
 
 USER tanstack
 
@@ -35,4 +36,4 @@ EXPOSE 3000
 
 ENV PORT=3000
 
-CMD ["node", ".output/server/index.mjs"]
+CMD ["node", "dist/server.mjs"]

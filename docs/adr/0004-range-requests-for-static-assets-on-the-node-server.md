@@ -1,6 +1,6 @@
 # 0004. Range requests for static assets on the Node server
 
-- **Status**: accepted
+- **Status**: superseded by ADR-0005
 - **Date**: 2026-09-21
 
 ## Context
