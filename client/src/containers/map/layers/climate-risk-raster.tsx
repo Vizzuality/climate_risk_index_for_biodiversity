@@ -13,14 +13,13 @@ import { parseWkt, type ProjectionDefinition } from "@developmentseed/proj";
 import { DeckGLOverlay } from "@/components/map/deckgl-overlay";
 import { DiscardMasked } from "@/containers/map/layers/gpu-modules/discard-masked";
 import epsg3857 from "@/data/epsg-3857.json";
-import lowEmissionsUrl from "@/data/126_low_emissions_climvuln_cog.tif?url";
-import highEmissionsUrl from "@/data/585_high_emissions_climvuln_cog.tif?url";
+import { HIGH_EMISSIONS_RASTER_URL, LOW_EMISSIONS_RASTER_URL } from "@/lib/data-urls";
 import { buildRiskColormap, COLORMAP_WIDTH } from "@/lib/risk-colormap";
 import type { SCENARIO } from "@/types";
 
 const RASTER_URLS: Record<SCENARIO, string> = {
-  low: lowEmissionsUrl,
-  high: highEmissionsUrl,
+  low: LOW_EMISSIONS_RASTER_URL,
+  high: HIGH_EMISSIONS_RASTER_URL,
 };
 
 type TileData = { texture: Texture; byteLength: number; width: number; height: number };
@@ -94,10 +93,9 @@ export function ClimateRiskRasterLayer({ scenario }: Readonly<{ scenario: SCENAR
     [colormap],
   );
 
-  const url = RASTER_URLS[scenario];
   const layer = new COGLayer<TileData>({
     id: `climate-risk-${scenario}`,
-    geotiff: typeof window === "undefined" ? url : new URL(url, window.location.origin).href,
+    geotiff: RASTER_URLS[scenario],
     epsgResolver,
     getTileData,
     renderTile,

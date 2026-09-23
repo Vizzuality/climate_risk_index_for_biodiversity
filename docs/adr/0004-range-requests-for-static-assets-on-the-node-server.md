@@ -49,3 +49,20 @@ function is reached.
   `import.meta.url` is only in place once the server entry has run.
 - **Follow-ups**: revisit when moving to Nitro 3 / h3 2, whose static
   serving may support ranges natively.
+
+## Amendment (2026-09-23)
+
+The archive and the COGs moved to the CDN (ADR 0006), leaving
+`mpas_bbox.parquet` as the only asset still served from the app origin.
+A production build (`pnpm build && pnpm start`), observed over both the
+page's network log and `curl`, shows duckdb-wasm reading that file (47 KB)
+with a single plain `GET` that gets back `200` — it never sends a `Range`
+header for a file this small. The server does honor `Range` when a client
+sends one (`curl -H 'Range: bytes=0-0' ...` returns `206`), so the
+middleware's behavior is correct; it just isn't currently exercised by any
+real range read.
+
+**Follow-up**: if `mpas_bbox.parquet` stays small enough that duckdb-wasm
+never ranges into it, and no other locally-served asset needs partial
+reads, retire the middleware and let Nitro's static handler serve
+`mpas_bbox.parquet` directly.
