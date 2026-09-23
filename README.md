@@ -41,6 +41,12 @@ https://crib-vizzuality.up.railway.app. Railway builds the same `client/Dockerfi
 that Docker Compose uses, so anything that builds locally with
 `docker compose up --build` deploys unchanged.
 
+The client is a static SPA: `pnpm build` prerenders one `_shell.html` plus hashed
+assets into `client/dist/client`, and the container only runs a small static file
+server (`client/static-server.ts`) that adds byte-range support, cache headers and
+the shell fallback for deep links. The same folder can be uploaded to any static
+host later (see ADR 0005).
+
 The service is connected to this GitHub repository with `/client` as its root
 directory, and deploys happen automatically in two ways:
 

@@ -1,6 +1,5 @@
 import { defineConfig } from "vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
-import { nitroV2Plugin } from "@tanstack/nitro-v2-vite-plugin";
 import viteReact from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "node:path";
@@ -13,30 +12,11 @@ export default defineConfig({
   },
   plugins: [
     tailwindcss(),
-    tanstackStart(),
-    nitroV2Plugin({
-      compatibilityDate: "2026-07-09",
-      // Nitro's own static handler cannot answer Range requests, which the
-      // PMTiles archive and the COGs depend on; serve-static can.
-      serveStatic: false,
-      handlers: [
-        {
-          middleware: true,
-          handler: path.resolve(import.meta.dirname, "src/server/static-assets.ts"),
-        },
-      ],
-      // Content-hashed assets (duckdb wasm ~8MB gzip among them) and the
-      // version-pathed duckdb extension are safe to cache forever; without
-      // this Vercel serves them max-age=0 and re-downloads the wasm on
-      // every visit.
-      routeRules: {
-        "/assets/**": {
-          headers: { "cache-control": "public, max-age=31536000, immutable" },
-        },
-        "/duckdb-extensions/**": {
-          headers: { "cache-control": "public, max-age=31536000, immutable" },
-        },
-      },
+    tanstackStart({
+      // Nothing renders on the server (data is read in the browser through
+      // duckdb-wasm and the map is client-only), so the app ships as a single
+      // prerendered shell; this is also what a static host needs.
+      spa: { enabled: true },
     }),
     // react's vite plugin must come after start's vite plugin
     viteReact(),
