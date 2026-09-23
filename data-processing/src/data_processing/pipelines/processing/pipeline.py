@@ -5,7 +5,37 @@ generated using Kedro 0.19.13
 
 from kedro.pipeline import Pipeline, node
 
-from .nodes import aggregate_species_grid, grid_summary_to_raster
+from .nodes import (
+    aggregate_species_grid,
+    build_area_stats,
+    compute_zonal_stats,
+    fill_raster_nodata,
+    grid_summary_to_raster,
+    index_conservation_areas,
+)
+
+SCENARIOS = ("ssp126", "ssp585")
+
+
+def _scenario_zonal_stats_nodes(scenario: str) -> list:
+    return [
+        node(
+            func=fill_raster_nodata,
+            inputs=f"crib_grid_raster_{scenario}",
+            outputs=f"crib_grid_raster_filled_{scenario}",
+            name=f"fill_raster_nodata_{scenario}_node",
+        ),
+        node(
+            func=compute_zonal_stats,
+            inputs=[
+                "conservation_areas_indexed",
+                f"crib_grid_raster_filled_{scenario}",
+                f"params:experiments.{scenario}",
+            ],
+            outputs=f"conservation_area_stats_{scenario}",
+            name=f"compute_zonal_stats_{scenario}_node",
+        ),
+    ]
 
 
 def create_pipeline(**kwargs) -> Pipeline:
@@ -15,8 +45,8 @@ def create_pipeline(**kwargs) -> Pipeline:
                 func=aggregate_species_grid,
                 inputs=[
                     "crib_species_canada",
-                    "params:crib.dim_cols",
-                    "params:crib.numeric_cols",
+                    "params:dim_cols",
+                    "params:numeric_cols",
                 ],
                 outputs="crib_grid_summary",
                 name="aggregate_species_grid_node",
@@ -25,10 +55,9 @@ def create_pipeline(**kwargs) -> Pipeline:
                 func=grid_summary_to_raster,
                 inputs=[
                     "crib_grid_summary",
-                    "params:crib.experiments.ssp126",
-                    "params:crib.numeric_cols",
-                    "params:crib.raster.nodata",
-                    "params:crib.raster.crs",
+                    "params:experiments.ssp126",
+                    "params:numeric_cols",
+                    "params:raster.crs",
                 ],
                 outputs="crib_grid_raster_ssp126",
                 name="grid_summary_to_raster_ssp126_node",
@@ -37,13 +66,31 @@ def create_pipeline(**kwargs) -> Pipeline:
                 func=grid_summary_to_raster,
                 inputs=[
                     "crib_grid_summary",
-                    "params:crib.experiments.ssp585",
-                    "params:crib.numeric_cols",
-                    "params:crib.raster.nodata",
-                    "params:crib.raster.crs",
+                    "params:experiments.ssp585",
+                    "params:numeric_cols",
+                    "params:raster.crs",
                 ],
                 outputs="crib_grid_raster_ssp585",
                 name="grid_summary_to_raster_ssp585_node",
+            ),
+            node(
+                func=index_conservation_areas,
+                inputs=[
+                    "conservation_areas",
+                    "params:raster.crs",
+                ],
+                outputs="conservation_areas_indexed",
+                name="index_conservation_areas_node",
+            ),
+            *(n for s in SCENARIOS for n in _scenario_zonal_stats_nodes(s)),
+            node(
+                func=build_area_stats,
+                inputs=[
+                    "conservation_areas_indexed",
+                    *(f"conservation_area_stats_{s}" for s in SCENARIOS),
+                ],
+                outputs="conservation_area_stats",
+                name="build_area_stats_node",
             ),
         ]
     )

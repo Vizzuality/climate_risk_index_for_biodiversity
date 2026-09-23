@@ -1,59 +1,56 @@
-crib:
+dim_cols:
+  - "Experiment"
+  - "Lon"
+  - "Lat"
 
-  dim_cols:
-    - "Experiment"
-    - "Lon"
-    - "Lat"
+var_category_cols:
+  - "ClimSensRisk"
+  - "ClimAdaptRisk"
+  - "ClimExpoRisk"
+  - "ClimRisk"
+numeric_cols:
+  - "Sens.TSMr"
+  - "Sens.RLstatus"
+  - "Sens.HII"
+  - "Sens.vind"
+  - "Adapt.hfrag"
+  - "Adapt.lmax"
+  - "Adapt.hrange"
+  - "Adapt.tvar"
+  - "Expo.toe"
+  - "Expo.vel"
+  - "Expo.plost"
+  - "Expo.nrchng"
+  - "ClimSens"
+  - "ClimAdapt"
+  - "ClimExpo"
+  - "ClimSensSD"
+  - "ClimAdaptSD"
+  - "ClimExpoSD"
+  - "ClimVuln"
+  - "ClimVulnSD"
 
-  var_category_cols:
-    - "ClimSensRisk"
-    - "ClimAdaptRisk"
-    - "ClimExpoRisk"
-    - "ClimRisk"
-  numeric_cols:
-    - "Sens.TSMr"
-    - "Sens.RLstatus"
-    - "Sens.HII"
-    - "Sens.vind"
-    - "Adapt.hfrag"
-    - "Adapt.lmax"
-    - "Adapt.hrange"
-    - "Adapt.tvar"
-    - "Expo.toe"
-    - "Expo.vel"
-    - "Expo.plost"
-    - "Expo.nrchng"
-    - "ClimSens"
-    - "ClimAdapt"
-    - "ClimExpo"
-    - "ClimSensSD"
-    - "ClimAdaptSD"
-    - "ClimExpoSD"
-    - "ClimVuln"
-    - "ClimVulnSD"
+experiments:
+  ssp126: 126
+  ssp585: 585
 
-  experiments:
-    ssp126: 126
-    ssp585: 585
+raster:
+  crs: "EPSG:4326"
 
-  raster:
-    nodata: -9999
-    crs: "EPSG:4326"
-
-  risk_thresholds:
-    ClimAdapt:
-      moderate: 0.2621455561
-      high: 0.4842766176
-      critical: 0.7406734648
-    ClimSens:
-      moderate: 0.2907963047
-      high: 0.5164621969
-      critical: 0.6898735138
-    ClimExpo:
-      moderate: 0.1494082564
-      high: 0.2928016691
-      critical: 0.5171445418
-    ClimVuln:
-      moderate: 0.2345909126
-      high: 0.4438990214
-      critical: 0.6500181229
+risk_thresholds:
+  ClimAdapt:
+    moderate: 0.2621455561
+    high: 0.4842766176
+    critical: 0.7406734648
+  ClimSens:
+    moderate: 0.2907963047
+    high: 0.5164621969
+    critical: 0.6898735138
+  ClimExpo:
+    moderate: 0.1494082564
+    high: 0.2928016691
+    critical: 0.5171445418
+  ClimVuln:
+    moderate: 0.2345909126
+    high: 0.4438990214
+    critical: 0.6500181229

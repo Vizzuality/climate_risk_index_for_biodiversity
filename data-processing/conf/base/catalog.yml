@@ -23,14 +23,69 @@ crib_grid_summary:
 
 crib_grid_raster_ssp126:
   type: data_processing.datasets.RasterDataset
-  filepath: data/03_primary/126.tif
+  filepath: data/02_intermediate/126.tif
   metadata:
     kedro-viz:
-      layer: primary
+      layer: intermediate
 
 crib_grid_raster_ssp585:
   type: data_processing.datasets.RasterDataset
-  filepath: data/03_primary/585.tif
+  filepath: data/02_intermediate/585.tif
+  metadata:
+    kedro-viz:
+      layer: intermediate
+
+crib_grid_raster_filled_ssp126:
+  type: data_processing.datasets.RasterDataset
+  filepath: data/02_intermediate/126_fill.tif
+  metadata:
+    kedro-viz:
+      layer: intermediate
+
+crib_grid_raster_filled_ssp585:
+  type: data_processing.datasets.RasterDataset
+  filepath: data/02_intermediate/585_fill.tif
+  metadata:
+    kedro-viz:
+      layer: intermediate
+
+# Output of notebooks/protected_areas_preparation.ipynb
+conservation_areas:
+  type: geopandas.GenericDataset
+  filepath: data/01_raw/marine_conservation_areas_with_regions.gpkg
+  file_format: file
+  metadata:
+    kedro-viz:
+      layer: raw
+
+# Tippecanoe input for mpas.pmtiles (`just pmtiles`); its ids key the stats
+conservation_areas_indexed:
+  type: geopandas.GenericDataset
+  filepath: data/02_intermediate/mpas_indexed.json
+  file_format: file
+  save_args:
+    driver: GeoJSON
+  metadata:
+    kedro-viz:
+      layer: intermediate
+
+conservation_area_stats_ssp126:
+  type: pandas.ParquetDataset
+  filepath: data/02_intermediate/mpas_stats_126.parquet
+  metadata:
+    kedro-viz:
+      layer: intermediate
+
+conservation_area_stats_ssp585:
+  type: pandas.ParquetDataset
+  filepath: data/02_intermediate/mpas_stats_585.parquet
+  metadata:
+    kedro-viz:
+      layer: intermediate
+
+conservation_area_stats:
+  type: pandas.ParquetDataset
+  filepath: data/03_primary/mpas_stats.parquet
   metadata:
     kedro-viz:
       layer: primary
