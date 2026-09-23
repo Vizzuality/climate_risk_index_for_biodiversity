@@ -117,3 +117,9 @@ through one shared vector source with a per-source-layer `promoteId`,
 so the archive is opened once and every tile is fetched once. `build_mpas_bbox.py` skips
 tiles that carry only that layer and was rerun; `mpas_bbox.parquet` must
 be regenerated with every archive because the ids are not stable.
+
+## Amendment (2026-09-23, remote data)
+
+`mpas_stats.parquet`, `mpas.pmtiles` and the two COGs are read from the
+public CloudFront bucket instead of `client/src/data/`; see ADR 0006.
+`mpas_bbox.parquet` stays bundled.

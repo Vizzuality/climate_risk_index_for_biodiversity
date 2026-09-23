@@ -49,3 +49,9 @@ function is reached.
   `import.meta.url` is only in place once the server entry has run.
 - **Follow-ups**: revisit when moving to Nitro 3 / h3 2, whose static
   serving may support ranges natively.
+
+## Amendment (2026-09-23)
+
+The archive and the COGs moved to the CDN (ADR 0006). The middleware
+still matters: duckdb-wasm range-reads the bundled `mpas_bbox.parquet`
+from the app origin.
