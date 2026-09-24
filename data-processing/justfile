@@ -1,5 +1,6 @@
 DATA_DIR := "./data"
 RAW_DATA := DATA_DIR / "01_raw"
+INTERMEDIATE_DATA := DATA_DIR / "02_intermediate"
 PRIMARY_DATA := DATA_DIR / "03_primary"
 
 BUCKET := "s3://crib-assets-732401078342-ca-central-1-an"
@@ -10,12 +11,12 @@ AWS_PROFILE := env("AWS_PROFILE", "crib")
 CDN_CACHE := "public, max-age=300, s-maxage=86400"
 
 bioregions-to-json:
-    gdal vector reproject -d epsg:4326 -f GeoJSON {{ RAW_DATA }}/marine_administrative_boundaries.gpkg {{ PRIMARY_DATA }}/bioregions.json
+    gdal vector reproject -d epsg:4326 -f GeoJSON {{ RAW_DATA }}/marine_administrative_boundaries.gpkg {{ INTERMEDIATE_DATA }}/bioregions.json
 
 pmtiles:
     tippecanoe --force -zg -o {{ PRIMARY_DATA }}/mpas.pmtiles \
-        -L '{"file": "{{ PRIMARY_DATA }}/mpas_indexed.json", "layer":"mpas"}' \
-        -L '{"file": "{{ PRIMARY_DATA }}/bioregions.json", "layer":"bioregions"}'
+        -L '{"file": "{{ INTERMEDIATE_DATA }}/mpas_indexed.json", "layer":"mpas"}' \
+        -L '{"file": "{{ INTERMEDIATE_DATA }}/bioregions.json", "layer":"bioregions"}'
 
 fill-nodata input output distance="1":
     #!/usr/bin/env bash

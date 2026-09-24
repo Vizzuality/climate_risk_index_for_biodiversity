@@ -22,10 +22,13 @@ handlers:
     backupCount: 20
     encoding: utf8
     delay: True
+  rich:
+      class: kedro.logging.RichHandler
+      rich_tracebacks: False
 
 loggers:
   kedro:
     level: INFO
 
 root:
-  handlers: [console]
+  handlers: [rich, info_file_handler]
