@@ -69,6 +69,8 @@ def compute_zonal_stats(
     experiment: int,
 ) -> pd.DataFrame:
     band_names = list(raster.attrs["long_name"])
+    # exactextract reads "id" from the GeoJSON feature id, which geopandas
+    # fills with str(index): index by id and cast back
     stats = exact_extract(
         raster,
         areas,
@@ -76,7 +78,8 @@ def compute_zonal_stats(
         include_cols=["id"],
         output="pandas",
     )
-    # exactextract names multiband columns ``band_<n>_<op>``
+    stats["id"] = stats["id"].astype(int)
+    # exactextract names multiband columns `band_<n>_<op>`
     renames = {f"band_{i}_mean": name for i, name in enumerate(band_names, start=1)}
     vuln = band_names.index("ClimVuln") + 1
     renames |= {f"band_{vuln}_min": "ClimVuln_min", f"band_{vuln}_max": "ClimVuln_max"}
