@@ -1,11 +1,9 @@
 DATA_DIR := "./data"
 RAW_DATA := DATA_DIR / "01_raw"
 PRIMARY_DATA := DATA_DIR / "03_primary"
-
 BUCKET := "s3://crib-assets-732401078342-ca-central-1-an"
 DATA_ASSETS_PATH := BUCKET / "data"
-
-DISTRIBUTION_ID := "E3GMH6GBO0IVNA"  # cloudfront distribution id
+DISTRIBUTION_ID := "E3GMH6GBO0IVNA"
 AWS_PROFILE := env("AWS_PROFILE", "crib")
 CDN_CACHE := "public, max-age=300, s-maxage=86400"
 
@@ -52,3 +50,21 @@ invalidate-cache:
         --paths "/*" --profile {{ AWS_PROFILE }}
 
 publish: sync-data-cdn invalidate-cache
+
+contours dem out:
+    gdal pipeline \
+      ! calc --input A={{ dem }} --calc "A<0?-A:NODATA" --ot Float32 \
+      ! resize --size 25%,25% --resampling average \
+      ! neighbors --kernel gaussian --size 5 \
+      ! tee [ write smoothed_depth.tif --overwrite ] \
+      ! contour --levels 50,100,200,1000,2000,4000 --elevation-name depth \
+      ! write {{ out }} --overwrite
+
+# Append a `contours` layer to an existing pmtiles (tippecanoe can't append in place, so build + tile-join)
+append-contours contours target:
+    tippecanoe --force -o /tmp/contours.pmtiles -l contours -zg \
+        --simplification=10 --simplification-at-maximum-zoom=1 --visvalingam \
+        --drop-densest-as-needed --extend-zooms-if-still-dropping \
+        {{ contours }}
+    tile-join --force --no-tile-size-limit -o /tmp/joined.pmtiles {{ target }} /tmp/contours.pmtiles
+    mv /tmp/joined.pmtiles {{ target }}

@@ -6,8 +6,9 @@ app = marimo.App(width="medium")
 
 @app.cell
 def _():
+    import marimo as mo
 
-    return
+    return (mo,)
 
 
 @app.cell
@@ -18,6 +19,7 @@ def _():
     import numpy as np
     import polars as pl
     import rasterio
+    import rioxarray  # noqa F401
 
     DATAPATH = pathlib.Path.cwd() / "data"
     DATASET = (
@@ -100,42 +102,29 @@ def _(con):
         """
     ).fetchnumpy()
     species_ids
-    return
+    return (species_ids,)
 
 
 @app.cell
-def _(con):
-    # used to apply fix to single pixel rasters
-
-    species_ids_one_pixel = con.execute(
-        """
-        SELECT
-            SpecID
-        FROM data
-        GROUP BY SpecID
-        HAVING count(*)=2
-        """
-    ).fetchnumpy()
-    len(species_ids_one_pixel["SpecID"])
-    return (species_ids_one_pixel,)
-
-
-@app.cell
-def _(
-    DATAPATH,
-    RES,
-    con,
-    np,
-    rasterio,
-    species_ids_one_pixel,
-    var_numeric_cols,
-):
-    for spec_id in species_ids_one_pixel["SpecID"].tolist():
+def _(DATAPATH, RES, con, mo, np, rasterio, species_ids, var_numeric_cols):
+    for spec_id in mo.status.progress_bar(species_ids["SpecID"].tolist()):
         df = con.execute("select * from data where SpecID=?", [spec_id]).df()
-        ds = (
-            df.set_index(["Experiment", "Lat", "Lon"])
-            .to_xarray()
-            .sortby("Lat", ascending=False)  # North -> South
+        ds = df.set_index(["Experiment", "Lat", "Lon"]).to_xarray()
+
+        # to_xarray() only creates coords for the Lon/Lat values the species
+        # occupies, so gaps in its range drop whole columns/rows and rioxarray
+        # then infers a stretched resolution. Reindex onto a regular RES grid
+        # spanning the species bbox so gaps become nodata cells instead.
+        # "nearest" + tolerance absorbs float noise in the source coords.
+        lon_min, lon_max = float(ds.Lon.min()), float(ds.Lon.max())
+        lat_min, lat_max = float(ds.Lat.min()), float(ds.Lat.max())
+        n_lon = round((lon_max - lon_min) / RES) + 1
+        n_lat = round((lat_max - lat_min) / RES) + 1
+        ds = ds.reindex(
+            Lon=lon_min + np.arange(n_lon) * RES,
+            Lat=lat_max - np.arange(n_lat) * RES,  # North -> South
+            method="nearest",
+            tolerance=RES / 4,
         )
 
         crs = "EPSG:4326"
@@ -145,10 +134,8 @@ def _(
         # single occurrence pixel have width/height == 1 along Lon/Lat, which
         # makes rioxarray unable to compute a resolution and silently fall back
         # to an identity transform (i.e. the pixel gets written at lon=0, lat=0).
-        lon0 = float(ds.Lon.min())
-        lat0 = float(ds.Lat.max())
         transform = rasterio.transform.from_origin(
-            lon0 - RES / 2, lat0 + RES / 2, RES, RES
+            lon_min - RES / 2, lat_max + RES / 2, RES, RES
         )
 
         for experiment in ds.Experiment.values:
@@ -163,7 +150,10 @@ def _(
             da = da.rio.set_spatial_dims(x_dim="Lon", y_dim="Lat").rio.write_crs(crs)
             da.rio.write_transform(transform, inplace=True)
             filename = (
-                DATAPATH / "03_primary" / "species" / f"{spec_id}_{experiment}.tif"
+                DATAPATH
+                / "02_intermediate"
+                / "species_fixed"
+                / f"{spec_id}_{experiment}.tif"
             )
             filename.parent.mkdir(exist_ok=True)
 
