@@ -1,4 +1,10 @@
-import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import {
+  type SortingState,
+  flexRender,
+  getCoreRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
 
 import {
   Table,
@@ -9,20 +15,28 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { columns } from "./columns";
+import { getColumns } from "./columns";
 
 import { DataTableLegend } from "@/containers/main/table/legend";
 import { useAreas } from "@/hooks/use-areas";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useAtomValue } from "jotai";
 
 import { searchAtom } from "@/containers/main/store";
+import { cn } from "@/lib/utils";
 import { filterByAreaName } from "@/utils/filters";
+import { useScenario } from "@/store";
+
+const ARIA_SORT = { asc: "ascending", desc: "descending" } as const;
+
 export default function DataTable() {
   const searchValue = useAtomValue(searchAtom);
   const { data, isPending } = useAreas();
+  const [scenario] = useScenario();
+  const columns = useMemo(() => getColumns(scenario), [scenario]);
+  const [sorting, setSorting] = useState<SortingState>([]);
 
   const filteredData = useMemo(() => {
     let x = data ?? [];
@@ -33,7 +47,10 @@ export default function DataTable() {
   const table = useReactTable({
     data: filteredData,
     columns,
+    state: { sorting },
+    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
   });
 
   if (isPending) {
@@ -55,16 +72,30 @@ export default function DataTable() {
   }
 
   return (
-    <>
-      {filteredData.length && <span>Total of {filteredData.length} conservation areas</span>}
-      <ScrollArea className="flex-1 h-full overflow-hidden pb-12">
-        <Table className="h-full table-fixed">
-          <TableHeader>
+    <div className="flex min-h-0 flex-1 flex-col gap-1">
+      <p className="flex h-8 items-center gap-1 pt-1 text-xs leading-4 tracking-[0.24px] text-slate-500">
+        Total of
+        <span className="rounded-xs border border-primary bg-teal-100 px-1 text-slate-600">
+          {filteredData.length}
+        </span>
+        conservation areas
+      </p>
+      <ScrollArea className="flex-1 h-full overflow-hidden pb-12 **:data-[slot=table-container]:overflow-visible">
+        <Table className="table-fixed">
+          <TableHeader className="sticky top-0 z-10 bg-slate-50">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className="border-b-0 hover:bg-transparent">
                 {headerGroup.headers.map((header) => {
+                  const sorted = header.column.getIsSorted();
                   return (
-                    <TableHead key={header.id} className="w-1/2 max-w-1/2 font-medium">
+                    <TableHead
+                      key={header.id}
+                      aria-sort={sorted ? ARIA_SORT[sorted] : undefined}
+                      className={cn(
+                        "px-0.5 first:pl-0 shadow-[inset_0_-1px_0] shadow-slate-300",
+                        header.column.columnDef.meta?.className,
+                      )}
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(header.column.columnDef.header, header.getContext())}
@@ -74,28 +105,27 @@ export default function DataTable() {
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
-                </TableCell>
+          <TableBody className="[counter-reset:area]">
+            {table.getRowModel().rows.map((row) => (
+              <TableRow
+                key={row.id}
+                data-state={row.getIsSelected() && "selected"}
+                className="border-slate-200 [counter-increment:area]"
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell
+                    key={cell.id}
+                    className={cn("px-1 py-1.5", cell.column.columnDef.meta?.className)}
+                  >
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
               </TableRow>
-            )}
+            ))}
           </TableBody>
         </Table>
       </ScrollArea>
       <DataTableLegend />
-    </>
+    </div>
   );
 }
