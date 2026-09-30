@@ -1,7 +1,15 @@
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef, RowData } from "@tanstack/react-table";
+import { Link } from "@tanstack/react-router";
+
 import { RiskIndexChart } from "@/containers/main/table/risk-index-chart";
-import { useNavigate } from "@tanstack/react-router";
-import { Button } from "@/components/ui/button";
+import { SortButton } from "@/containers/main/table/sort-button";
+import type { SCENARIO } from "@/types";
+
+declare module "@tanstack/react-table" {
+  interface ColumnMeta<TData extends RowData, TValue> {
+    className?: string;
+  }
+}
 
 export type IndicatorStats = {
   min: number | null;
@@ -32,22 +40,16 @@ export type Area = {
   }[];
 };
 
-const NameCell = ({ id, name }: { id: string; name: string }) => {
-  const navigate = useNavigate();
-
-  const onClick = () => {
-    navigate({ to: "/$area", params: { area: id } });
-  };
-  return (
-    <Button
-      className="max-w-full inline-block truncate hover:underline text-inherit cursor-pointer"
-      variant={"link"}
-      onClick={onClick}
-    >
-      {name}
-    </Button>
-  );
-};
+const NameCell = ({ id, name }: { id: string; name: string }) => (
+  <Link
+    to="/$area"
+    params={{ area: id }}
+    title={name}
+    className="block truncate pl-1 text-xs leading-4 tracking-[0.24px] text-slate-700 before:content-[counter(area)'._'] hover:underline"
+  >
+    {name}
+  </Link>
+);
 
 const IndicatorCell = ({ indicators }: { indicators: Area["indicator"] }) => {
   const climVuln = indicators.find((indicator) => indicator.name === "ClimVuln");
@@ -57,7 +59,7 @@ const IndicatorCell = ({ indicators }: { indicators: Area["indicator"] }) => {
   const hasData = Object.values(climVuln.scenario).some(({ mean }) => mean !== null);
 
   return (
-    <div className="border-l border-r border-slate-200 py-1.5 px-2">
+    <div className="relative before:absolute before:top-1/2 before:-left-1 before:h-7 before:-translate-y-1/2 before:border-l before:border-slate-300 after:absolute after:top-1/2 after:-right-1 after:h-7 after:-translate-y-1/2 after:border-r after:border-slate-300">
       {hasData ? (
         <RiskIndexChart range={{ min: 0, max: 1 }} values={climVuln.scenario} />
       ) : (
@@ -67,15 +69,28 @@ const IndicatorCell = ({ indicators }: { indicators: Area["indicator"] }) => {
   );
 };
 
-export const columns: ColumnDef<Area>[] = [
+const climVulnMean = (area: Area, scenario: SCENARIO) =>
+  area.indicator.find((indicator) => indicator.name === "ClimVuln")?.scenario[scenario].mean ??
+  undefined;
+
+export const getColumns = (scenario: SCENARIO): ColumnDef<Area>[] => [
   {
     accessorKey: "name",
-    header: "Conservation Areas",
+    header: ({ column }) => (
+      <SortButton column={column} className="pl-2">
+        Conservation areas
+      </SortButton>
+    ),
+    sortingFn: (a, b) => a.original.name.localeCompare(b.original.name),
     cell: (ctx) => <NameCell id={ctx.row.original.id} name={ctx.row.original.name} />,
   },
   {
-    accessorKey: "indicator",
-    header: "Overall climate risk",
-    cell: (ctx) => <IndicatorCell indicators={ctx.row.getValue("indicator")} />,
+    id: "risk",
+    accessorFn: (area) => climVulnMean(area, scenario),
+    header: ({ column }) => <SortButton column={column}>Overall climate risk</SortButton>,
+    sortDescFirst: true,
+    sortUndefined: "last",
+    cell: (ctx) => <IndicatorCell indicators={ctx.row.original.indicator} />,
+    meta: { className: "w-60" },
   },
 ];
