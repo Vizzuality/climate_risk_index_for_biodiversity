@@ -1,6 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
-import RiskIndexChart from "@/containers/main/table/risk-index-chart";
-import { useScenario } from "@/store";
+import { RiskIndexChart } from "@/containers/main/table/risk-index-chart";
 import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 
@@ -51,25 +50,18 @@ const NameCell = ({ id, name }: { id: string; name: string }) => {
 };
 
 const IndicatorCell = ({ indicators }: { indicators: Area["indicator"] }) => {
-  const [scenario] = useScenario();
   const climVuln = indicators.find((indicator) => indicator.name === "ClimVuln");
 
   if (!climVuln) return null;
 
-  const { min, mean, max } = climVuln.scenario[scenario];
+  const hasData = Object.values(climVuln.scenario).some(({ mean }) => mean !== null);
 
   return (
-    <div className="border-l border-r border-slate-200 py-3 px-2">
-      {min === null || mean === null || max === null ? (
-        <p className="text-center text-xs text-slate-400">No data</p>
+    <div className="border-l border-r border-slate-200 py-1.5 px-2">
+      {hasData ? (
+        <RiskIndexChart range={{ min: 0, max: 1 }} values={climVuln.scenario} />
       ) : (
-        <RiskIndexChart
-          range={{
-            min: 0,
-            max: 1,
-          }}
-          values={{ min, mean, max }}
-        />
+        <p className="flex h-6 items-center justify-center text-xs text-slate-400">No data</p>
       )}
     </div>
   );
