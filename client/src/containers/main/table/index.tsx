@@ -1,10 +1,4 @@
-import {
-  type SortingState,
-  flexRender,
-  getCoreRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
+import { type Row, type SortingState, flexRender, useTable } from "@tanstack/react-table";
 
 import {
   Table,
@@ -15,13 +9,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { getColumns } from "./columns";
+import { type Area, getColumns } from "./columns";
 
+import { type AreaTableFeatures, areaTableFeatures } from "@/containers/main/table/features";
 import { DataTableLegend } from "@/containers/main/table/legend";
 import { useAreas } from "@/hooks/use-areas";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import { useAtomValue } from "jotai";
 
 import { searchAtom } from "@/containers/main/store";
@@ -30,6 +25,33 @@ import { filterByAreaName } from "@/utils/filters";
 import { useScenario } from "@/store";
 
 const ARIA_SORT = { asc: "ascending", desc: "descending" } as const;
+
+type AreaRowProps = Readonly<{ row: Row<AreaTableFeatures, Area> }>;
+
+// A row keeps its identity when the columns change (e.g. on a scenario
+// switch); cells are cached per row and column, so compare those instead.
+function isSameRow({ row: prev }: AreaRowProps, { row: next }: AreaRowProps) {
+  const prevCells = prev.getAllCells();
+  const nextCells = next.getAllCells();
+  return (
+    prevCells.length === nextCells.length && prevCells.every((cell, i) => cell === nextCells[i])
+  );
+}
+
+const AreaRow = memo(function AreaRow({ row }: AreaRowProps) {
+  return (
+    <TableRow className="border-slate-200 [counter-increment:area]">
+      {row.getAllCells().map((cell) => (
+        <TableCell
+          key={cell.id}
+          className={cn("px-1 py-1.5", cell.column.columnDef.meta?.className)}
+        >
+          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+        </TableCell>
+      ))}
+    </TableRow>
+  );
+}, isSameRow);
 
 export default function DataTable() {
   const searchValue = useAtomValue(searchAtom);
@@ -44,13 +66,13 @@ export default function DataTable() {
     return x;
   }, [data, searchValue]);
 
-  const table = useReactTable({
+  const table = useTable({
+    features: areaTableFeatures,
     data: filteredData,
     columns,
     state: { sorting },
     onSortingChange: setSorting,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
+    getRowId: (area) => area.id,
   });
 
   if (isPending) {
@@ -107,20 +129,7 @@ export default function DataTable() {
           </TableHeader>
           <TableBody className="[counter-reset:area]">
             {table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && "selected"}
-                className="border-slate-200 [counter-increment:area]"
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell
-                    key={cell.id}
-                    className={cn("px-1 py-1.5", cell.column.columnDef.meta?.className)}
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
+              <AreaRow key={row.id} row={row} />
             ))}
           </TableBody>
         </Table>

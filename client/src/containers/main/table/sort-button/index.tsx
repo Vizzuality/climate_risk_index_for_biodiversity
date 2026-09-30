@@ -1,14 +1,19 @@
-import type { Column } from "@tanstack/react-table";
+import type { Column, RowData } from "@tanstack/react-table";
 import { ChevronsUpDown } from "lucide-react";
 import type { ReactNode } from "react";
 
+import type { AreaTableFeatures } from "@/containers/main/table/features";
 import { cn } from "@/lib/utils";
 
-export function SortButton<TData>({
+export function SortButton<TData extends RowData, TValue>({
   column,
   className,
   children,
-}: Readonly<{ column: Column<TData>; className?: string; children: ReactNode }>) {
+}: Readonly<{
+  column: Column<AreaTableFeatures, TData, TValue>;
+  className?: string;
+  children: ReactNode;
+}>) {
   return (
     <button
       type="button"

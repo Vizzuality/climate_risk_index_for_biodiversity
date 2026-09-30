@@ -1,15 +1,10 @@
-import type { ColumnDef, RowData } from "@tanstack/react-table";
+import { type ColumnDef, sortFn_basic } from "@tanstack/react-table";
 import { Link } from "@tanstack/react-router";
 
+import type { AreaTableFeatures } from "@/containers/main/table/features";
 import { RiskIndexChart } from "@/containers/main/table/risk-index-chart";
 import { SortButton } from "@/containers/main/table/sort-button";
 import type { SCENARIO } from "@/types";
-
-declare module "@tanstack/react-table" {
-  interface ColumnMeta<TData extends RowData, TValue> {
-    className?: string;
-  }
-}
 
 export type IndicatorStats = {
   min: number | null;
@@ -73,7 +68,7 @@ const climVulnMean = (area: Area, scenario: SCENARIO) =>
   area.indicator.find((indicator) => indicator.name === "ClimVuln")?.scenario[scenario].mean ??
   undefined;
 
-export const getColumns = (scenario: SCENARIO): ColumnDef<Area>[] => [
+export const getColumns = (scenario: SCENARIO): ColumnDef<AreaTableFeatures, Area>[] => [
   {
     accessorKey: "name",
     header: ({ column }) => (
@@ -81,13 +76,14 @@ export const getColumns = (scenario: SCENARIO): ColumnDef<Area>[] => [
         Conservation areas
       </SortButton>
     ),
-    sortingFn: (a, b) => a.original.name.localeCompare(b.original.name),
+    sortFn: (a, b) => a.original.name.localeCompare(b.original.name),
     cell: (ctx) => <NameCell id={ctx.row.original.id} name={ctx.row.original.name} />,
   },
   {
     id: "risk",
     accessorFn: (area) => climVulnMean(area, scenario),
     header: ({ column }) => <SortButton column={column}>Overall climate risk</SortButton>,
+    sortFn: sortFn_basic,
     sortDescFirst: true,
     sortUndefined: "last",
     cell: (ctx) => <IndicatorCell indicators={ctx.row.original.indicator} />,
