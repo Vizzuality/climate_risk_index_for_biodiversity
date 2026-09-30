@@ -72,7 +72,7 @@ export const getColumns = (scenario: SCENARIO): ColumnDef<AreaTableFeatures, Are
   {
     accessorKey: "name",
     header: ({ column }) => (
-      <SortButton column={column} className="pl-2">
+      <SortButton column={column} enableSortingRemoval={false} className="pl-2">
         Conservation areas
       </SortButton>
     ),

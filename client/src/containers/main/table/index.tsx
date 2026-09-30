@@ -58,7 +58,7 @@ export default function DataTable() {
   const { data, isPending } = useAreas();
   const [scenario] = useScenario();
   const columns = useMemo(() => getColumns(scenario), [scenario]);
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [sorting, setSorting] = useState<SortingState>([{ id: "name", desc: false }]);
 
   const filteredData = useMemo(() => {
     let x = data ?? [];
