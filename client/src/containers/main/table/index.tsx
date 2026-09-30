@@ -11,7 +11,7 @@ import {
 
 import { columns } from "./columns";
 
-import DataTableLegend from "@/containers/main/table/legend";
+import { DataTableLegend } from "@/containers/main/table/legend";
 import { useAreas } from "@/hooks/use-areas";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
