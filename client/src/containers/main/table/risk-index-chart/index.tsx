@@ -1,6 +1,6 @@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import type { IndicatorStats } from "@/containers/main/table/columns";
-import { riskColorFor } from "@/lib/risk-colormap";
+import { RISK_CLASSES, riskColorFor } from "@/lib/risk-colormap";
 import type { SCENARIO } from "@/types";
 
 const formatter = new Intl.NumberFormat("en-US", {
@@ -65,11 +65,17 @@ export function RiskIndexChart({
   range: Range;
   values: Record<SCENARIO, IndicatorStats>;
 }>) {
+  const toPercent = (value: number) => ((value - range.min) / (range.max - range.min)) * 100;
+
   return (
     <div className="relative flex h-6 flex-col justify-center gap-3">
-      <div className="absolute top-1/2 left-1/4 h-7 -translate-1/2 border-l border-dotted border-slate-300" />
-      <div className="absolute top-1/2 left-1/2 h-7 -translate-1/2 border-l border-dotted border-slate-300" />
-      <div className="absolute top-1/2 left-3/4 h-7 -translate-1/2 border-l border-dotted border-slate-300" />
+      {RISK_CLASSES.slice(1).map(({ min }) => (
+        <div
+          key={min}
+          className="absolute top-1/2 h-7 -translate-1/2 border-l border-dotted border-slate-300"
+          style={{ left: `${toPercent(min)}%` }}
+        />
+      ))}
       {SCENARIOS.map(({ scenario, label }) => (
         <ScenarioTrack key={scenario} label={label} range={range} stats={values[scenario]} />
       ))}
