@@ -96,10 +96,10 @@ export default function DataTable() {
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-1">
       <p className="flex h-8 items-center gap-1 pt-1 text-xs leading-4 tracking-[0.24px] text-slate-500">
-        Total of
+        Total of{" "}
         <span className="rounded-xs border border-primary bg-teal-100 px-1 text-slate-600">
           {filteredData.length}
-        </span>
+        </span>{" "}
         conservation areas
       </p>
       <ScrollArea className="flex-1 h-full overflow-hidden pb-12 **:data-[slot=table-container]:overflow-visible">
