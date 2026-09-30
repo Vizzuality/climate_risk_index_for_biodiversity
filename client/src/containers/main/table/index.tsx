@@ -9,7 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { type Area, getColumns } from "./columns";
+import { type TableArea, areaColumns, toTableAreas } from "./columns";
 
 import { type AreaTableFeatures, areaTableFeatures } from "@/containers/main/table/features";
 import { DataTableLegend } from "@/containers/main/table/legend";
@@ -26,17 +26,7 @@ import { useScenario } from "@/store";
 
 const ARIA_SORT = { asc: "ascending", desc: "descending" } as const;
 
-type AreaRowProps = Readonly<{ row: Row<AreaTableFeatures, Area> }>;
-
-// A row keeps its identity when the columns change (e.g. on a scenario
-// switch); cells are cached per row and column, so compare those instead.
-function isSameRow({ row: prev }: AreaRowProps, { row: next }: AreaRowProps) {
-  const prevCells = prev.getAllCells();
-  const nextCells = next.getAllCells();
-  return (
-    prevCells.length === nextCells.length && prevCells.every((cell, i) => cell === nextCells[i])
-  );
-}
+type AreaRowProps = Readonly<{ row: Row<AreaTableFeatures, TableArea> }>;
 
 const AreaRow = memo(function AreaRow({ row }: AreaRowProps) {
   return (
@@ -51,13 +41,12 @@ const AreaRow = memo(function AreaRow({ row }: AreaRowProps) {
       ))}
     </TableRow>
   );
-}, isSameRow);
+});
 
 export default function DataTable() {
   const searchValue = useAtomValue(searchAtom);
   const { data, isPending } = useAreas();
   const [scenario] = useScenario();
-  const columns = useMemo(() => getColumns(scenario), [scenario]);
   const [sorting, setSorting] = useState<SortingState>([{ id: "name", desc: false }]);
 
   const filteredData = useMemo(() => {
@@ -66,10 +55,12 @@ export default function DataTable() {
     return x;
   }, [data, searchValue]);
 
+  const tableData = useMemo(() => toTableAreas(filteredData, scenario), [filteredData, scenario]);
+
   const table = useTable({
     features: areaTableFeatures,
-    data: filteredData,
-    columns,
+    data: tableData,
+    columns: areaColumns,
     state: { sorting },
     onSortingChange: setSorting,
     getRowId: (area) => area.id,
