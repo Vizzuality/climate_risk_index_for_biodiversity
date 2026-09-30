@@ -68,7 +68,15 @@ const climVulnMean = (area: Area, scenario: SCENARIO) =>
   area.indicator.find((indicator) => indicator.name === "ClimVuln")?.scenario[scenario].mean ??
   undefined;
 
-export const getColumns = (scenario: SCENARIO): ColumnDef<AreaTableFeatures, Area>[] => [
+export type TableArea = Area & { risk: number | undefined };
+
+// The table caches row values by column id and only re-sorts when its data
+// changes, so the selected scenario's risk has to live in the data rather than
+// in a scenario-dependent accessor.
+export const toTableAreas = (areas: Area[], scenario: SCENARIO): TableArea[] =>
+  areas.map((area) => ({ ...area, risk: climVulnMean(area, scenario) }));
+
+export const areaColumns: ColumnDef<AreaTableFeatures, TableArea>[] = [
   {
     accessorKey: "name",
     header: ({ column }) => (
@@ -80,8 +88,7 @@ export const getColumns = (scenario: SCENARIO): ColumnDef<AreaTableFeatures, Are
     cell: (ctx) => <NameCell id={ctx.row.original.id} name={ctx.row.original.name} />,
   },
   {
-    id: "risk",
-    accessorFn: (area) => climVulnMean(area, scenario),
+    accessorKey: "risk",
     header: ({ column }) => <SortButton column={column}>Overall climate risk</SortButton>,
     sortFn: sortFn_basic,
     sortDescFirst: true,
