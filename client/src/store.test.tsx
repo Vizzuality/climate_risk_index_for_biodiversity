@@ -5,6 +5,7 @@ import {
   createRootRoute,
   createRoute,
   createRouter,
+  Link,
   Outlet,
   RouterProvider,
 } from "@tanstack/react-router";
@@ -27,6 +28,7 @@ function renderAt(path: string) {
     component: () => (
       <>
         <Toggle />
+        <Link to="/">home</Link>
         <Outlet />
       </>
     ),
@@ -59,6 +61,11 @@ describe("useScenario", () => {
     fireEvent.click(await screen.findByRole("button", { name: "low" }));
     await waitFor(() => expect(router.state.location.href).toBe("/1192"));
     expect(screen.getByRole("status")).toHaveTextContent("low");
+  });
+
+  it("keeps the default scenario out of link hrefs", async () => {
+    renderAt("/1192");
+    expect(await screen.findByRole("link", { name: "home" })).toHaveAttribute("href", "/");
   });
 
   it("falls back to the default for an unknown value", async () => {
