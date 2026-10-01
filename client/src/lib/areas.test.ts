@@ -16,6 +16,7 @@ function makeRow(experiment: number, base: number, overrides: Partial<AreaQueryR
     manager: "Environment and Climate Change Canada",
     url: null,
     area_km2: 10.9,
+    n_distinct_specid: 12.4,
     ClimVuln_min: base - 0.1,
     ClimVuln_max: base + 0.1,
     bbox_xmin: -60.41,

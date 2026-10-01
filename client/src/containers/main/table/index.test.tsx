@@ -24,6 +24,7 @@ const area = (id: string, name: string, low: number, high: number): Area => ({
   manager: "",
   url: null,
   area_km2: null,
+  assessed_species: null,
   bbox: null,
   indicator: [
     {
