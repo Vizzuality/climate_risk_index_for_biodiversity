@@ -13,14 +13,12 @@ import { type TableArea, areaColumns, toTableAreas } from "./columns";
 
 import { type AreaTableFeatures, areaTableFeatures } from "@/containers/main/table/features";
 import { DataTableLegend } from "@/containers/main/table/legend";
-import { useAreas } from "@/hooks/use-areas";
+import { useFilteredAreas } from "@/hooks/use-filtered-areas";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { memo, useMemo, useState } from "react";
 
-import { useAreaSearch } from "@/containers/main/store";
 import { cn } from "@/lib/utils";
-import { filterByAreaName } from "@/utils/filters";
 import { useScenario } from "@/store";
 
 const ARIA_SORT = { asc: "ascending", desc: "descending" } as const;
@@ -43,16 +41,9 @@ const AreaRow = memo(function AreaRow({ row }: AreaRowProps) {
 });
 
 export default function DataTable() {
-  const [searchValue] = useAreaSearch();
-  const { data, isPending } = useAreas();
+  const { data: filteredData = [], isPending } = useFilteredAreas();
   const [scenario] = useScenario();
   const [sorting, setSorting] = useState<SortingState>([{ id: "name", desc: false }]);
-
-  const filteredData = useMemo(() => {
-    let x = data ?? [];
-    if (searchValue !== "") x = filterByAreaName(x, searchValue);
-    return x;
-  }, [data, searchValue]);
 
   const tableData = useMemo(() => toTableAreas(filteredData, scenario), [filteredData, scenario]);
 
@@ -75,7 +66,7 @@ export default function DataTable() {
     );
   }
 
-  if (!filteredData?.length) {
+  if (!filteredData.length) {
     return (
       <div className="flex items-center justify-center h-full">
         <span className="text-gray-500">No conservation areas found.</span>
