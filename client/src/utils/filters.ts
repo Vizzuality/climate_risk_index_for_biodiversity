@@ -5,6 +5,7 @@ import {
   type AreaFilters,
   isAreaFilterActive,
 } from "@/containers/main/store";
+import { BIOREGIONS } from "@/lib/bioregions";
 import { PROTECTION_TYPES } from "@/lib/protection-types";
 
 export function filterByAreaName(areas: Area[], searchTerm: string): Area[] {
@@ -22,6 +23,10 @@ const AREA_FILTER_PREDICATES: AreaFilterPredicates = {
   protection: (area, values) =>
     PROTECTION_TYPES.some(
       (type) => type.layerType === area.layer_type && values.includes(type.value),
+    ),
+  region: (area, values) =>
+    BIOREGIONS.some(
+      (bioregion) => values.includes(bioregion.value) && area.regions.includes(bioregion.region),
     ),
 };
 

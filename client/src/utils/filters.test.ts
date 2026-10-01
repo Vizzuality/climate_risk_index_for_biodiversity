@@ -52,9 +52,24 @@ describe("filterAreas", () => {
   });
 
   it("keeps areas of any selected protection type", () => {
-    expect(filterAreas(typedAreas, { protection: ["pa", "network-site"] })).toEqual([
-      typed("Reserve", "MPA"),
-      typed("Site", "Network Site"),
-    ]);
+    expect(
+      filterAreas(typedAreas, { ...AREA_FILTER_DEFAULTS, protection: ["pa", "network-site"] }),
+    ).toEqual([typed("Reserve", "MPA"), typed("Site", "Network Site")]);
+  });
+
+  it("keeps areas touching any selected bioregion", () => {
+    const located = (name: string, regions: string[]) => ({ name, regions }) as Area;
+    const spanning = located("Spanning", ["Northern Shelf", "Southern Shelf"]);
+    const locatedAreas = [spanning, located("Gulf", ["Strait of Georgia"]), located("Inland", [])];
+
+    expect(
+      filterAreas(locatedAreas, { ...AREA_FILTER_DEFAULTS, region: ["southern-shelf"] }),
+    ).toEqual([spanning]);
+    expect(
+      filterAreas(locatedAreas, {
+        ...AREA_FILTER_DEFAULTS,
+        region: ["northern-shelf", "strait-of-georgia"],
+      }),
+    ).toEqual([spanning, located("Gulf", ["Strait of Georgia"])]);
   });
 });

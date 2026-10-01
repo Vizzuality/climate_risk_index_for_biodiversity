@@ -16,6 +16,7 @@ function makeRow(experiment: number, base: number, overrides: Partial<AreaQueryR
     manager: "Environment and Climate Change Canada",
     url: null,
     area_km2: 10.9,
+    region: "Scotian Shelf and Bay of Fundy, The Estuary and the Gulf of St. Lawrence",
     n_distinct_specid: 12.4,
     ClimVuln_min: base - 0.1,
     ClimVuln_max: base + 0.1,
@@ -101,5 +102,19 @@ describe("buildAreas", () => {
     ]);
 
     expect(areas.map((a) => a.id)).toEqual(["42", "7", "1"]);
+  });
+
+  it("splits the comma-separated bioregions and treats an empty one as none", () => {
+    const [area] = buildAreas([makeRow(126, 0.4), makeRow(585, 0.6)]);
+    expect(area.regions).toEqual([
+      "Scotian Shelf and Bay of Fundy",
+      "The Estuary and the Gulf of St. Lawrence",
+    ]);
+
+    const [unassigned] = buildAreas([
+      makeRow(126, 0.4, { region: "" }),
+      makeRow(585, 0.6, { region: "" }),
+    ]);
+    expect(unassigned.regions).toEqual([]);
   });
 });

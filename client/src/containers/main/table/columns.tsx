@@ -25,6 +25,7 @@ export type Area = {
   url: string | null;
   area_km2: number | null;
   assessed_species: number | null;
+  regions: string[];
   bbox: [number, number, number, number] | null;
   indicator: {
     name: string;
