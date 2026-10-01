@@ -17,9 +17,8 @@ import { useAreas } from "@/hooks/use-areas";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { memo, useMemo, useState } from "react";
-import { useAtomValue } from "jotai";
 
-import { searchAtom } from "@/containers/main/store";
+import { useAreaSearch } from "@/containers/main/store";
 import { cn } from "@/lib/utils";
 import { filterByAreaName } from "@/utils/filters";
 import { useScenario } from "@/store";
@@ -44,7 +43,7 @@ const AreaRow = memo(function AreaRow({ row }: AreaRowProps) {
 });
 
 export default function DataTable() {
-  const searchValue = useAtomValue(searchAtom);
+  const [searchValue] = useAreaSearch();
   const { data, isPending } = useAreas();
   const [scenario] = useScenario();
   const [sorting, setSorting] = useState<SortingState>([{ id: "name", desc: false }]);
