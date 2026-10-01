@@ -4,7 +4,7 @@ import ReactMapGL, { Popup } from "react-map-gl/mapbox";
 import type { MapRef } from "react-map-gl/mapbox";
 
 import "mapbox-gl/dist/mapbox-gl.css";
-import { MapMouseEvent } from "mapbox-gl";
+import type { LngLatBoundsLike, MapMouseEvent } from "mapbox-gl";
 import { useNavigate, useParams } from "@tanstack/react-router";
 
 import { useAreas } from "@/hooks/use-areas";
@@ -20,14 +20,27 @@ const MAX_BOUNDS: [number, number, number, number] = [
   -224.17459662506633, 30.196000914813084, -16.362485879322406, 75.22947015173992,
 ];
 
+const FIT_PADDING = { top: 50, bottom: 50, left: 630, right: 50 };
+
+// A box reaching past maxBounds (Arctic areas touch 85°N) can't be fitted, and the
+// camera clamp that follows pushes other matches out of view.
+const fitTarget = (bbox: [number, number, number, number]): LngLatBoundsLike => {
+  const [w, s, e, n] = clampBbox(bbox, MAX_BOUNDS);
+  return [
+    [w, s],
+    [e, n],
+  ];
+};
+
 export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
   const mapRef = useRef<MapRef>(null);
   const navigate = useNavigate();
   const params = useParams({ strict: false });
   const [popup, setPopup] = useAtom(popupAtom);
   const [mapLoaded, setMapLoaded] = useState(false);
-  const { data: areas } = useAreas();
+  const { data: areas, isPending } = useAreas();
   const { data: matches, q } = useFilteredAreas();
+  const [searchOnMount] = useState(q !== "");
 
   const areaBbox = params.areaId
     ? areas?.find((area) => area.id === params.areaId)?.bbox || null
@@ -35,24 +48,9 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
   const searchBbox = useMemo(() => (q && matches ? unionBbox(matches) : null), [q, matches]);
   const targetBbox = areaBbox ?? searchBbox;
 
-  // areas load async, so the selected-area or search viewport can't be an initialViewState;
-  // this also makes the map follow route and search changes from the table and map clicks.
-  // Gated on the map's load event — camera calls before it are dropped.
   useEffect(() => {
     if (!targetBbox || !mapLoaded) return;
-    // A box reaching past maxBounds (Arctic areas touch 85°N) can't be fitted, and the
-    // camera clamp that follows pushes other matches out of view.
-    const [w, s, e, n] = clampBbox(targetBbox, MAX_BOUNDS);
-    mapRef.current?.fitBounds(
-      [
-        [w, s],
-        [e, n],
-      ],
-      {
-        animate: true,
-        padding: { top: 50, bottom: 50, left: 630, right: 50 },
-      },
-    );
+    mapRef.current?.fitBounds(fitTarget(targetBbox), { animate: true, padding: FIT_PADDING });
   }, [targetBbox, mapLoaded]);
 
   const handleClick = (evt: MapMouseEvent) => {
@@ -71,6 +69,8 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
     }
   };
 
+  if (searchOnMount && isPending) return null;
+
   return (
     <ReactMapGL
       ref={mapRef}
@@ -79,10 +79,11 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
       mapStyle="mapbox://styles/crib2025/cmc9e61rp00a601sh2jgretdw"
       projection="mercator"
       maxBounds={MAX_BOUNDS}
-      initialViewState={{
-        zoom: 1,
-        bounds: MAX_BOUNDS,
-      }}
+      initialViewState={
+        searchBbox
+          ? { bounds: fitTarget(searchBbox), fitBoundsOptions: { padding: FIT_PADDING } }
+          : { zoom: 1, bounds: MAX_BOUNDS }
+      }
       interactiveLayerIds={["wdpa-layer", "bioregions-layer"]}
       onLoad={() => setMapLoaded(true)}
       onClick={handleClick}
