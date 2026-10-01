@@ -40,7 +40,7 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [mapLoaded, setMapLoaded] = useState(false);
   const { data: areas, isPending } = useAreas();
   const { data: matches, q } = useFilteredAreas();
-  const [searchOnMount] = useState(q !== "");
+  const [framedOnMount] = useState(q !== "" || params.areaId !== undefined);
 
   const areaBbox = params.areaId
     ? areas?.find((area) => area.id === params.areaId)?.bbox || null
@@ -69,7 +69,7 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
     }
   };
 
-  if (searchOnMount && isPending) return null;
+  if (framedOnMount && isPending) return null;
 
   return (
     <ReactMapGL
@@ -80,8 +80,8 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
       projection="mercator"
       maxBounds={MAX_BOUNDS}
       initialViewState={
-        searchBbox
-          ? { bounds: fitTarget(searchBbox), fitBoundsOptions: { padding: FIT_PADDING } }
+        targetBbox
+          ? { bounds: fitTarget(targetBbox), fitBoundsOptions: { padding: FIT_PADDING } }
           : { zoom: 1, bounds: MAX_BOUNDS }
       }
       interactiveLayerIds={["wdpa-layer", "bioregions-layer"]}
