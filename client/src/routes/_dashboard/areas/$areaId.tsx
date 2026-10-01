@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import Detail from "@/containers/detail";
 
-export const Route = createFileRoute("/$area")({
+export const Route = createFileRoute("/_dashboard/areas/$areaId")({
   component: Area,
 });
 

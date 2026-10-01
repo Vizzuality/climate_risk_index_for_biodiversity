@@ -26,8 +26,8 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [mapLoaded, setMapLoaded] = useState(false);
   const { data: areas } = useAreas();
 
-  const areaBbox = params.area
-    ? areas?.find((area) => area.id === params.area)?.bbox || null
+  const areaBbox = params.areaId
+    ? areas?.find((area) => area.id === params.areaId)?.bbox || null
     : null;
 
   // areas load async, so the selected-area viewport can't be an initialViewState;
@@ -50,7 +50,7 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
   const handleClick = (evt: MapMouseEvent) => {
     const id = pickAreaFeature(evt.features ?? [])?.id;
     if (id !== undefined && id !== null) {
-      navigate({ to: "/$area", params: { area: String(id) } });
+      navigate({ to: "/areas/$areaId", params: { areaId: String(id) } });
     }
   };
 

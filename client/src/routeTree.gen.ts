@@ -9,12 +9,19 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AreaRouteImport } from './routes/$area'
+import { Route as DashboardRouteImport } from './routes/_dashboard'
+import { Route as AreaIdRouteImport } from './routes/$areaId'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardAreasIndexRouteImport } from './routes/_dashboard/areas/index'
+import { Route as DashboardAreasAreaIdRouteImport } from './routes/_dashboard/areas/$areaId'
 
-const AreaRoute = AreaRouteImport.update({
-  id: '/$area',
-  path: '/$area',
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/_dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AreaIdRoute = AreaIdRouteImport.update({
+  id: '/$areaId',
+  path: '/$areaId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -22,40 +29,71 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardAreasIndexRoute = DashboardAreasIndexRouteImport.update({
+  id: '/areas/',
+  path: '/areas/',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardAreasAreaIdRoute = DashboardAreasAreaIdRouteImport.update({
+  id: '/areas/$areaId',
+  path: '/areas/$areaId',
+  getParentRoute: () => DashboardRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/$area': typeof AreaRoute
+  '/$areaId': typeof AreaIdRoute
+  '/areas/$areaId': typeof DashboardAreasAreaIdRoute
+  '/areas/': typeof DashboardAreasIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/$area': typeof AreaRoute
+  '/$areaId': typeof AreaIdRoute
+  '/areas/$areaId': typeof DashboardAreasAreaIdRoute
+  '/areas': typeof DashboardAreasIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/$area': typeof AreaRoute
+  '/$areaId': typeof AreaIdRoute
+  '/_dashboard': typeof DashboardRouteWithChildren
+  '/_dashboard/areas/$areaId': typeof DashboardAreasAreaIdRoute
+  '/_dashboard/areas/': typeof DashboardAreasIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/$area'
+  fullPaths: '/' | '/$areaId' | '/areas/$areaId' | '/areas/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/$area'
-  id: '__root__' | '/' | '/$area'
+  to: '/' | '/$areaId' | '/areas/$areaId' | '/areas'
+  id:
+    | '__root__'
+    | '/'
+    | '/$areaId'
+    | '/_dashboard'
+    | '/_dashboard/areas/$areaId'
+    | '/_dashboard/areas/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AreaRoute: typeof AreaRoute
+  AreaIdRoute: typeof AreaIdRoute
+  DashboardRoute: typeof DashboardRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/$area': {
-      id: '/$area'
-      path: '/$area'
-      fullPath: '/$area'
-      preLoaderRoute: typeof AreaRouteImport
+    '/_dashboard': {
+      id: '/_dashboard'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$areaId': {
+      id: '/$areaId'
+      path: '/$areaId'
+      fullPath: '/$areaId'
+      preLoaderRoute: typeof AreaIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -65,12 +103,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_dashboard/areas/': {
+      id: '/_dashboard/areas/'
+      path: '/areas'
+      fullPath: '/areas/'
+      preLoaderRoute: typeof DashboardAreasIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/_dashboard/areas/$areaId': {
+      id: '/_dashboard/areas/$areaId'
+      path: '/areas/$areaId'
+      fullPath: '/areas/$areaId'
+      preLoaderRoute: typeof DashboardAreasAreaIdRouteImport
+      parentRoute: typeof DashboardRoute
+    }
   }
 }
 
+interface DashboardRouteChildren {
+  DashboardAreasAreaIdRoute: typeof DashboardAreasAreaIdRoute
+  DashboardAreasIndexRoute: typeof DashboardAreasIndexRoute
+}
+
+const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardAreasAreaIdRoute: DashboardAreasAreaIdRoute,
+  DashboardAreasIndexRoute: DashboardAreasIndexRoute,
+}
+
+const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
+  DashboardRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AreaRoute: AreaRoute,
+  AreaIdRoute: AreaIdRoute,
+  DashboardRoute: DashboardRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
