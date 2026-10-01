@@ -101,6 +101,18 @@ export function MultiSelectCombobox<T extends string>({
               );
             })}
           </CommandList>
+          {value.length > 0 && (
+            <div className="border-t border-slate-300 px-1 py-1.5">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => onChange([])}
+                className="h-8 w-full justify-start rounded-sm px-2 font-normal text-slate-700 hover:bg-slate-100 hover:text-slate-700"
+              >
+                Clear selection
+              </Button>
+            </div>
+          )}
         </Command>
       </PopoverContent>
     </Popover>
