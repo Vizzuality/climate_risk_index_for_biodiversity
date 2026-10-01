@@ -29,13 +29,16 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [popup, setPopup] = useAtom(popupAtom);
   const [mapLoaded, setMapLoaded] = useState(false);
   const { data: areas, isPending, failureCount } = useAreas();
-  const { data: matches, q } = useFilteredAreas();
-  const [framedOnMount] = useState(q !== "" || params.areaId !== undefined);
+  const { data: matches, isFiltered } = useFilteredAreas();
+  const [framedOnMount] = useState(isFiltered || params.areaId !== undefined);
 
   const areaBbox = params.areaId
     ? areas?.find((area) => area.id === params.areaId)?.bbox || null
     : null;
-  const searchBbox = useMemo(() => (q && matches ? unionBbox(matches) : null), [q, matches]);
+  const searchBbox = useMemo(
+    () => (isFiltered && matches ? unionBbox(matches) : null),
+    [isFiltered, matches],
+  );
   // A box reaching past maxBounds (Arctic areas touch 85°N) can't be fitted, and the
   // camera clamp that follows pushes other matches out of view. A box wholly outside
   // clamps to null and leaves the camera alone.

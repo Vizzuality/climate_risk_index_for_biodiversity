@@ -8,13 +8,14 @@ const AREA_ID = ["to-string", ["get", "id"]];
 
 export const WDPALayer = () => {
   const { areaId } = useParams({ strict: false });
-  const { data: matches, q } = useFilteredAreas();
+  const { data: matches, isFiltered } = useFilteredAreas();
 
   const selected = useMemo((): Pick<LayerProps, "filter"> => {
     if (areaId) return { filter: ["==", AREA_ID, areaId] };
-    if (q && matches) return { filter: ["in", AREA_ID, ["literal", matches.map((a) => a.id)]] };
+    if (isFiltered && matches)
+      return { filter: ["in", AREA_ID, ["literal", matches.map((a) => a.id)]] };
     return {};
-  }, [areaId, q, matches]);
+  }, [areaId, isFiltered, matches]);
 
   return (
     <>

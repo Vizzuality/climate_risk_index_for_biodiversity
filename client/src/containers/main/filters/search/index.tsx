@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { SearchIcon } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { useAreaSearch } from "@/containers/main/store";
@@ -24,16 +25,22 @@ export function Search() {
   }, [q, cancelWrite]);
 
   return (
-    <Input
-      type="search"
-      aria-label="Search area by name"
-      placeholder="Search area by name"
-      value={value}
-      onChange={(e) => {
-        setValue(e.target.value);
-        writeDebounced(e.target.value);
-      }}
-      className="w-full"
-    />
+    <div className="relative flex-1">
+      <SearchIcon
+        aria-hidden
+        className="pointer-events-none absolute top-1/2 left-3 size-5 -translate-y-1/2 text-slate-500"
+      />
+      <Input
+        type="search"
+        aria-label="Search area by name"
+        placeholder="Search area by name"
+        value={value}
+        onChange={(e) => {
+          setValue(e.target.value);
+          writeDebounced(e.target.value);
+        }}
+        className="h-10 w-full rounded-[4px] border-slate-300 pl-10 shadow-none placeholder:text-slate-500"
+      />
+    </div>
   );
 }
