@@ -11,7 +11,7 @@ export function DataTableLegend() {
       <span className="flex-1 text-xs leading-4 font-semibold tracking-[1.2px] text-slate-700 uppercase">
         climate risk index
       </span>
-      <div className="flex w-60 px-1">
+      <div className="me-28 flex w-47 px-1">
         {segments.map(({ color, label, width }) => (
           <div key={label} className="flex flex-col gap-0.5" style={{ width: `${width}%` }}>
             <div className="h-1 w-full" style={{ backgroundColor: color }} />

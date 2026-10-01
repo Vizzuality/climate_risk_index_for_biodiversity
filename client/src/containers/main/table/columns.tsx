@@ -24,6 +24,7 @@ export type Area = {
   manager: string;
   url: string | null;
   area_km2: number | null;
+  assessed_species: number | null;
   bbox: [number, number, number, number] | null;
   indicator: {
     name: string;
@@ -64,6 +65,17 @@ const IndicatorCell = ({ indicators }: { indicators: Area["indicator"] }) => {
   );
 };
 
+const speciesFormatter = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
+
+const SpeciesCell = ({ count }: { count: number | null }) =>
+  count === null ? (
+    <p className="text-center text-xs text-slate-400">No data</p>
+  ) : (
+    <p className="text-center text-xs leading-4 tracking-[0.24px] text-slate-700">
+      {speciesFormatter.format(count)}
+    </p>
+  );
+
 const climVulnMean = (area: Area, scenario: SCENARIO) =>
   area.indicator.find((indicator) => indicator.name === "ClimVuln")?.scenario[scenario].mean ??
   undefined;
@@ -94,6 +106,20 @@ export const areaColumns: ColumnDef<AreaTableFeatures, TableArea>[] = [
     sortDescFirst: true,
     sortUndefined: "last",
     cell: (ctx) => <IndicatorCell indicators={ctx.row.original.indicator} />,
-    meta: { className: "w-60" },
+    meta: { className: "w-47" },
+  },
+  {
+    id: "assessed_species",
+    accessorFn: (area) => area.assessed_species ?? undefined,
+    header: ({ column }) => (
+      <SortButton column={column} className="justify-center gap-2.5 text-center">
+        <span className="w-min leading-3 whitespace-normal">Assessed Species</span>
+      </SortButton>
+    ),
+    sortFn: sortFn_basic,
+    sortDescFirst: true,
+    sortUndefined: "last",
+    cell: (ctx) => <SpeciesCell count={ctx.row.original.assessed_species} />,
+    meta: { className: "w-28" },
   },
 ];
