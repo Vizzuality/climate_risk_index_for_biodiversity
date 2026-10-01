@@ -1,12 +1,17 @@
 import { useMemo } from "react";
 
-import { useAreaSearch } from "@/containers/main/store";
+import { useAreaFilters, useAreaSearch } from "@/containers/main/store";
 import { useAreas } from "@/hooks/use-areas";
-import { filterByAreaName } from "@/utils/filters";
+import { filterAreas, filterByAreaName, hasActiveAreaFilters } from "@/utils/filters";
 
 export function useFilteredAreas() {
   const [q] = useAreaSearch();
+  const [filters] = useAreaFilters();
   const { data, isPending } = useAreas();
-  const filtered = useMemo(() => (data && q ? filterByAreaName(data, q) : data), [data, q]);
-  return { data: filtered, isPending, q };
+  const filtered = useMemo(
+    () => data && filterAreas(filterByAreaName(data, q), filters),
+    [data, q, filters],
+  );
+  const isFiltered = q !== "" || hasActiveAreaFilters(filters);
+  return { data: filtered, isPending, isFiltered };
 }
