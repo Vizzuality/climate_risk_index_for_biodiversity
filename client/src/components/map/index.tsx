@@ -4,7 +4,7 @@ import ReactMapGL, { Popup } from "react-map-gl/mapbox";
 import type { MapRef } from "react-map-gl/mapbox";
 
 import "mapbox-gl/dist/mapbox-gl.css";
-import type { LngLatBoundsLike, MapMouseEvent } from "mapbox-gl";
+import type { MapMouseEvent } from "mapbox-gl";
 import { useNavigate, useParams } from "@tanstack/react-router";
 
 import { useAreas } from "@/hooks/use-areas";
@@ -22,23 +22,13 @@ const MAX_BOUNDS: [number, number, number, number] = [
 
 const FIT_PADDING = { top: 50, bottom: 50, left: 630, right: 50 };
 
-// A box reaching past maxBounds (Arctic areas touch 85°N) can't be fitted, and the
-// camera clamp that follows pushes other matches out of view.
-const fitTarget = (bbox: [number, number, number, number]): LngLatBoundsLike => {
-  const [w, s, e, n] = clampBbox(bbox, MAX_BOUNDS);
-  return [
-    [w, s],
-    [e, n],
-  ];
-};
-
 export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
   const mapRef = useRef<MapRef>(null);
   const navigate = useNavigate();
   const params = useParams({ strict: false });
   const [popup, setPopup] = useAtom(popupAtom);
   const [mapLoaded, setMapLoaded] = useState(false);
-  const { data: areas, isPending } = useAreas();
+  const { data: areas, isPending, failureCount } = useAreas();
   const { data: matches, q } = useFilteredAreas();
   const [framedOnMount] = useState(q !== "" || params.areaId !== undefined);
 
@@ -46,11 +36,17 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
     ? areas?.find((area) => area.id === params.areaId)?.bbox || null
     : null;
   const searchBbox = useMemo(() => (q && matches ? unionBbox(matches) : null), [q, matches]);
-  const targetBbox = areaBbox ?? searchBbox;
+  // A box reaching past maxBounds (Arctic areas touch 85°N) can't be fitted, and the
+  // camera clamp that follows pushes other matches out of view. A box wholly outside
+  // clamps to null and leaves the camera alone.
+  const targetBbox = useMemo(() => {
+    const bbox = areaBbox ?? searchBbox;
+    return bbox && clampBbox(bbox, MAX_BOUNDS);
+  }, [areaBbox, searchBbox]);
 
   useEffect(() => {
     if (!targetBbox || !mapLoaded) return;
-    mapRef.current?.fitBounds(fitTarget(targetBbox), { animate: true, padding: FIT_PADDING });
+    mapRef.current?.fitBounds(targetBbox, { animate: true, padding: FIT_PADDING });
   }, [targetBbox, mapLoaded]);
 
   const handleClick = (evt: MapMouseEvent) => {
@@ -69,7 +65,7 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
     }
   };
 
-  if (framedOnMount && isPending) return null;
+  if (framedOnMount && isPending && failureCount === 0) return null;
 
   return (
     <ReactMapGL
@@ -81,7 +77,7 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
       maxBounds={MAX_BOUNDS}
       initialViewState={
         targetBbox
-          ? { bounds: fitTarget(targetBbox), fitBoundsOptions: { padding: FIT_PADDING } }
+          ? { bounds: targetBbox, fitBoundsOptions: { padding: FIT_PADDING } }
           : { zoom: 1, bounds: MAX_BOUNDS }
       }
       interactiveLayerIds={["wdpa-layer", "bioregions-layer"]}
