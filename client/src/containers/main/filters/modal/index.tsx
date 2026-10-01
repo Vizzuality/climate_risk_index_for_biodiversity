@@ -1,6 +1,7 @@
 import { useId, useState } from "react";
-import { ChevronsUpDownIcon, XIcon } from "lucide-react";
+import { XIcon } from "lucide-react";
 
+import { MultiSelectCombobox } from "@/components/multi-select-combobox";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -11,6 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { PROTECTION_TYPES } from "@/lib/protection-types";
 import { cn } from "@/lib/utils";
 import { AREA_FILTER_DEFAULTS, type AreaFilters, useAreaFilters } from "@/containers/main/store";
 
@@ -21,29 +23,23 @@ const BUTTON_CLASSES = "h-9 rounded-[4px] font-normal text-slate-700";
 
 const FIELD_LABEL_CLASSES = "text-sm text-slate-800";
 
-type ComboboxFieldProps = Readonly<{ label: string; placeholder: string }>;
+type ComboboxFieldProps<T extends string> = Readonly<
+  { label: string } & Omit<React.ComponentProps<typeof MultiSelectCombobox<T>>, "id">
+>;
 
-function ComboboxField({ label, placeholder }: ComboboxFieldProps) {
+function ComboboxField<T extends string>({ label, ...props }: ComboboxFieldProps<T>) {
   const id = useId();
   return (
     <div className="flex flex-col gap-1">
       <label htmlFor={id} className={FIELD_LABEL_CLASSES}>
         {label}
       </label>
-      <Button
-        id={id}
-        type="button"
-        variant="outline"
-        aria-haspopup="listbox"
-        disabled
-        className="h-[35px] w-full justify-between rounded-[4px] border-slate-300 bg-slate-50 px-4 font-normal text-slate-700 shadow-none"
-      >
-        {placeholder}
-        <ChevronsUpDownIcon className="text-slate-500" />
-      </Button>
+      <MultiSelectCombobox id={id} {...props} />
     </div>
   );
 }
+
+const NO_OPTIONS = { options: [], value: [], onChange: () => {}, disabled: true } as const;
 
 type CheckboxFieldProps = Readonly<{ label: string; options: string[] }>;
 
@@ -102,9 +98,15 @@ export function FiltersModal() {
         </DialogDescription>
 
         <div className="flex flex-col gap-6">
-          <ComboboxField label="Type of protection" placeholder="Select type of protection" />
-          <ComboboxField label="Regions" placeholder="Select region" />
-          <ComboboxField label="Species" placeholder="Select species" />
+          <ComboboxField
+            label="Type of protection"
+            placeholder="Select type of protection"
+            options={PROTECTION_TYPES}
+            value={draft.protection}
+            onChange={(protection) => setDraft((prev) => ({ ...prev, protection }))}
+          />
+          <ComboboxField label="Regions" placeholder="Select region" {...NO_OPTIONS} />
+          <ComboboxField label="Species" placeholder="Select species" {...NO_OPTIONS} />
           <CheckboxField label="Size" options={SIZE_OPTIONS} />
           <CheckboxField label="Seafloor depth and topography" options={DEPTH_OPTIONS} />
         </div>

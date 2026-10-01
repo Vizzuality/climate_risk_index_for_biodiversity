@@ -1,25 +1,65 @@
 import { useMemo } from "react";
 import { type SearchSchemaInput, useNavigate, useSearch } from "@tanstack/react-router";
 
-// Each filter adds its key, default and URL parser here and its predicate in
-// `AREA_FILTER_PREDICATES` (utils/filters.ts); multi-value filters are comma-separated.
-export type AreaFilters = Record<never, never>;
+import { PROTECTION_TYPE_VALUES } from "@/lib/protection-types";
 
-export const AREA_FILTER_DEFAULTS: AreaFilters = {};
+type FilterCodec<T> = { parse: (raw: unknown) => T; serialize: (value: T) => string };
 
-export const AREA_FILTER_KEYS = Object.keys(AREA_FILTER_DEFAULTS) as (keyof AreaFilters)[];
+// Serialized in the allowed order so equal selections always produce the same URL.
+const multiValue = <T extends string>(allowed: readonly T[]): FilterCodec<T[]> => ({
+  parse: (raw) => {
+    if (typeof raw !== "string") return [];
+    const values = new Set(raw.split(","));
+    return allowed.filter((value) => values.has(value));
+  },
+  serialize: (values) => allowed.filter((value) => values.includes(value)).join(","),
+});
 
-const validateAreaFilters = (_search: Record<string, unknown>): AreaFilters => ({});
+// Each filter adds its codec here and its predicate in `AREA_FILTER_PREDICATES`
+// (utils/filters.ts). An inactive filter serializes to "" and is stripped from the URL.
+const AREA_FILTER_CODECS = {
+  protection: multiValue(PROTECTION_TYPE_VALUES),
+};
 
-type AreaListSearch = { q: string } & AreaFilters;
+type AreaFilterCodecs = typeof AREA_FILTER_CODECS;
 
-export const AREA_LIST_SEARCH_DEFAULTS: AreaListSearch = { q: "", ...AREA_FILTER_DEFAULTS };
+export type AreaFilterKey = keyof AreaFilterCodecs;
+
+export type AreaFilters = { [K in AreaFilterKey]: ReturnType<AreaFilterCodecs[K]["parse"]> };
+
+type AreaFiltersSearch = Record<AreaFilterKey, string>;
+
+export const AREA_FILTER_KEYS = Object.keys(AREA_FILTER_CODECS) as AreaFilterKey[];
+
+const codecFor = (key: AreaFilterKey) => AREA_FILTER_CODECS[key] as FilterCodec<unknown>;
+
+const parseAreaFilters = (search: Partial<Record<AreaFilterKey, unknown>>) =>
+  Object.fromEntries(
+    AREA_FILTER_KEYS.map((key) => [key, codecFor(key).parse(search[key])]),
+  ) as AreaFilters;
+
+const serializeAreaFilters = (filters: AreaFilters) =>
+  Object.fromEntries(
+    AREA_FILTER_KEYS.map((key) => [key, codecFor(key).serialize(filters[key])]),
+  ) as AreaFiltersSearch;
+
+export const AREA_FILTER_DEFAULTS = parseAreaFilters({});
+
+export const isAreaFilterActive = (filters: AreaFilters, key: AreaFilterKey) =>
+  codecFor(key).serialize(filters[key]) !== "";
+
+type AreaListSearch = { q: string } & AreaFiltersSearch;
+
+export const AREA_LIST_SEARCH_DEFAULTS: AreaListSearch = {
+  q: "",
+  ...serializeAreaFilters(AREA_FILTER_DEFAULTS),
+};
 
 export const validateAreaListSearch = (
-  search: { q?: unknown } & SearchSchemaInput,
+  search: { q?: unknown } & Partial<Record<AreaFilterKey, unknown>> & SearchSchemaInput,
 ): AreaListSearch => ({
   q: typeof search.q === "string" ? search.q : AREA_LIST_SEARCH_DEFAULTS.q,
-  ...validateAreaFilters(search),
+  ...serializeAreaFilters(parseAreaFilters(search)),
 });
 
 // Non-strict so the hook works under any route tree whose list route validates `q`.
@@ -32,16 +72,10 @@ export const useAreaSearch = () => {
 };
 
 export const useAreaFilters = () => {
-  const search: Partial<AreaFilters> = useSearch({ strict: false });
+  const search: Partial<AreaFiltersSearch> = useSearch({ strict: false });
   const navigate = useNavigate();
-  const filters = useMemo(
-    () =>
-      Object.fromEntries(
-        AREA_FILTER_KEYS.map((key) => [key, search[key] ?? AREA_FILTER_DEFAULTS[key]]),
-      ) as AreaFilters,
-    [search],
-  );
+  const filters = useMemo(() => parseAreaFilters(search), [search]);
   const applyFilters = (next: AreaFilters) =>
-    navigate({ to: ".", search: (prev) => ({ ...prev, ...next }) });
+    navigate({ to: ".", search: (prev) => ({ ...prev, ...serializeAreaFilters(next) }) });
   return [filters, applyFilters] as const;
 };

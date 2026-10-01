@@ -11,16 +11,18 @@ import {
 
 import type { Area } from "@/containers/main/table/columns";
 import DataTable from "@/containers/main/table";
+import { FiltersModal } from "@/containers/main/filters/modal";
 import { Search } from "@/containers/main/filters/search";
 import { AREA_LIST_SEARCH_DEFAULTS, validateAreaListSearch } from "@/containers/main/store";
+import { stringifySearch } from "@/lib/search-params";
 import { scenarioSearch, useScenario } from "@/store";
 
-const area = (id: string, name: string, low: number, high: number): Area => ({
+const area = (id: string, name: string, low: number, high: number, layer_type = ""): Area => ({
   id,
   name,
   name_fr: name,
   source: "",
-  layer_type: "",
+  layer_type,
   status: "",
   designation_type: "",
   iucn_category: "",
@@ -42,9 +44,9 @@ const area = (id: string, name: string, low: number, high: number): Area => ({
 });
 
 const AREAS = [
-  area("1", "Alpha", 0.9, 0.2),
-  area("2", "Bravo", 0.5, 0.5),
-  area("3", "Charlie", 0.1, 0.8),
+  area("1", "Alpha", 0.9, 0.2, "MPA"),
+  area("2", "Bravo", 0.5, 0.5, "EBSA"),
+  area("3", "Charlie", 0.1, 0.8, "OECM"),
 ];
 
 vi.mock("@/hooks/use-areas", () => ({ useAreas: () => ({ data: AREAS, isPending: false }) }));
@@ -55,6 +57,7 @@ beforeAll(() => {
     unobserve() {}
     disconnect() {}
   };
+  Element.prototype.scrollIntoView ??= () => {};
 });
 
 function ScenarioButtons() {
@@ -69,6 +72,7 @@ function renderTable(path = "/areas") {
       <>
         <ScenarioButtons />
         <Search />
+        <FiltersModal />
         <DataTable />
       </>
     ),
@@ -83,6 +87,7 @@ function renderTable(path = "/areas") {
   const router = createRouter({
     routeTree: rootRoute.addChildren([indexRoute, areaRoute]),
     history: createMemoryHistory({ initialEntries: [path] }),
+    stringifySearch,
   });
   render(<RouterProvider router={router} />);
   return router;
@@ -124,5 +129,25 @@ describe("DataTable", () => {
     renderTable("/areas?scenario=high&q=bra");
     const link = await screen.findByRole("link", { name: "Bravo" });
     expect(link.getAttribute("href")).toBe("/areas/2?scenario=high");
+  });
+
+  it("filters from the protection search param on load", async () => {
+    renderTable("/areas?protection=ebsa,oecm");
+    await screen.findByRole("link", { name: "Bravo" });
+    expect(areaOrder()).toEqual(["Bravo", "Charlie"]);
+  });
+
+  it("writes the applied protection types to the URL", async () => {
+    const router = renderTable("/areas?q=a");
+    fireEvent.click(await screen.findByRole("button", { name: "Filters" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Type of protection" }));
+    fireEvent.click(await screen.findByRole("option", { name: "Conservation network site" }));
+    fireEvent.click(screen.getByRole("option", { name: "Protected area" }));
+    fireEvent.click(screen.getByRole("button", { name: "Apply Filters" }));
+
+    await waitFor(() =>
+      expect(router.state.location.href).toBe("/areas?q=a&protection=pa,network-site"),
+    );
+    expect(areaOrder()).toEqual(["Alpha"]);
   });
 });
