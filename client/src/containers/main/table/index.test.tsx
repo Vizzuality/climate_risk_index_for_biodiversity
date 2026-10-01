@@ -30,6 +30,7 @@ const area = (id: string, name: string, low: number, high: number, layer_type = 
   url: null,
   area_km2: null,
   assessed_species: null,
+  regions: [],
   bbox: null,
   indicator: [
     {
@@ -143,7 +144,8 @@ describe("DataTable", () => {
     fireEvent.click(await screen.findByRole("button", { name: "Type of protection" }));
     fireEvent.click(await screen.findByRole("option", { name: "Conservation network site" }));
     fireEvent.click(screen.getByRole("option", { name: "Protected area" }));
-    fireEvent.click(screen.getByRole("button", { name: "Apply Filters" }));
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: "Escape" });
+    fireEvent.click(await screen.findByRole("button", { name: "Apply Filters" }));
 
     await waitFor(() =>
       expect(router.state.location.href).toBe("/areas?q=a&protection=pa,network-site"),

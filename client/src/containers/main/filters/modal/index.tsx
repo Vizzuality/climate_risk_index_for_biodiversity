@@ -12,6 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { BIOREGIONS } from "@/lib/bioregions";
 import { PROTECTION_TYPES } from "@/lib/protection-types";
 import { cn } from "@/lib/utils";
 import { AREA_FILTER_DEFAULTS, type AreaFilters, useAreaFilters } from "@/containers/main/store";
@@ -105,7 +106,14 @@ export function FiltersModal() {
             value={draft.protection}
             onChange={(protection) => setDraft((prev) => ({ ...prev, protection }))}
           />
-          <ComboboxField label="Regions" placeholder="Select region" {...NO_OPTIONS} />
+          <ComboboxField
+            label="Regions"
+            placeholder="Select region"
+            searchPlaceholder="Search region"
+            options={BIOREGIONS}
+            value={draft.region}
+            onChange={(region) => setDraft((prev) => ({ ...prev, region }))}
+          />
           <ComboboxField label="Species" placeholder="Select species" {...NO_OPTIONS} />
           <CheckboxField label="Size" options={SIZE_OPTIONS} />
           <CheckboxField label="Seafloor depth and topography" options={DEPTH_OPTIONS} />

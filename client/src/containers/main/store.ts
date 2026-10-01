@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { type SearchSchemaInput, useNavigate, useSearch } from "@tanstack/react-router";
 
+import { BIOREGION_VALUES } from "@/lib/bioregions";
 import { PROTECTION_TYPE_VALUES } from "@/lib/protection-types";
 
 type FilterCodec<T> = { parse: (raw: unknown) => T; serialize: (value: T) => string };
@@ -19,6 +20,7 @@ const multiValue = <T extends string>(allowed: readonly T[]): FilterCodec<T[]> =
 // (utils/filters.ts). An inactive filter serializes to "" and is stripped from the URL.
 const AREA_FILTER_CODECS = {
   protection: multiValue(PROTECTION_TYPE_VALUES),
+  region: multiValue(BIOREGION_VALUES),
 };
 
 type AreaFilterCodecs = typeof AREA_FILTER_CODECS;

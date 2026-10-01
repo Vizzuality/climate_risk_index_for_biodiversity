@@ -16,6 +16,7 @@ export type AreaQueryRow = {
   manager: string;
   url: string | null;
   area_km2: number | null;
+  region: string | null;
   n_distinct_specid: number | null;
   ClimVuln_min: number | null;
   ClimVuln_max: number | null;
@@ -84,6 +85,7 @@ export function buildAreas(rows: AreaQueryRow[]): Area[] {
       url: low.url,
       area_km2: low.area_km2,
       assessed_species: low.n_distinct_specid,
+      regions: low.region ? low.region.split(", ") : [],
       bbox: bbox(low),
       indicator: INDICATOR_COLUMNS.map((name) => ({
         name,
