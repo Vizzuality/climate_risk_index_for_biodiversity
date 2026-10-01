@@ -42,7 +42,7 @@ describe("legacy redirects", () => {
   ])("redirects %s to %s without adding a history entry", async (from, to) => {
     const { router, history } = renderAt(from);
     await waitFor(() => expect(router.state.location.href).toBe(to));
-    expect(history.length).toBe(1);
+    expect(history).toHaveLength(1);
   });
 
   it("renders not found for a top-level path that is not an area id", async () => {
