@@ -1,3 +1,5 @@
+import { useRef, useState } from "react";
+
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import type { IndicatorStats } from "@/containers/main/table/columns";
 import { RISK_CLASSES, riskColorFor } from "@/lib/risk-colormap";
@@ -15,6 +17,8 @@ const SCENARIOS: { scenario: SCENARIO; label: string }[] = [
 
 type Range = { min: number; max: number };
 
+const STICKY_HEADER_PADDING = { top: 40 };
+
 function ScenarioTrack({
   label,
   range,
@@ -22,6 +26,14 @@ function ScenarioTrack({
 }: Readonly<{ label: string; range: Range; stats: IndicatorStats }>) {
   const { min, mean, max } = stats;
   const toPercent = (value: number) => ((value - range.min) / (range.max - range.min)) * 100;
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const [scrollViewport, setScrollViewport] = useState<Element | null>(null);
+
+  const onOpenChange = (open: boolean) => {
+    if (open) {
+      setScrollViewport(triggerRef.current?.closest("[data-slot=scroll-area-viewport]") ?? null);
+    }
+  };
 
   return (
     <div className="relative h-px w-full bg-slate-300">
@@ -31,13 +43,21 @@ function ScenarioTrack({
             className="absolute inset-y-0 rounded-xs bg-slate-700"
             style={{ left: `${toPercent(min)}%`, width: `${toPercent(max) - toPercent(min)}%` }}
           />
-          <Popover>
+          <Popover onOpenChange={onOpenChange}>
             <PopoverTrigger
+              ref={triggerRef}
               aria-label={`${label}: mean ${formatter.format(mean)}`}
               className="absolute top-1/2 size-2 -translate-1/2 rotate-45 cursor-pointer shadow-md"
               style={{ left: `${toPercent(mean)}%`, backgroundColor: riskColorFor(mean) }}
             />
-            <PopoverContent className="w-auto" side="top" sideOffset={8}>
+            <PopoverContent
+              className="w-auto"
+              side="top"
+              sideOffset={8}
+              collisionBoundary={scrollViewport}
+              collisionPadding={STICKY_HEADER_PADDING}
+              hideWhenDetached
+            >
               <p className="mb-1 text-xs font-semibold">{label}</p>
               <ul className="flex flex-col gap-1 text-xs">
                 <li>
