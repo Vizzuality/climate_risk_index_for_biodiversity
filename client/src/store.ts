@@ -19,8 +19,9 @@ export const scenarioSearch = {
   }),
   search: {
     middlewares: [
-      retainSearchParams<ScenarioSearch>(true),
+      // Strip must wrap retain: retain re-adds the validated default from the current location.
       stripSearchParams<ScenarioSearch>({ scenario: DEFAULT_SCENARIO }),
+      retainSearchParams<ScenarioSearch>(true),
     ],
   },
 };
