@@ -18,11 +18,12 @@ export function unionBbox(areas: readonly Area[]): Bbox | null {
   return union;
 }
 
-export function clampBbox(bbox: Bbox, bounds: Bbox): Bbox {
-  return [
+export function clampBbox(bbox: Bbox, bounds: Bbox): Bbox | null {
+  const clamped: Bbox = [
     Math.max(bbox[0], bounds[0]),
     Math.max(bbox[1], bounds[1]),
     Math.min(bbox[2], bounds[2]),
     Math.min(bbox[3], bounds[3]),
   ];
+  return clamped[0] <= clamped[2] && clamped[1] <= clamped[3] ? clamped : null;
 }
