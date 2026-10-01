@@ -1,4 +1,4 @@
-import Search from "@/containers/main/filters/search";
+import { Search } from "@/containers/main/filters/search";
 
 export default function Filters() {
   return (

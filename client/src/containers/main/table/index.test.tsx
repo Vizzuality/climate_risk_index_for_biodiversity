@@ -6,10 +6,13 @@ import {
   createRoute,
   createRouter,
   RouterProvider,
+  stripSearchParams,
 } from "@tanstack/react-router";
 
 import type { Area } from "@/containers/main/table/columns";
 import DataTable from "@/containers/main/table";
+import { Search } from "@/containers/main/filters/search";
+import { AREA_LIST_SEARCH_DEFAULTS, validateAreaListSearch } from "@/containers/main/store";
 import { scenarioSearch, useScenario } from "@/store";
 
 const area = (id: string, name: string, low: number, high: number): Area => ({
@@ -59,23 +62,30 @@ function ScenarioButtons() {
   return <button onClick={() => setScenario("high")}>high scenario</button>;
 }
 
-function renderTable() {
+function renderTable(path = "/areas") {
   const rootRoute = createRootRoute({
     ...scenarioSearch,
     component: () => (
       <>
         <ScenarioButtons />
+        <Search />
         <DataTable />
       </>
     ),
   });
-  const indexRoute = createRoute({ getParentRoute: () => rootRoute, path: "/areas" });
+  const indexRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/areas",
+    validateSearch: validateAreaListSearch,
+    search: { middlewares: [stripSearchParams(AREA_LIST_SEARCH_DEFAULTS)] },
+  });
   const areaRoute = createRoute({ getParentRoute: () => rootRoute, path: "/areas/$areaId" });
   const router = createRouter({
     routeTree: rootRoute.addChildren([indexRoute, areaRoute]),
-    history: createMemoryHistory({ initialEntries: ["/areas"] }),
+    history: createMemoryHistory({ initialEntries: [path] }),
   });
   render(<RouterProvider router={router} />);
+  return router;
 }
 
 const areaOrder = () => screen.getAllByRole("link").map((link) => link.textContent);
@@ -88,5 +98,31 @@ describe("DataTable", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "high scenario" }));
     await waitFor(() => expect(areaOrder()).toEqual(["Charlie", "Bravo", "Alpha"]));
+  });
+
+  it("filters from the q search param and pre-fills the search box", async () => {
+    renderTable("/areas?q=bra");
+    const search = await screen.findByRole<HTMLInputElement>("searchbox");
+    expect(search.value).toBe("bra");
+    expect(areaOrder()).toEqual(["Bravo"]);
+  });
+
+  it("writes the search to q and drops it when cleared", async () => {
+    const router = renderTable("/areas?scenario=high");
+    const search = await screen.findByRole("searchbox");
+
+    fireEvent.change(search, { target: { value: "char" } });
+    await waitFor(() => expect(router.state.location.href).toBe("/areas?scenario=high&q=char"));
+    expect(areaOrder()).toEqual(["Charlie"]);
+
+    fireEvent.change(search, { target: { value: "" } });
+    await waitFor(() => expect(router.state.location.href).toBe("/areas?scenario=high"));
+    expect(areaOrder()).toHaveLength(3);
+  });
+
+  it("keeps q out of area detail links", async () => {
+    renderTable("/areas?scenario=high&q=bra");
+    const link = await screen.findByRole("link", { name: "Bravo" });
+    expect(link.getAttribute("href")).toBe("/areas/2?scenario=high");
   });
 });
