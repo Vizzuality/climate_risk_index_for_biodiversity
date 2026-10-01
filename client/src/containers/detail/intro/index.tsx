@@ -7,7 +7,7 @@ export default function DetailIntro() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex gap-1 items-center text-xs text-slate-400">
-        <Link to="/" className="italic">
+        <Link to="/areas" className="italic">
           Marine conservation areas
         </Link>
         <span className="text-slate-400 text-base">{">"}</span>

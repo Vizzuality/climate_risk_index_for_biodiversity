@@ -18,14 +18,19 @@ export default function Navigation() {
       <nav className={cn("bg-black-900 z-20 flex flex-col justify-between")}>
         <ul>
           <Link
-            to="/"
-            className="bg-foreground relative flex flex-col gap-1 items-center px-2 py-4 after:absolute after:left-0 after:h-full after:bg-primary after:w-[3px] after:top-0"
+            to="/areas"
+            className="relative flex flex-col gap-1 items-center px-2 py-4"
+            inactiveProps={{ className: "text-slate-700" }}
+            activeProps={{
+              className:
+                "bg-foreground text-white after:absolute after:left-0 after:h-full after:bg-primary after:w-[3px] after:top-0",
+            }}
           >
             <>
               <span aria-hidden="true" className="py-2">
-                <LucideMapPinned className="size-6 text-white" />
+                <LucideMapPinned className="size-6" />
               </span>
-              <span className="overflow-wrap-anywhere break-word w-full text-center whitespace-normal text-white text-xs font-medium tracking-tight">
+              <span className="overflow-wrap-anywhere break-word w-full text-center whitespace-normal text-xs font-medium tracking-tight">
                 Conservation Areas
               </span>
             </>

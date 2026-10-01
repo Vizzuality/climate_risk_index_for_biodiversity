@@ -69,11 +69,11 @@ function renderTable() {
       </>
     ),
   });
-  const indexRoute = createRoute({ getParentRoute: () => rootRoute, path: "/" });
-  const areaRoute = createRoute({ getParentRoute: () => rootRoute, path: "/$area" });
+  const indexRoute = createRoute({ getParentRoute: () => rootRoute, path: "/areas" });
+  const areaRoute = createRoute({ getParentRoute: () => rootRoute, path: "/areas/$areaId" });
   const router = createRouter({
     routeTree: rootRoute.addChildren([indexRoute, areaRoute]),
-    history: createMemoryHistory({ initialEntries: ["/"] }),
+    history: createMemoryHistory({ initialEntries: ["/areas"] }),
   });
   render(<RouterProvider router={router} />);
 }

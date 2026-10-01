@@ -1,4 +1,4 @@
-import { ClientOnly, createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
+import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
 
 import "@fontsource/red-hat-display/400.css";
 import "@fontsource/red-hat-display/500.css";
@@ -6,13 +6,8 @@ import "@fontsource/red-hat-display/600.css";
 import "@fontsource/red-hat-display/900.css";
 import appCss from "@/styles/globals.css?url";
 
-import { Sidebar, SidebarContent, SidebarProvider } from "@/components/ui/sidebar";
 import { QueryProvider } from "@/providers/react-query";
-import { MapProvider } from "@/providers/map";
-import Navigation from "@/components/navigation";
-import { MapView } from "@/components/map";
-import ScenarioToggle from "@/components/scenario-toggle";
-import LayerManager from "@/containers/map/layer-manager";
+import { NotFound } from "@/components/not-found";
 import { scenarioSearch } from "@/store";
 
 export const Route = createRootRoute({
@@ -30,33 +25,15 @@ export const Route = createRootRoute({
     ],
   }),
   component: RootComponent,
+  notFoundComponent: NotFound,
 });
 
 function RootComponent() {
   return (
     <RootDocument>
-      <SidebarProvider>
-        <QueryProvider>
-          <MapProvider>
-            <div className="absolute h-full">
-              <Navigation />
-              <Sidebar className="left-[5.125rem]">
-                <SidebarContent>
-                  <Outlet />
-                </SidebarContent>
-              </Sidebar>
-            </div>
-            <div className="h-screen w-full">
-              <ClientOnly fallback={null}>
-                <MapView>
-                  <ScenarioToggle />
-                  <LayerManager />
-                </MapView>
-              </ClientOnly>
-            </div>
-          </MapProvider>
-        </QueryProvider>
-      </SidebarProvider>
+      <QueryProvider>
+        <Outlet />
+      </QueryProvider>
     </RootDocument>
   );
 }

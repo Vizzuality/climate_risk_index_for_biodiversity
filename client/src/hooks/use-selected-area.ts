@@ -6,7 +6,7 @@ import { useParams } from "@tanstack/react-router";
 export function useSelectedArea() {
   const params = useParams({ strict: false });
   const { data: areas } = useAreas();
-  const areaId = params.area;
+  const areaId = params.areaId;
 
   return React.useMemo(() => {
     if (!areaId) return null;

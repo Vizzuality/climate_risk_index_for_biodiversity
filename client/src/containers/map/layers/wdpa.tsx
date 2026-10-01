@@ -4,8 +4,8 @@ import { AREAS_SOURCE_ID, AREAS_SOURCE_LAYER } from "@/containers/map/layers/are
 
 export const WDPALayer = () => {
   const params = useParams({ strict: false });
-  const { area } = params;
-  const selected = area ? { filter: ["==", ["to-string", ["get", "id"]], area] } : {};
+  const { areaId } = params;
+  const selected = areaId ? { filter: ["==", ["to-string", ["get", "id"]], areaId] } : {};
 
   return (
     <>
