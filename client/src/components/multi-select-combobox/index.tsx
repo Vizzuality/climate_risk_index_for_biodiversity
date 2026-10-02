@@ -23,6 +23,12 @@ type MultiSelectComboboxProps<T extends string> = Readonly<{
   disabled?: boolean;
 }>;
 
+function summarize(selected: readonly Option<string>[], placeholder: string) {
+  if (selected.length === 0) return placeholder;
+  if (selected.length === 1) return selected[0].label;
+  return `${selected.length} selected`;
+}
+
 export function MultiSelectCombobox<T extends string>({
   id,
   options,
@@ -35,12 +41,7 @@ export function MultiSelectCombobox<T extends string>({
   const [open, setOpen] = useState(false);
   const listId = useId();
   const selected = options.filter((option) => value.includes(option.value));
-  const summary =
-    selected.length === 0
-      ? placeholder
-      : selected.length === 1
-        ? selected[0].label
-        : `${selected.length} selected`;
+  const summary = summarize(selected, placeholder);
 
   const toggle = (option: T) =>
     onChange(value.includes(option) ? value.filter((v) => v !== option) : [...value, option]);
