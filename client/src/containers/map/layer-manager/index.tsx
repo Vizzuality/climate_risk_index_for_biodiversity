@@ -10,8 +10,6 @@ export default function LayerManager() {
   return (
     <>
       <AreasSource>
-        {/* Mount order is stacking order: bioregion outlines follow the same
-            coastlines as the areas and would wash them out if drawn on top. */}
         <BioregionsLayer />
         <WDPALayer />
       </AreasSource>

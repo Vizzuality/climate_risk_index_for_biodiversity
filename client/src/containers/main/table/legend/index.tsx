@@ -1,6 +1,6 @@
 import { RISK_CLASSES } from "@/lib/risk-colormap";
 
-const segments = RISK_CLASSES.map((cls, i) => ({
+const classes = RISK_CLASSES.map((cls, i) => ({
   ...cls,
   width: ((RISK_CLASSES[i + 1]?.min ?? 1) - cls.min) * 100,
 }));
@@ -11,14 +11,9 @@ export function DataTableLegend() {
       <span className="flex-1 text-xs leading-4 font-semibold tracking-[1.2px] text-slate-700 uppercase">
         climate risk index
       </span>
-      <div className="me-28 flex w-47 px-1">
-        {segments.map(({ color, label, width }) => (
-          <div key={label} className="flex flex-col gap-0.5" style={{ width: `${width}%` }}>
-            <div className="h-1 w-full" style={{ backgroundColor: color }} />
-            <span className="text-center text-[10px] leading-3.5 whitespace-nowrap text-slate-700">
-              {label}
-            </span>
-          </div>
+      <div className="me-28 flex w-47 px-1" aria-hidden>
+        {classes.map(({ color, label, width }) => (
+          <div key={label} className="h-1" style={{ width: `${width}%`, backgroundColor: color }} />
         ))}
       </div>
     </div>
