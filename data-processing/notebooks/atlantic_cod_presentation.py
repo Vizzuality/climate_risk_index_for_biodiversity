@@ -6,7 +6,9 @@ app = marimo.App(width="medium")
 
 @app.cell
 def _():
+    import json
     import pathlib
+    import textwrap
 
     import geopandas as gpd
     import marimo as mo
@@ -54,12 +56,14 @@ def _():
         calculate_default_transform,
         exact_extract,
         gpd,
+        json,
         mo,
         np,
         pl,
         plt,
         rasterio,
         reproject,
+        textwrap,
         transform_bounds,
     )
 
@@ -98,6 +102,18 @@ def _():
     }
     INDICATORS = [b for b in THRESHOLD_KEY if not b.startswith("Clim")]
     return INDICATORS, THRESHOLD_KEY
+
+
+@app.cell
+def _(DATAPATH, json):
+    # Raster band -> human-readable indicator name
+    NAMES = {
+        band: meta["name"]
+        for band, meta in json.loads(
+            (DATAPATH / "01_raw" / "indicator_names.json").read_text()
+        ).items()
+    }
+    return (NAMES,)
 
 
 @app.cell
@@ -297,6 +313,7 @@ def _(
     AREA_NAME,
     HALO,
     INDICATORS,
+    NAMES,
     OUT,
     RISK_COLORS,
     RISK_LABELS,
@@ -305,6 +322,7 @@ def _(
     plt,
     risk_class,
     scenario,
+    textwrap,
     zonal,
 ):
     def radar(ssp):
@@ -342,8 +360,8 @@ def _(
         for t, b in zip(theta + np.pi / n, bands):
             ax.text(
                 t,
-                1.12,
-                b,
+                1.14,
+                textwrap.fill(NAMES[b], 14),
                 ha="center",
                 va="center",
                 fontsize=10,
@@ -353,12 +371,12 @@ def _(
 
         for band, (x, y) in zip(
             ["ClimSens", "ClimAdapt", "ClimExpo"],
-            [(0.12, 0.93), (0.88, 0.93), (0.88, 0.08)],
+            [(0.12, 0.93), (0.85, 0.93), (0.85, 0.08)],
         ):
             fig.text(
                 x,
                 y,
-                band,
+                NAMES[band],
                 ha="center",
                 fontsize=12,
                 fontweight="bold",
