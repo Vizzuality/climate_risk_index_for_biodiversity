@@ -2,6 +2,7 @@ import { type ColumnDef, sortFn_basic } from "@tanstack/react-table";
 import { Link } from "@tanstack/react-router";
 
 import type { AreaTableFeatures } from "@/containers/main/table/features";
+import { RiskClassesInfo } from "@/containers/main/table/risk-classes-info";
 import { RiskIndexChart } from "@/containers/main/table/risk-index-chart";
 import { SortButton } from "@/containers/main/table/sort-button";
 import type { SCENARIO } from "@/types";
@@ -101,7 +102,11 @@ export const areaColumns: ColumnDef<AreaTableFeatures, TableArea>[] = [
   },
   {
     accessorKey: "risk",
-    header: ({ column }) => <SortButton column={column}>Overall climate risk</SortButton>,
+    header: ({ column }) => (
+      <SortButton column={column} addon={<RiskClassesInfo />}>
+        Overall climate risk
+      </SortButton>
+    ),
     sortFn: sortFn_basic,
     sortDescFirst: true,
     sortUndefined: "last",
