@@ -47,7 +47,7 @@ describe("legacy redirects", () => {
 
   it("renders not found for a top-level path that is not an area id", async () => {
     const { router } = renderAt("/species-typo");
-    expect(await screen.findByText("not found")).toBeInTheDocument();
+    await screen.findByText("not found");
     expect(router.state.location.href).toBe("/species-typo");
   });
 });
