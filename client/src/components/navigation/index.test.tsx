@@ -28,7 +28,7 @@ describe("Navigation", () => {
     async (path) => {
       renderAt(path);
       const link = await screen.findByRole("link", { name: "Conservation Areas" });
-      expect(link).toHaveAttribute("aria-current", "page");
+      expect(link.getAttribute("aria-current")).toBe("page");
     },
   );
 });

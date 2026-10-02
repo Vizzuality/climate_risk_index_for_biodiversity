@@ -53,23 +53,24 @@ describe("useScenario", () => {
     await new Promise((r) => setTimeout(r, 100));
     expect(router.state.location.href).toBe("/areas/1192?scenario=high");
     expect(router.state.location.search).toEqual({ scenario: "high" });
-    expect(screen.getByRole("status")).toHaveTextContent("high");
+    expect(screen.getByRole("status").textContent).toBe("high");
   });
 
   it("strips the default scenario from the URL", async () => {
     const router = renderAt("/areas/1192?scenario=high");
     fireEvent.click(await screen.findByRole("button", { name: "low" }));
     await waitFor(() => expect(router.state.location.href).toBe("/areas/1192"));
-    expect(screen.getByRole("status")).toHaveTextContent("low");
+    expect(screen.getByRole("status").textContent).toBe("low");
   });
 
   it("keeps the default scenario out of link hrefs", async () => {
     renderAt("/areas/1192");
-    expect(await screen.findByRole("link", { name: "areas" })).toHaveAttribute("href", "/areas");
+    const link = await screen.findByRole("link", { name: "areas" });
+    expect(link.getAttribute("href")).toBe("/areas");
   });
 
   it("falls back to the default for an unknown value", async () => {
     renderAt("/areas?scenario=bogus");
-    expect(await screen.findByRole("status")).toHaveTextContent("low");
+    expect((await screen.findByRole("status")).textContent).toBe("low");
   });
 });
