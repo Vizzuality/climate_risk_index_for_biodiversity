@@ -7,11 +7,11 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router";
-import { scenarioSearch } from "@/store";
+import { rootSearch } from "@/store";
 import Navigation from "@/components/navigation";
 
 function renderAt(path: string) {
-  const rootRoute = createRootRoute({ ...scenarioSearch, component: Navigation });
+  const rootRoute = createRootRoute({ ...rootSearch, component: Navigation });
   const router = createRouter({
     routeTree: rootRoute.addChildren([
       createRoute({ getParentRoute: () => rootRoute, path: "/areas" }),

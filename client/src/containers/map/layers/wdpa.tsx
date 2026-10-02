@@ -6,7 +6,8 @@ import { useFilteredAreas } from "@/hooks/use-filtered-areas";
 
 const AREA_ID = ["to-string", ["get", "id"]];
 
-export const WDPALayer = () => {
+export const WDPALayer = ({ visible }: Readonly<{ visible: boolean }>) => {
+  const layout = { visibility: visible ? "visible" : "none" } as const;
   const { areaId } = useParams({ strict: false });
   const { data: matches, isFiltered } = useFilteredAreas();
 
@@ -24,6 +25,7 @@ export const WDPALayer = () => {
         type="fill"
         source-layer={AREAS_SOURCE_LAYER}
         source={AREAS_SOURCE_ID}
+        layout={layout}
         beforeId="maritimes-region-b5kyh8"
         paint={{
           "fill-color": "transparent",
@@ -37,6 +39,7 @@ export const WDPALayer = () => {
         type="line"
         source-layer={AREAS_SOURCE_LAYER}
         source={AREAS_SOURCE_ID}
+        layout={layout}
         beforeId="maritimes-region-b5kyh8"
         paint={{
           "line-color": "#1e3152",
@@ -49,6 +52,7 @@ export const WDPALayer = () => {
         type="line"
         source-layer={AREAS_SOURCE_LAYER}
         source={AREAS_SOURCE_ID}
+        layout={layout}
         beforeId="maritimes-region-b5kyh8"
         paint={{
           "line-color": "#5eead4",
@@ -62,6 +66,7 @@ export const WDPALayer = () => {
         type="line"
         source-layer={AREAS_SOURCE_LAYER}
         source={AREAS_SOURCE_ID}
+        layout={layout}
         beforeId="maritimes-region-b5kyh8"
         paint={{
           "line-color": "#5eead4",
