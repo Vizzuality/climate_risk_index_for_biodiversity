@@ -1,7 +1,7 @@
 // oxlint-disable-next-line typescript/ban-ts-comment
 // @ts-nocheck
 
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useMemo, useState } from "react";
 import * as d3 from "d3";
 import { useSelectedArea } from "@/hooks/use-selected-area";
 import { useScenario } from "@/store";
@@ -55,18 +55,23 @@ export default function RadarChart() {
   const svgRef = useRef<SVGSVGElement>(null);
   const area = useSelectedArea();
   const [scenario] = useScenario();
+  const indicator = area?.indicator;
 
-  const data: DataPoint[] = area?.indicator
-    .filter((d) => d.type === "numerical")
-    // removes climate-related indicators
-    .filter((d) => !d.name.startsWith("Clim"))
-    .map((ind, _index) => ({
-      category: ind.name,
-      name: categoriesMetadata[ind.name]?.name ?? ind.name,
-      value: ind.scenario[scenario].mean,
-      color: riskColorFor(ind.scenario[scenario].mean),
-      angle: _index * 30,
-    }));
+  const data: DataPoint[] = useMemo(
+    () =>
+      indicator
+        ?.filter((d) => d.type === "numerical")
+        // removes climate-related indicators
+        .filter((d) => !d.name.startsWith("Clim"))
+        .map((ind, _index) => ({
+          category: ind.name,
+          name: categoriesMetadata[ind.name]?.name ?? ind.name,
+          value: ind.scenario[scenario].mean,
+          color: riskColorFor(ind.scenario[scenario].mean),
+          angle: _index * 30,
+        })),
+    [indicator, scenario],
+  );
 
   const [tooltip, setTooltip] = useState<{
     visible: boolean;
@@ -201,7 +206,7 @@ export default function RadarChart() {
     });
 
     //Add main metric labels outside the chart
-    const mainMetrics = getMainMetrics(area?.indicator, scenario);
+    const mainMetrics = getMainMetrics(indicator, scenario);
 
     mainMetrics.forEach((metric) => {
       const metricGroup = svg
@@ -263,7 +268,7 @@ export default function RadarChart() {
         }
       });
     }
-  }, [data, noData]);
+  }, [data, noData, indicator, scenario]);
 
   if (noData) {
     return (
