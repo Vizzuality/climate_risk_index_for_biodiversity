@@ -50,7 +50,6 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-map-gl": "8.0.4",
-    "rooks": "8.0.1",
     "serve-static": "2.2.1",
     "tailwind-merge": "3.3.0"
   },

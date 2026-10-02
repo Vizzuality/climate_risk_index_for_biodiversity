@@ -4,7 +4,7 @@ import { useAtom } from "jotai";
 
 import { Input } from "@/components/ui/input";
 
-import { useDebounce } from "rooks";
+import { useDebounce } from "@/hooks/use-debounce";
 
 export default function Search() {
   const [, setSearch] = useAtom(searchAtom);
