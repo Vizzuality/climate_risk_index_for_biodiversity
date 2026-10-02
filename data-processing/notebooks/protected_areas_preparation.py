@@ -153,14 +153,14 @@ def _(mo):
 
 
 @app.cell
-def _(DFO_MPA_PATH, DFO_OECM_PATH, gpd):
-    # Load DFO MPA and OECM shapefiles
+def _(DFO_MPA_PATH, DFO_OECM_PATH, gdf_marine, gpd):
+    # Load DFO MPA and OECM shapefiles, reprojected to CPCAD CRS
     gdf_dfo_mpa = gpd.read_file(
         f"/vsizip/{DFO_MPA_PATH}/DFO_MPA_MPO_ZPM_SHP/DFO_MPA_MPO_ZPM.shp"
-    )
+    ).to_crs(gdf_marine.crs)
     gdf_dfo_oecm = gpd.read_file(
         f"/vsizip/{DFO_OECM_PATH}/DFO_OECM_MPO_AMCEZ_SHP/DFO_OECM_MPO_AMCEZ.shp"
-    )
+    ).to_crs(gdf_marine.crs)
     return gdf_dfo_mpa, gdf_dfo_oecm
 
 
@@ -213,7 +213,7 @@ def _(BeautifulSoup, DFO_CSV_PATH, DFO_URL, pd, requests):
     df_website = pd.DataFrame(rows)
     DFO_CSV_PATH.parent.mkdir(parents=True, exist_ok=True)
     df_website.to_csv(DFO_CSV_PATH, index=False)
-    return
+    return (df_website,)
 
 
 @app.cell(hide_code=True)
@@ -227,9 +227,11 @@ def _(mo):
 
 
 @app.cell
-def _(EBSA_PATH, gpd):
-    # Load EBSA shapefile and summarize contents
-    gdf_ebsa = gpd.read_file(f"/vsizip/{EBSA_PATH}/DFO_EBSA/DFO_EBSA.shp")
+def _(EBSA_PATH, gdf_marine, gpd):
+    # Load EBSA shapefile, reprojected to CPCAD CRS
+    gdf_ebsa = gpd.read_file(f"/vsizip/{EBSA_PATH}/DFO_EBSA/DFO_EBSA.shp").to_crs(
+        gdf_marine.crs
+    )
     return (gdf_ebsa,)
 
 
@@ -276,16 +278,7 @@ def _(mo):
 
 
 @app.cell
-def _(
-    DFO_CSV_PATH,
-    SequenceMatcher,
-    gdf_dfo_mpa,
-    gdf_dfo_oecm,
-    gdf_ebsa,
-    gdf_marine,
-    pd,
-    unicodedata,
-):
+def _(SequenceMatcher, unicodedata):
     # Lookups and helpers
     IUCN_LABELS = {
         1: "Ia",
@@ -298,8 +291,14 @@ def _(
         8: "Not Reported",
         9: "Not Applicable",
     }
+
+    # PA_OECM_DF: 1=PA, 2=OECM, 3=Interim PA, 4=Interim OECM, 5=Not Applicable
     PA_OECM_LAYER = {1: "MPA", 2: "OECM", 3: "MPA", 4: "OECM", 5: "MPA"}
+
+    # STATUS: 1=Designated, 2=Proposed, 3=Other
     CPCAD_STATUS = {1: "Designated", 2: "Proposed", 3: "Other"}
+
+    # Open Canada catalogue page for each source dataset
     SOURCE_URL = {
         "CPCAD": "https://www.canada.ca/en/environment-climate-change/services/national-wildlife-areas/protected-conserved-areas-database.html",
         "DFO_MPA": "https://open.canada.ca/data/en/dataset/a1e18963-25dd-4219-a33f-1a38c4971250",
@@ -308,7 +307,6 @@ def _(
         "Conservation_Network": "https://open.canada.ca/data/en/dataset/bb048082-bc05-4588-b4f0-492b1f1b8737/resource/a690056f-2c96-4e0e-9f74-8eb8331a5ac9",
     }
 
-    # PA_OECM_DF: 1=PA, 2=OECM, 3=Interim PA, 4=Interim OECM, 5=Not Applicable
     def _normalize_name(name):
         return unicodedata.normalize("NFC", str(name)).lower().strip()
 
@@ -317,14 +315,12 @@ def _(
         best_score, best = (0.0, None)
         for c in candidates:
             norm_c = _normalize_name(c)
-            # STATUS: 1=Designated, 2=Proposed, 3=Other
             if norm_q == norm_c:
                 return (c, 1.0)
             if norm_q in norm_c or norm_c in norm_q:
                 return (c, 0.95)
             score = SequenceMatcher(None, norm_q, norm_c).ratio()
             if score > best_score:
-                # Open Canada catalogue page for each source dataset
                 best_score, best = (score, c)
         return (best, best_score) if best_score >= threshold else (None, best_score)
 
@@ -334,20 +330,11 @@ def _(
             return str(df_web[df_web["name"] == match].iloc[0]["url"])
         return ""
 
-    gdf_dfo_mpa_1 = gdf_dfo_mpa.to_crs(gdf_marine.crs)
-    gdf_dfo_oecm_1 = gdf_dfo_oecm.to_crs(gdf_marine.crs)
-    gdf_ebsa_1 = gdf_ebsa.to_crs(gdf_marine.crs)
-    # Reproject source datasets to CPCAD CRS
-    df_website_1 = pd.read_csv(DFO_CSV_PATH)  # type: ignore[assignment]
     return (
         CPCAD_STATUS,
         IUCN_LABELS,
         PA_OECM_LAYER,
         SOURCE_URL,
-        df_website_1,
-        gdf_dfo_mpa_1,
-        gdf_dfo_oecm_1,
-        gdf_ebsa_1,
         match_website_url,
     )
 
@@ -391,9 +378,9 @@ def _(
 
 
 @app.cell
-def _(SOURCE_URL, gdf_dfo_mpa_1, gdf_dfo_oecm_1, gdf_marine, gpd):
+def _(SOURCE_URL, gdf_dfo_mpa, gdf_dfo_oecm, gdf_marine, gpd):
     cpcad_names = set(gdf_marine["NAME_E"].unique())
-    mpa_missing = gdf_dfo_mpa_1[~gdf_dfo_mpa_1["NAME_E"].isin(cpcad_names)]
+    mpa_missing = gdf_dfo_mpa[~gdf_dfo_mpa["NAME_E"].isin(cpcad_names)]
     mpa_rows = []
     for name in mpa_missing["NAME_E"].unique():
         subset = mpa_missing[mpa_missing["NAME_E"] == name]
@@ -417,7 +404,7 @@ def _(SOURCE_URL, gdf_dfo_mpa_1, gdf_dfo_oecm_1, gdf_marine, gpd):
             }
         )
     gdf_mpa_add = gpd.GeoDataFrame(mpa_rows, crs=gdf_marine.crs)
-    oecm_missing = gdf_dfo_oecm_1[~gdf_dfo_oecm_1["NAME_E"].isin(cpcad_names)]
+    oecm_missing = gdf_dfo_oecm[~gdf_dfo_oecm["NAME_E"].isin(cpcad_names)]
     oecm_rows = []
     for _, _r in oecm_missing.iterrows():
         oecm_rows.append(
@@ -442,7 +429,7 @@ def _(SOURCE_URL, gdf_dfo_mpa_1, gdf_dfo_oecm_1, gdf_marine, gpd):
 
 
 @app.cell
-def _(SOURCE_URL, gdf_cn, gdf_ebsa_1, gdf_marine, gpd, pd):
+def _(SOURCE_URL, gdf_cn, gdf_ebsa, gdf_marine, gpd, pd):
     cn_class_map = {
         "Areas of Interest (AOI)": ("AOI", "Proposed"),
         "Tier 1 Network Site": ("Network Site", "Draft"),
@@ -476,7 +463,7 @@ def _(SOURCE_URL, gdf_cn, gdf_ebsa_1, gdf_marine, gpd, pd):
         )
     gdf_cn_add = gpd.GeoDataFrame(cn_rows, crs=gdf_marine.crs)
     ebsa_rows = []
-    for _, _r in gdf_ebsa_1.iterrows():
+    for _, _r in gdf_ebsa.iterrows():
         ebsa_rows.append(
             {
                 "name": _r["Name"],
@@ -501,7 +488,7 @@ def _(SOURCE_URL, gdf_cn, gdf_ebsa_1, gdf_marine, gpd, pd):
 @app.cell
 def _(
     MERGED_OUTPUT_PATH,
-    df_website_1,
+    df_website,
     gdf_cn_add,
     gdf_cpcad,
     gdf_ebsa_add,
@@ -520,10 +507,10 @@ def _(
     gdf_merged = gpd.GeoDataFrame(gdf_merged, crs=gdf_marine.crs)
     missing_url = gdf_merged["url"].fillna("").eq("")
     gdf_merged.loc[missing_url, "url"] = gdf_merged.loc[missing_url, "name"].apply(
-        lambda n: match_website_url(n, df_website_1)
+        lambda n: match_website_url(n, df_website)
     )
     gdf_merged.to_file(MERGED_OUTPUT_PATH, driver="GPKG")
-    return
+    return (gdf_merged,)
 
 
 @app.cell(hide_code=True)
@@ -540,25 +527,20 @@ def _(mo):
 
 
 @app.cell
-def _(
-    BIOREGIONS_GDB_PATH,
-    BOUNDARIES_OUTPUT_PATH,
-    EASTERN_CANADA_PATH,
-    MERGED_OUTPUT_PATH,
-    gpd,
-    pd,
-):
-    # Load merged protected areas from intermediate output
-    gdf_merged_1 = gpd.read_file(MERGED_OUTPUT_PATH)
-    bioregions_gdb = f"/vsizip/{BIOREGIONS_GDB_PATH}/FederalMarineBioregions_GDB/FederalMarineBioregions.gdb"
+def _(BIOREGIONS_GDB_PATH, BOUNDARIES_OUTPUT_PATH, EASTERN_CANADA_PATH, gpd, pd):
     # Load Federal Marine Bioregions — keep Pacific & Arctic only
+    bioregions_gdb = f"/vsizip/{BIOREGIONS_GDB_PATH}/FederalMarineBioregions_GDB/FederalMarineBioregions.gdb"
     gdf_bioregions = gpd.read_file(bioregions_gdb, layer="FederalMarineBioregions")
     gdf_pac_arctic = gdf_bioregions[
         gdf_bioregions["OCEAN_E"].isin(["Pacific", "Arctic"])
     ].copy()
-    gdf_eastern = gpd.read_file(f"/vsizip/{EASTERN_CANADA_PATH}")
-    gdf_eastern = gdf_eastern.to_crs(gdf_pac_arctic.crs)
+
     # Load Eastern Canada Marine Spatial Planning areas (Atlantic replacement)
+    gdf_eastern = gpd.read_file(f"/vsizip/{EASTERN_CANADA_PATH}").to_crs(
+        gdf_pac_arctic.crs
+    )
+
+    # Merge into unified marine boundaries
     gdf_boundaries = pd.concat(
         [
             gdf_pac_arctic[["NAME_E", "OCEAN_E", "geometry"]].rename(
@@ -571,17 +553,16 @@ def _(
         ignore_index=True,
     )
     gdf_boundaries = gpd.GeoDataFrame(gdf_boundaries, crs=gdf_pac_arctic.crs)  # type: ignore[assignment]
-    # Merge into unified marine boundaries
     gdf_boundaries.to_file(BOUNDARIES_OUTPUT_PATH, driver="GPKG")
-    return gdf_boundaries, gdf_merged_1
+    return (gdf_boundaries,)
 
 
 @app.cell
-def _(MERGED_WITH_REGIONS_PATH, gdf_boundaries, gdf_merged_1, gpd):
+def _(MERGED_WITH_REGIONS_PATH, gdf_boundaries, gdf_merged, gpd):
     # Assign marine bioregion(s) to each feature via spatial join
-    gdf_bounds_proj = gdf_boundaries.to_crs(gdf_merged_1.crs)  # type: ignore[assignment]
+    gdf_bounds_proj = gdf_boundaries.to_crs(gdf_merged.crs)  # type: ignore[assignment]
     joined = gpd.sjoin(
-        gdf_merged_1,
+        gdf_merged,
         gdf_bounds_proj[["region", "geometry"]],
         how="left",
         predicate="intersects",
@@ -589,9 +570,8 @@ def _(MERGED_WITH_REGIONS_PATH, gdf_boundaries, gdf_merged_1, gpd):
     region_agg = joined.groupby(joined.index)["region"].apply(
         lambda x: ", ".join(sorted(x.dropna().unique()))
     )
-    gdf_merged_1["region"] = region_agg
-    gdf_merged_1["region"] = gdf_merged_1["region"].fillna("")
-    gdf_merged_1.to_file(MERGED_WITH_REGIONS_PATH, driver="GPKG")
+    gdf_with_regions = gdf_merged.assign(region=region_agg.fillna(""))
+    gdf_with_regions.to_file(MERGED_WITH_REGIONS_PATH, driver="GPKG")
     return
 
 
