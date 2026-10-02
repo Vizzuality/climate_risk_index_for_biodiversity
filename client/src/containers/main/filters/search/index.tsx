@@ -8,7 +8,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 
 export default function Search() {
   const [, setSearch] = useAtom(searchAtom);
-  const setSearchDebounced = useDebounce(setSearch, 200);
+  const [setSearchDebounced] = useDebounce(setSearch, 200);
 
   return (
     <Input

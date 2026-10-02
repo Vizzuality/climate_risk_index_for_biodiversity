@@ -5,22 +5,23 @@ export function useDebounce<Args extends unknown[]>(
   wait: number,
 ) {
   const callbackRef = React.useRef(callback);
+  const timeoutRef = React.useRef<ReturnType<typeof setTimeout>>(undefined);
 
   React.useEffect(() => {
     callbackRef.current = callback;
   });
 
-  const debounced = React.useMemo(() => {
-    let timeout: ReturnType<typeof setTimeout> | undefined;
-    const cancel = () => clearTimeout(timeout);
-    const run = (...args: Args) => {
+  const cancel = React.useCallback(() => clearTimeout(timeoutRef.current), []);
+
+  const debounced = React.useCallback(
+    (...args: Args) => {
       cancel();
-      timeout = setTimeout(() => callbackRef.current(...args), wait);
-    };
-    return Object.assign(run, { cancel });
-  }, [wait]);
+      timeoutRef.current = setTimeout(() => callbackRef.current(...args), wait);
+    },
+    [wait, cancel],
+  );
 
-  React.useEffect(() => debounced.cancel, [debounced]);
+  React.useEffect(() => cancel, [cancel]);
 
-  return debounced;
+  return [debounced, cancel] as const;
 }
