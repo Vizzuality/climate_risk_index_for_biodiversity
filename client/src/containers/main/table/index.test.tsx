@@ -15,7 +15,7 @@ import { FiltersModal } from "@/containers/main/filters/modal";
 import { Search } from "@/containers/main/filters/search";
 import { AREA_LIST_SEARCH_DEFAULTS, validateAreaListSearch } from "@/containers/main/store";
 import { stringifySearch } from "@/lib/search-params";
-import { scenarioSearch, useScenario } from "@/store";
+import { rootSearch, useScenario } from "@/store";
 
 const area = (id: string, name: string, low: number, high: number, layer_type = ""): Area => ({
   id,
@@ -68,7 +68,7 @@ function ScenarioButtons() {
 
 function renderTable(path = "/areas") {
   const rootRoute = createRootRoute({
-    ...scenarioSearch,
+    ...rootSearch,
     component: () => (
       <>
         <ScenarioButtons />

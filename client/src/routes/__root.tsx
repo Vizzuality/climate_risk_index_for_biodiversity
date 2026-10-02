@@ -8,10 +8,10 @@ import appCss from "@/styles/globals.css?url";
 
 import { QueryProvider } from "@/providers/react-query";
 import { NotFound } from "@/components/not-found";
-import { scenarioSearch } from "@/store";
+import { rootSearch } from "@/store";
 
 export const Route = createRootRoute({
-  ...scenarioSearch,
+  ...rootSearch,
   head: () => ({
     meta: [
       { charSet: "utf-8" },

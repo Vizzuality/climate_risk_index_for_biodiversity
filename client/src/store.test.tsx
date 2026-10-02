@@ -9,25 +9,39 @@ import {
   Outlet,
   RouterProvider,
 } from "@tanstack/react-router";
-import { scenarioSearch, useScenario } from "@/store";
+import { stringifySearch } from "@/lib/search-params";
+import { rootSearch, useContextualLayers, useScenario } from "@/store";
 
 function Toggle() {
   const [scenario, setScenario] = useScenario();
   return (
     <>
-      <output>{scenario}</output>
+      <output aria-label="scenario">{scenario}</output>
       <button onClick={() => setScenario("low")}>low</button>
       <button onClick={() => setScenario("high")}>high</button>
     </>
   );
 }
 
+function LayerToggles() {
+  const [visible, setLayerVisible] = useContextualLayers();
+  return (
+    <>
+      <output aria-label="layers">{visible.join(",")}</output>
+      <button onClick={() => setLayerVisible("areas", false)}>hide areas</button>
+      <button onClick={() => setLayerVisible("areas", true)}>show areas</button>
+      <button onClick={() => setLayerVisible("risk", false)}>hide risk</button>
+    </>
+  );
+}
+
 function renderAt(path: string) {
   const rootRoute = createRootRoute({
-    ...scenarioSearch,
+    ...rootSearch,
     component: () => (
       <>
         <Toggle />
+        <LayerToggles />
         <Link to="/areas">areas</Link>
         <Outlet />
       </>
@@ -38,6 +52,7 @@ function renderAt(path: string) {
   const router = createRouter({
     routeTree: rootRoute.addChildren([indexRoute, areaRoute]),
     history: createMemoryHistory({ initialEntries: [path] }),
+    stringifySearch,
   });
   render(<RouterProvider router={router} />);
   return router;
@@ -53,14 +68,14 @@ describe("useScenario", () => {
     await new Promise((r) => setTimeout(r, 100));
     expect(router.state.location.href).toBe("/areas/1192?scenario=high");
     expect(router.state.location.search).toEqual({ scenario: "high" });
-    expect(screen.getByRole("status").textContent).toBe("high");
+    expect(screen.getByRole("status", { name: "scenario" }).textContent).toBe("high");
   });
 
   it("strips the default scenario from the URL", async () => {
     const router = renderAt("/areas/1192?scenario=high");
     fireEvent.click(await screen.findByRole("button", { name: "low" }));
     await waitFor(() => expect(router.state.location.href).toBe("/areas/1192"));
-    expect(screen.getByRole("status").textContent).toBe("low");
+    expect(screen.getByRole("status", { name: "scenario" }).textContent).toBe("low");
   });
 
   it("keeps the default scenario out of link hrefs", async () => {
@@ -71,6 +86,37 @@ describe("useScenario", () => {
 
   it("falls back to the default for an unknown value", async () => {
     renderAt("/areas?scenario=bogus");
-    expect((await screen.findByRole("status")).textContent).toBe("low");
+    expect((await screen.findByRole("status", { name: "scenario" })).textContent).toBe("low");
+  });
+});
+
+describe("useContextualLayers", () => {
+  it("lists the visible layers once one is hidden and strips the param when all are back", async () => {
+    const router = renderAt("/areas");
+    fireEvent.click(await screen.findByRole("button", { name: "hide areas" }));
+    await waitFor(() => expect(router.state.location.href).toBe("/areas?layers=bioregions,risk"));
+    fireEvent.click(screen.getByRole("button", { name: "show areas" }));
+    await waitFor(() => expect(router.state.location.href).toBe("/areas"));
+    expect(screen.getByRole("status", { name: "layers" }).textContent).toBe(
+      "areas,bioregions,risk",
+    );
+  });
+
+  it("keeps an empty param when every layer is hidden", async () => {
+    const router = renderAt("/areas?layers=risk");
+    fireEvent.click(await screen.findByRole("button", { name: "hide risk" }));
+    await waitFor(() => expect(router.state.location.href).toBe("/areas?layers="));
+    expect(screen.getByRole("status", { name: "layers" }).textContent).toBe("");
+  });
+
+  it("drops unknown layers and keeps the rest in a fixed order", async () => {
+    renderAt("/areas?layers=risk,bogus,areas");
+    expect((await screen.findByRole("status", { name: "layers" })).textContent).toBe("areas,risk");
+  });
+
+  it("carries the layers across links", async () => {
+    renderAt("/areas/1192?layers=risk");
+    const link = await screen.findByRole("link", { name: "areas" });
+    expect(link.getAttribute("href")).toBe("/areas?layers=risk");
   });
 });

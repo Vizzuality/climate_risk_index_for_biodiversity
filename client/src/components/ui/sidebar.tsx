@@ -146,12 +146,14 @@ function Sidebar({
   variant = "sidebar",
   collapsible = "offcanvas",
   className,
+  toggleClassName,
   children,
   ...props
 }: React.ComponentProps<"div"> & {
   side?: "left" | "right";
   variant?: "sidebar" | "floating" | "inset";
   collapsible?: "offcanvas" | "icon" | "none";
+  toggleClassName?: string;
 }) {
   const { isMobile, state, openMobile, setOpenMobile, setOpen, open } = useSidebar();
 
@@ -241,7 +243,10 @@ function Sidebar({
           <Button
             type="button"
             variant="ghost"
-            className="absolute cursor-pointer right-0 bottom-8 h-10 w-6 translate-x-full rounded-l-none rounded-r-lg border-l-0 transition-transform group-data-[collapsible=offcanvas]:translate-x-full bg-slate-200 "
+            className={cn(
+              "absolute cursor-pointer right-0 bottom-8 h-10 w-6 translate-x-full rounded-l-none rounded-r-lg border-l-0 transition-transform group-data-[collapsible=offcanvas]:translate-x-full bg-slate-200",
+              toggleClassName,
+            )}
             onClick={() => setOpen(!open)}
           >
             <span className="sr-only">Toggle sidebar</span>

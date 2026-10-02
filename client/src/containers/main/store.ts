@@ -3,18 +3,7 @@ import { type SearchSchemaInput, useNavigate, useSearch } from "@tanstack/react-
 
 import { BIOREGION_VALUES } from "@/lib/bioregions";
 import { PROTECTION_TYPE_VALUES } from "@/lib/protection-types";
-
-type FilterCodec<T> = { parse: (raw: unknown) => T; serialize: (value: T) => string };
-
-// Serialized in the allowed order so equal selections always produce the same URL.
-const multiValue = <T extends string>(allowed: readonly T[]): FilterCodec<T[]> => ({
-  parse: (raw) => {
-    if (typeof raw !== "string") return [];
-    const values = new Set(raw.split(","));
-    return allowed.filter((value) => values.has(value));
-  },
-  serialize: (values) => allowed.filter((value) => values.includes(value)).join(","),
-});
+import { multiValue, type SearchCodec } from "@/lib/search-params";
 
 // Each filter adds its codec here and its predicate in `AREA_FILTER_PREDICATES`
 // (utils/filters.ts). An inactive filter serializes to "" and is stripped from the URL.
@@ -33,7 +22,7 @@ type AreaFiltersSearch = Record<AreaFilterKey, string>;
 
 export const AREA_FILTER_KEYS = Object.keys(AREA_FILTER_CODECS) as AreaFilterKey[];
 
-const codecFor = (key: AreaFilterKey) => AREA_FILTER_CODECS[key] as FilterCodec<unknown>;
+const codecFor = (key: AreaFilterKey) => AREA_FILTER_CODECS[key] as SearchCodec<unknown>;
 
 const parseAreaFilters = (search: Partial<Record<AreaFilterKey, unknown>>) =>
   Object.fromEntries(

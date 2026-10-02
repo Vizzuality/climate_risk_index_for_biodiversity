@@ -8,12 +8,12 @@ import {
   Outlet,
   RouterProvider,
 } from "@tanstack/react-router";
-import { scenarioSearch } from "@/store";
+import { rootSearch } from "@/store";
 import { redirectLegacyArea, redirectToAreas } from "@/lib/legacy-redirects";
 
 function renderAt(path: string) {
   const rootRoute = createRootRoute({
-    ...scenarioSearch,
+    ...rootSearch,
     component: Outlet,
     notFoundComponent: () => <p>not found</p>,
   });
