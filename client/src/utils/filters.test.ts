@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { filterAreas, filterByAreaName } from "@/utils/filters";
-import { AREA_FILTER_DEFAULTS } from "@/containers/main/store";
+import { NO_AREA_FILTERS } from "@/containers/main/store";
 import { Area } from "@/containers/main/table/columns";
 
 const area = (name: string) => ({ name }) as Area;
@@ -48,12 +48,12 @@ describe("filterAreas", () => {
   ];
 
   it("returns the same list when no filter is active", () => {
-    expect(filterAreas(typedAreas, AREA_FILTER_DEFAULTS)).toBe(typedAreas);
+    expect(filterAreas(typedAreas, NO_AREA_FILTERS)).toBe(typedAreas);
   });
 
   it("keeps areas of any selected protection type", () => {
     expect(
-      filterAreas(typedAreas, { ...AREA_FILTER_DEFAULTS, protection: ["pa", "network-site"] }),
+      filterAreas(typedAreas, { ...NO_AREA_FILTERS, protection: ["pa", "network-site"] }),
     ).toEqual([typed("Reserve", "MPA"), typed("Site", "Network Site")]);
   });
 
@@ -62,12 +62,12 @@ describe("filterAreas", () => {
     const spanning = located("Spanning", ["Northern Shelf", "Southern Shelf"]);
     const locatedAreas = [spanning, located("Gulf", ["Strait of Georgia"]), located("Inland", [])];
 
-    expect(
-      filterAreas(locatedAreas, { ...AREA_FILTER_DEFAULTS, region: ["southern-shelf"] }),
-    ).toEqual([spanning]);
+    expect(filterAreas(locatedAreas, { ...NO_AREA_FILTERS, region: ["southern-shelf"] })).toEqual([
+      spanning,
+    ]);
     expect(
       filterAreas(locatedAreas, {
-        ...AREA_FILTER_DEFAULTS,
+        ...NO_AREA_FILTERS,
         region: ["northern-shelf", "strait-of-georgia"],
       }),
     ).toEqual([spanning, located("Gulf", ["Strait of Georgia"])]);
