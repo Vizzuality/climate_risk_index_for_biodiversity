@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import { type SearchSchemaInput, useNavigate, useSearch } from "@tanstack/react-router";
 
 import { BIOREGION_VALUES } from "@/lib/bioregions";
@@ -68,9 +67,14 @@ export const useAreaSearch = () => {
 };
 
 export const useAreaFilters = () => {
-  const search: Partial<AreaFiltersSearch> = useSearch({ strict: false });
+  // Structural sharing keeps `filters` the same object while other params (scenario, layers)
+  // change; the matches and the map's fitted box are derived from its identity.
+  const filters = useSearch({
+    strict: false,
+    select: (search: Partial<AreaFiltersSearch>) => parseAreaFilters(search),
+    structuralSharing: true,
+  });
   const navigate = useNavigate();
-  const filters = useMemo(() => parseAreaFilters(search), [search]);
   const applyFilters = (next: AreaFilters) =>
     navigate({ to: ".", search: (prev) => ({ ...prev, ...serializeAreaFilters(next) }) });
   return [filters, applyFilters] as const;
