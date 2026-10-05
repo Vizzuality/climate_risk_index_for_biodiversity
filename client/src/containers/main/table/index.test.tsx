@@ -1,4 +1,5 @@
 import { beforeAll, describe, expect, it, vi } from "vitest";
+import { useEffect } from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import {
   createMemoryHistory,
@@ -13,7 +14,12 @@ import type { Area } from "@/containers/main/table/columns";
 import DataTable from "@/containers/main/table";
 import { FiltersModal } from "@/containers/main/filters/modal";
 import { Search } from "@/containers/main/filters/search";
-import { AREA_LIST_SEARCH_DEFAULTS, validateAreaListSearch } from "@/containers/main/store";
+import {
+  AREA_LIST_SEARCH_DEFAULTS,
+  type AreaFilters,
+  useAreaFilters,
+  validateAreaListSearch,
+} from "@/containers/main/store";
 import { stringifySearch } from "@/lib/search-params";
 import { rootSearch, useScenario } from "@/store";
 
@@ -66,12 +72,23 @@ function ScenarioButtons() {
   return <button onClick={() => setScenario("high")}>high scenario</button>;
 }
 
+let renderedFilters: AreaFilters | undefined;
+
+function FiltersProbe() {
+  const [filters] = useAreaFilters();
+  useEffect(() => {
+    renderedFilters = filters;
+  }, [filters]);
+  return null;
+}
+
 function renderTable(path = "/areas") {
   const rootRoute = createRootRoute({
     ...rootSearch,
     component: () => (
       <>
         <ScenarioButtons />
+        <FiltersProbe />
         <Search />
         <FiltersModal />
         <DataTable />
@@ -155,6 +172,18 @@ describe("DataTable", () => {
       expect(router.state.location.href).toBe("/areas?q=a&protection=pa,network-site"),
     );
     expect(areaOrder()).toEqual(["Alpha"]);
+  });
+
+  it("keeps the parsed filters stable when the scenario changes", async () => {
+    const router = renderTable("/areas?protection=pa");
+    await screen.findByRole("link", { name: "Alpha" });
+    const before = renderedFilters;
+
+    fireEvent.click(screen.getByRole("button", { name: "high scenario" }));
+    await waitFor(() =>
+      expect(router.state.location.href).toBe("/areas?protection=pa&scenario=high"),
+    );
+    expect(renderedFilters).toBe(before);
   });
 
   it("starts on EBSA and keeps an empty param once the filters are cleared", async () => {
