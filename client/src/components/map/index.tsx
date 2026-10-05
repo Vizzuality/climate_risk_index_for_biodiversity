@@ -4,7 +4,7 @@ import ReactMapGL, { Popup } from "react-map-gl/mapbox";
 import type { MapRef } from "react-map-gl/mapbox";
 
 import "mapbox-gl/dist/mapbox-gl.css";
-import type { MapMouseEvent } from "mapbox-gl";
+import type { MapEvent, MapMouseEvent } from "mapbox-gl";
 import { useNavigate, useParams } from "@tanstack/react-router";
 
 import { useAreas } from "@/hooks/use-areas";
@@ -52,6 +52,13 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
     mapRef.current?.fitBounds(targetBbox, { animate: true, padding: FIT_PADDING });
   }, [targetBbox, mapLoaded]);
 
+  // With terrain on, Mapbox draws custom layers after every draped style layer,
+  // which lifts the deck raster above the area outlines whatever its beforeId.
+  const handleLoad = (evt: MapEvent) => {
+    evt.target.setTerrain(null);
+    setMapLoaded(true);
+  };
+
   const handleClick = (evt: MapMouseEvent) => {
     const id = pickAreaFeature(evt.features ?? [])?.id;
     if (id !== undefined && id !== null) {
@@ -84,7 +91,7 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
           : { zoom: 1, bounds: MAX_BOUNDS }
       }
       interactiveLayerIds={["wdpa-layer", "bioregions-layer"]}
-      onLoad={() => setMapLoaded(true)}
+      onLoad={handleLoad}
       onClick={handleClick}
       onMouseMove={handleHover}
     >
