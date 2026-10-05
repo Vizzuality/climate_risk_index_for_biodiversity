@@ -11,7 +11,7 @@ import { useAreas } from "@/hooks/use-areas";
 import { useFilteredAreas } from "@/hooks/use-filtered-areas";
 import { clampBbox, unionBbox } from "@/lib/bbox";
 import { useAtom } from "jotai";
-import { popupAtom } from "@/store";
+import { mapCursorAtom, popupAtom } from "@/store";
 import { pickAreaFeature, pickHoverFeature } from "@/lib/pick-area-feature";
 
 const style = { width: "100%", height: "100%" };
@@ -28,6 +28,7 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
   const params = useParams({ strict: false });
   const [popup, setPopup] = useAtom(popupAtom);
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [cursor, setCursor] = useAtom(mapCursorAtom);
   const { data: areas, isPending, failureCount } = useAreas();
   const { data: matches, isFiltered } = useFilteredAreas();
   const [framedOnMount] = useState(isFiltered || params.areaId !== undefined);
@@ -76,6 +77,10 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
   };
 
   const handleHover = (evt: MapMouseEvent) => {
+    // Only areas open on click; a held button means a drag, which owns the cursor.
+    if (evt.originalEvent.buttons === 0) {
+      setCursor(pickAreaFeature(evt.features ?? []) ? "pointer" : undefined);
+    }
     const feature = pickHoverFeature(evt.features ?? []);
     if (feature) {
       setPopup({ lngLat: evt.lngLat, ...feature });
@@ -103,9 +108,12 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
           : { zoom: 1, bounds: MAX_BOUNDS }
       }
       interactiveLayerIds={["wdpa-layer", "bioregions-layer"]}
+      cursor={cursor}
       onLoad={handleLoad}
       onClick={handleClick}
       onMouseMove={handleHover}
+      onDragStart={() => setCursor("grabbing")}
+      onDragEnd={() => setCursor(undefined)}
     >
       <>
         {children}

@@ -64,3 +64,6 @@ export const useContextualLayers = () => {
 export const popupAtom = atom<(GeoJSONFeature & { lngLat: LngLat }) | null>(null);
 
 export const contextualLayersPanelOpenAtom = atom(false);
+
+// Shared with the deck overlay, which rewrites the map canvas cursor on every frame it draws.
+export const mapCursorAtom = atom<string | undefined>(undefined);
