@@ -9,14 +9,15 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as DashboardRouteImport } from './routes/_dashboard'
-import { Route as AreaIdRouteImport } from './routes/$areaId'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AreaIdRouteImport } from './routes/$areaId'
+import { Route as DashboardRouteImport } from './routes/_dashboard'
 import { Route as DashboardAreasIndexRouteImport } from './routes/_dashboard/areas/index'
 import { Route as DashboardAreasAreaIdRouteImport } from './routes/_dashboard/areas/$areaId'
 
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/_dashboard',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AreaIdRoute = AreaIdRouteImport.update({
@@ -24,9 +25,8 @@ const AreaIdRoute = AreaIdRouteImport.update({
   path: '/$areaId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/_dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardAreasIndexRoute = DashboardAreasIndexRouteImport.update({
@@ -82,11 +82,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/_dashboard': {
-      id: '/_dashboard'
-      path: ''
+    '/': {
+      id: '/'
+      path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof DashboardRouteImport
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/$areaId': {
@@ -96,11 +96,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AreaIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
+    '/_dashboard': {
+      id: '/_dashboard'
+      path: ''
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_dashboard/areas/': {
