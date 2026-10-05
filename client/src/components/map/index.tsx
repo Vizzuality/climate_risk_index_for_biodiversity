@@ -47,8 +47,13 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
     return bbox && clampBbox(bbox, MAX_BOUNDS);
   }, [areaBbox, searchBbox]);
 
+  // The box the camera shows: the map opens on the initial target box, so refitting it on
+  // load would replay the same view as an animation.
+  const fittedBbox = useRef(targetBbox);
+
   useEffect(() => {
-    if (!targetBbox || !mapLoaded) return;
+    if (!targetBbox || !mapLoaded || targetBbox === fittedBbox.current) return;
+    fittedBbox.current = targetBbox;
     mapRef.current?.fitBounds(targetBbox, { animate: true, padding: FIT_PADDING });
   }, [targetBbox, mapLoaded]);
 
@@ -56,6 +61,7 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
   // which lifts the deck raster above the area outlines whatever its beforeId.
   const handleLoad = (evt: MapEvent) => {
     evt.target.setTerrain(null);
+    fittedBbox.current = targetBbox;
     setMapLoaded(true);
   };
 
