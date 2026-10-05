@@ -91,15 +91,14 @@ describe("useScenario", () => {
 });
 
 describe("useContextualLayers", () => {
-  it("lists the visible layers once one is hidden and strips the param when all are back", async () => {
+  it("shows only the areas layer by default and strips the param when back to it", async () => {
     const router = renderAt("/areas");
-    fireEvent.click(await screen.findByRole("button", { name: "hide areas" }));
-    await waitFor(() => expect(router.state.location.href).toBe("/areas?layers=bioregions,risk"));
+    expect((await screen.findByRole("status", { name: "layers" })).textContent).toBe("areas");
+    fireEvent.click(screen.getByRole("button", { name: "hide areas" }));
+    await waitFor(() => expect(router.state.location.href).toBe("/areas?layers="));
     fireEvent.click(screen.getByRole("button", { name: "show areas" }));
     await waitFor(() => expect(router.state.location.href).toBe("/areas"));
-    expect(screen.getByRole("status", { name: "layers" }).textContent).toBe(
-      "areas,bioregions,risk",
-    );
+    expect(screen.getByRole("status", { name: "layers" }).textContent).toBe("areas");
   });
 
   it("keeps an empty param when every layer is hidden", async () => {

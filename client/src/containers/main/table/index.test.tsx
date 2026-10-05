@@ -98,7 +98,7 @@ const areaOrder = () => screen.getAllByRole("link").map((link) => link.textConte
 
 describe("DataTable", () => {
   it("re-sorts by the selected scenario's risk when the scenario changes", async () => {
-    renderTable();
+    renderTable("/areas?protection=");
     fireEvent.click(await screen.findByRole("button", { name: "Overall climate risk" }));
     expect(areaOrder()).toEqual(["Alpha", "Bravo", "Charlie"]);
 
@@ -114,15 +114,19 @@ describe("DataTable", () => {
   });
 
   it("writes the search to q and drops it when cleared", async () => {
-    const router = renderTable("/areas?scenario=high");
+    const router = renderTable("/areas?scenario=high&protection=");
     const search = await screen.findByRole("searchbox");
 
     fireEvent.change(search, { target: { value: "char" } });
-    await waitFor(() => expect(router.state.location.href).toBe("/areas?scenario=high&q=char"));
+    await waitFor(() =>
+      expect(router.state.location.href).toBe("/areas?scenario=high&protection=&q=char"),
+    );
     expect(areaOrder()).toEqual(["Charlie"]);
 
     fireEvent.change(search, { target: { value: "" } });
-    await waitFor(() => expect(router.state.location.href).toBe("/areas?scenario=high"));
+    await waitFor(() =>
+      expect(router.state.location.href).toBe("/areas?scenario=high&protection="),
+    );
     expect(areaOrder()).toHaveLength(3);
   });
 
@@ -139,7 +143,7 @@ describe("DataTable", () => {
   });
 
   it("writes the applied protection types to the URL", async () => {
-    const router = renderTable("/areas?q=a");
+    const router = renderTable("/areas?q=a&protection=");
     fireEvent.click(await screen.findByRole("button", { name: "Filters" }));
     fireEvent.click(await screen.findByRole("button", { name: "Type of protection" }));
     fireEvent.click(await screen.findByRole("option", { name: "Conservation network site" }));
@@ -151,5 +155,18 @@ describe("DataTable", () => {
       expect(router.state.location.href).toBe("/areas?q=a&protection=pa,network-site"),
     );
     expect(areaOrder()).toEqual(["Alpha"]);
+  });
+
+  it("starts on EBSA and keeps an empty param once the filters are cleared", async () => {
+    const router = renderTable("/areas");
+    await screen.findByRole("link", { name: "Bravo" });
+    expect(areaOrder()).toEqual(["Bravo"]);
+
+    fireEvent.click(screen.getByRole("button", { name: "Filters" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Clear" }));
+    fireEvent.click(screen.getByRole("button", { name: "Apply Filters" }));
+
+    await waitFor(() => expect(router.state.location.href).toBe("/areas?protection="));
+    expect(areaOrder()).toHaveLength(3);
   });
 });

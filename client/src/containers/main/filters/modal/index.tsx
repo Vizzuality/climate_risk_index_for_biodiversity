@@ -15,7 +15,7 @@ import {
 import { BIOREGIONS } from "@/lib/bioregions";
 import { PROTECTION_TYPES } from "@/lib/protection-types";
 import { cn } from "@/lib/utils";
-import { AREA_FILTER_DEFAULTS, type AreaFilters, useAreaFilters } from "@/containers/main/store";
+import { type AreaFilters, NO_AREA_FILTERS, useAreaFilters } from "@/containers/main/store";
 
 const SIZE_OPTIONS = ["<200Ha", "200-500Ha", "500-1000Ha", ">1000Ha"];
 const DEPTH_OPTIONS = ["100m", "200m", "1000m", "4000m"];
@@ -124,7 +124,7 @@ export function FiltersModal() {
             type="button"
             variant="ghost"
             className={BUTTON_CLASSES}
-            onClick={() => setDraft(AREA_FILTER_DEFAULTS)}
+            onClick={() => setDraft(NO_AREA_FILTERS)}
           >
             Clear
           </Button>

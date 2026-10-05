@@ -6,9 +6,10 @@ import { PROTECTION_TYPE_VALUES } from "@/lib/protection-types";
 import { multiValue, type SearchCodec } from "@/lib/search-params";
 
 // Each filter adds its codec here and its predicate in `AREA_FILTER_PREDICATES`
-// (utils/filters.ts). An inactive filter serializes to "" and is stripped from the URL.
+// (utils/filters.ts). An inactive filter serializes to "". The default selection is stripped
+// from the URL, so a cleared filter that has a default stays as an empty param.
 const AREA_FILTER_CODECS = {
-  protection: multiValue(PROTECTION_TYPE_VALUES),
+  protection: multiValue(PROTECTION_TYPE_VALUES, ["ebsa"]),
   region: multiValue(BIOREGION_VALUES),
 };
 
@@ -35,6 +36,10 @@ const serializeAreaFilters = (filters: AreaFilters) =>
   ) as AreaFiltersSearch;
 
 export const AREA_FILTER_DEFAULTS = parseAreaFilters({});
+
+export const NO_AREA_FILTERS = parseAreaFilters(
+  Object.fromEntries(AREA_FILTER_KEYS.map((key) => [key, ""])),
+);
 
 export const isAreaFilterActive = (filters: AreaFilters, key: AreaFilterKey) =>
   codecFor(key).serialize(filters[key]) !== "";

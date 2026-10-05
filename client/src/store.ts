@@ -14,11 +14,9 @@ import { SCENARIO } from "@/types";
 
 const DEFAULT_SCENARIO: SCENARIO = "low";
 
-const contextualLayersCodec = multiValue(CONTEXTUAL_LAYER_VALUES);
+const contextualLayersCodec = multiValue(CONTEXTUAL_LAYER_VALUES, ["areas"]);
 
-// The param lists the visible layers, so a missing param means every layer and an
-// empty one means none.
-const DEFAULT_LAYERS = contextualLayersCodec.serialize(CONTEXTUAL_LAYER_VALUES);
+const DEFAULT_LAYERS = contextualLayersCodec.serialize(contextualLayersCodec.parse(undefined));
 
 type RootSearch = { scenario: SCENARIO; layers: string };
 
@@ -27,10 +25,7 @@ export const rootSearch = {
     search: { scenario?: unknown; layers?: unknown } & SearchSchemaInput,
   ): RootSearch => ({
     scenario: search.scenario === "high" ? "high" : DEFAULT_SCENARIO,
-    layers:
-      typeof search.layers === "string"
-        ? contextualLayersCodec.serialize(contextualLayersCodec.parse(search.layers))
-        : DEFAULT_LAYERS,
+    layers: contextualLayersCodec.serialize(contextualLayersCodec.parse(search.layers)),
   }),
   search: {
     middlewares: [
