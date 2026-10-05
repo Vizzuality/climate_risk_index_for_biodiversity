@@ -30,7 +30,7 @@ function LayerToggles() {
       <output aria-label="layers">{visible.join(",")}</output>
       <button onClick={() => setLayerVisible("areas", false)}>hide areas</button>
       <button onClick={() => setLayerVisible("areas", true)}>show areas</button>
-      <button onClick={() => setLayerVisible("risk", false)}>hide risk</button>
+      <button onClick={() => setLayerVisible("bioregions", false)}>hide bioregions</button>
     </>
   );
 }
@@ -102,20 +102,22 @@ describe("useContextualLayers", () => {
   });
 
   it("keeps an empty param when every layer is hidden", async () => {
-    const router = renderAt("/areas?layers=risk");
-    fireEvent.click(await screen.findByRole("button", { name: "hide risk" }));
+    const router = renderAt("/areas?layers=bioregions");
+    fireEvent.click(await screen.findByRole("button", { name: "hide bioregions" }));
     await waitFor(() => expect(router.state.location.href).toBe("/areas?layers="));
     expect(screen.getByRole("status", { name: "layers" }).textContent).toBe("");
   });
 
   it("drops unknown layers and keeps the rest in a fixed order", async () => {
-    renderAt("/areas?layers=risk,bogus,areas");
-    expect((await screen.findByRole("status", { name: "layers" })).textContent).toBe("areas,risk");
+    renderAt("/areas?layers=bioregions,bogus,areas");
+    expect((await screen.findByRole("status", { name: "layers" })).textContent).toBe(
+      "areas,bioregions",
+    );
   });
 
   it("carries the layers across links", async () => {
-    renderAt("/areas/1192?layers=risk");
+    renderAt("/areas/1192?layers=bioregions");
     const link = await screen.findByRole("link", { name: "areas" });
-    expect(link.getAttribute("href")).toBe("/areas?layers=risk");
+    expect(link.getAttribute("href")).toBe("/areas?layers=bioregions");
   });
 });

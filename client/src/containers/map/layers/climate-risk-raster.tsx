@@ -61,10 +61,7 @@ async function getTileData(
   return { texture, byteLength: data.byteLength, width, height };
 }
 
-export function ClimateRiskRasterLayer({
-  scenario,
-  visible,
-}: Readonly<{ scenario: SCENARIO; visible: boolean }>) {
+export function ClimateRiskRasterLayer({ scenario }: Readonly<{ scenario: SCENARIO }>) {
   const [device, setDevice] = useState<Device | null>(null);
 
   const colormap = useMemo(
@@ -94,7 +91,6 @@ export function ClimateRiskRasterLayer({
   const layer = new COGLayer<TileData>({
     id: `climate-risk-${scenario}`,
     geotiff: RASTER_URLS[scenario],
-    visible,
     epsgResolver,
     getTileData,
     renderTile,

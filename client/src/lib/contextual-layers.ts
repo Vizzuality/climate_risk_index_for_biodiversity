@@ -17,13 +17,6 @@ export const CONTEXTUAL_LAYERS = [
     description:
       "Canada's 12 federal marine bioregions. The ones selected in the region filter are highlighted.",
   },
-  {
-    value: "risk",
-    group: "general",
-    label: "Climate risk of all species",
-    description:
-      "Average climate risk across all assessed species, for the selected emissions scenario.",
-  },
 ] as const satisfies readonly {
   value: string;
   group: ContextualLayerGroup;

@@ -14,7 +14,7 @@ export default function LayerManager() {
         <BioregionsLayer visible={visibleLayers.includes("bioregions")} />
         <WDPALayer visible={visibleLayers.includes("areas")} />
       </AreasSource>
-      <ClimateRiskRasterLayer scenario={scenario} visible={visibleLayers.includes("risk")} />
+      <ClimateRiskRasterLayer scenario={scenario} />
     </>
   );
 }
