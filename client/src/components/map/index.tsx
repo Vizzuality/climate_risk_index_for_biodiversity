@@ -57,10 +57,13 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
     mapRef.current?.fitBounds(targetBbox, { animate: true, padding: FIT_PADDING });
   }, [targetBbox, mapLoaded]);
 
-  // With terrain on, Mapbox draws custom layers after every draped style layer,
-  // which lifts the deck raster above the area outlines whatever its beforeId.
+  // With terrain on, Mapbox draws custom layers after every draped style layer, which lifts the
+  // deck raster above the area outlines whatever its beforeId. The map stays flat and north-up;
+  // react-map-gl only toggles whole handlers, so pinch and keyboard rotation are turned off here.
   const handleLoad = (evt: MapEvent) => {
     evt.target.setTerrain(null);
+    evt.target.touchZoomRotate.disableRotation();
+    evt.target.keyboard.disableRotation();
     fittedBbox.current = targetBbox;
     setMapLoaded(true);
   };
@@ -91,6 +94,9 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
       mapStyle="mapbox://styles/crib2025/cmc9e61rp00a601sh2jgretdw"
       projection="mercator"
       maxBounds={MAX_BOUNDS}
+      maxPitch={0}
+      dragRotate={false}
+      touchPitch={false}
       initialViewState={
         targetBbox
           ? { bounds: targetBbox, fitBoundsOptions: { padding: FIT_PADDING } }
