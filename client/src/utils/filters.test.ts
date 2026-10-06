@@ -40,7 +40,7 @@ describe("filterByAreaName", () => {
 });
 
 describe("filterAreas", () => {
-  const typed = (name: string, layer_type: string) => ({ name, layer_type }) as Area;
+  const typed = (name: string, area_type: string) => ({ name, area_type }) as Area;
   const typedAreas = [
     typed("Reserve", "MPA"),
     typed("Bank", "EBSA"),
