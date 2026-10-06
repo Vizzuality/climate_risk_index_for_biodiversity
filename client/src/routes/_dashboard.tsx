@@ -6,6 +6,7 @@ import Navigation from "@/components/navigation";
 import { MapView } from "@/components/map";
 import ScenarioToggle from "@/components/scenario-toggle";
 import LayerManager from "@/containers/map/layer-manager";
+import { MapLegend } from "@/containers/map/legend";
 import { ContextualLayersPanel, useSidebarToggleClassName } from "@/containers/contextual-layers";
 
 export const Route = createFileRoute("/_dashboard")({
@@ -27,6 +28,7 @@ function DashboardLayout() {
           <ClientOnly fallback={null}>
             <MapView>
               <ScenarioToggle />
+              <MapLegend />
               <LayerManager />
             </MapView>
           </ClientOnly>
