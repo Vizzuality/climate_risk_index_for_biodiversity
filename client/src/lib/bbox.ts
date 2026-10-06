@@ -1,6 +1,7 @@
 import type { Area } from "@/containers/main/table/columns";
+import type { SearchCodec } from "@/lib/search-params";
 
-type Bbox = NonNullable<Area["bbox"]>;
+export type Bbox = NonNullable<Area["bbox"]>;
 
 export function unionBbox(areas: readonly Area[]): Bbox | null {
   let union: Bbox | null = null;
@@ -27,3 +28,17 @@ export function clampBbox(bbox: Bbox, bounds: Bbox): Bbox | null {
   ];
   return clamped[0] <= clamped[2] && clamped[1] <= clamped[3] ? clamped : null;
 }
+
+const round = (value: number) => Number(value.toFixed(5));
+
+// Longitudes aren't wrapped to ±180: the map's max bounds start west of the antimeridian.
+export const bboxCodec: SearchCodec<Bbox | null> = {
+  parse: (raw) => {
+    if (typeof raw !== "string") return null;
+    const values = raw.split(",").map((value) => (value.trim() === "" ? NaN : Number(value)));
+    if (values.length !== 4 || !values.every(Number.isFinite)) return null;
+    const [west, south, east, north] = values;
+    return west < east && south < north ? [west, south, east, north] : null;
+  },
+  serialize: (bbox) => (bbox ? bbox.map(round).join(",") : ""),
+};

@@ -10,7 +10,7 @@ import {
   RouterProvider,
 } from "@tanstack/react-router";
 import { stringifySearch } from "@/lib/search-params";
-import { rootSearch, useContextualLayers, useScenario } from "@/store";
+import { rootSearch, useContextualLayers, useMapBbox, useScenario } from "@/store";
 
 function Toggle() {
   const [scenario, setScenario] = useScenario();
@@ -35,6 +35,16 @@ function LayerToggles() {
   );
 }
 
+function BboxProbe() {
+  const [bbox, setBbox] = useMapBbox();
+  return (
+    <>
+      <output aria-label="bbox">{bbox?.join(",") ?? "none"}</output>
+      <button onClick={() => setBbox([-130.123456789, 40.5, -60.2, 60.1000001])}>move</button>
+    </>
+  );
+}
+
 function renderAt(path: string) {
   const rootRoute = createRootRoute({
     ...rootSearch,
@@ -42,6 +52,7 @@ function renderAt(path: string) {
       <>
         <Toggle />
         <LayerToggles />
+        <BboxProbe />
         <Link to="/areas">areas</Link>
         <Outlet />
       </>
@@ -126,5 +137,33 @@ describe("useContextualLayers", () => {
   it("carries the layers across links", async () => {
     renderAt("/areas/1192?layers=bioregions");
     expect(await findLinkHref("areas")).toBe("/areas?layers=bioregions");
+  });
+});
+
+describe("useMapBbox", () => {
+  it("writes the view rounded to five decimals and carries it across links", async () => {
+    const router = renderAt("/areas/1192");
+    fireEvent.click(await screen.findByRole("button", { name: "move" }));
+    await hrefBecomes(router, "/areas/1192?bbox=-130.12346,40.5,-60.2,60.1");
+    expect(await findStatus("bbox")).toBe("-130.12346,40.5,-60.2,60.1");
+    expect(await findLinkHref("areas")).toBe("/areas?bbox=-130.12346,40.5,-60.2,60.1");
+  });
+
+  it("accepts longitudes west of the antimeridian", async () => {
+    renderAt("/areas?bbox=-224.17,30.2,-16.36,75.23");
+    expect(await findStatus("bbox")).toBe("-224.17,30.2,-16.36,75.23");
+  });
+
+  it.each([
+    ["too few values", "-130,40,-60"],
+    ["a non-numeric value", "-130,40,west,60"],
+    ["an empty value", "-130,,-60,60"],
+    ["an inverted box", "-60,40,-130,60"],
+    ["a flat box", "-130,40,-60,40"],
+  ])("drops %s from the URL", async (_, bbox) => {
+    const router = renderAt(`/areas?bbox=${bbox}`);
+    expect(await findStatus("bbox")).toBe("none");
+    expect(await findLinkHref("areas")).toBe("/areas");
+    expect(router.state.location.search).not.toHaveProperty("bbox");
   });
 });
