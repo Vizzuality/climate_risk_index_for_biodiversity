@@ -8,6 +8,7 @@ import {
 import { atom } from "jotai";
 import { GeoJSONFeature, LngLat } from "mapbox-gl";
 import { useMemo } from "react";
+import { type Bbox, bboxCodec } from "@/lib/bbox";
 import { CONTEXTUAL_LAYER_VALUES, type ContextualLayer } from "@/lib/contextual-layers";
 import { multiValue } from "@/lib/search-params";
 import { SCENARIO } from "@/types";
@@ -18,20 +19,21 @@ const contextualLayersCodec = multiValue(CONTEXTUAL_LAYER_VALUES, ["areas"]);
 
 const DEFAULT_LAYERS = contextualLayersCodec.serialize(contextualLayersCodec.parse(undefined));
 
-type RootSearch = { scenario: SCENARIO; layers: string };
+type RootSearch = { scenario: SCENARIO; layers: string; bbox?: string };
 
 export const rootSearch = {
   validateSearch: (
-    search: { scenario?: unknown; layers?: unknown } & SearchSchemaInput,
+    search: { scenario?: unknown; layers?: unknown; bbox?: unknown } & SearchSchemaInput,
   ): RootSearch => ({
     scenario: search.scenario === "high" ? "high" : DEFAULT_SCENARIO,
     layers: contextualLayersCodec.serialize(contextualLayersCodec.parse(search.layers)),
+    bbox: bboxCodec.serialize(bboxCodec.parse(search.bbox)) || undefined,
   }),
   search: {
     middlewares: [
       // Strip must wrap retain: retain re-adds the validated default from the current location.
       stripSearchParams<RootSearch>({ scenario: DEFAULT_SCENARIO, layers: DEFAULT_LAYERS }),
-      retainSearchParams<RootSearch>(["scenario", "layers"]),
+      retainSearchParams<RootSearch>(["scenario", "layers", "bbox"]),
     ],
   },
 };
@@ -59,6 +61,19 @@ export const useContextualLayers = () => {
       replace: true,
     });
   return [visible, setLayerVisible] as const;
+};
+
+export const useMapBbox = () => {
+  const { bbox } = useSearch({ from: "__root__" });
+  const navigate = useNavigate();
+  const value = useMemo(() => bboxCodec.parse(bbox), [bbox]);
+  const setBbox = (next: Bbox) =>
+    navigate({
+      to: ".",
+      search: (prev) => ({ ...prev, bbox: bboxCodec.serialize(next) || undefined }),
+      replace: true,
+    });
+  return [value, setBbox] as const;
 };
 
 export const popupAtom = atom<(GeoJSONFeature & { lngLat: LngLat }) | null>(null);

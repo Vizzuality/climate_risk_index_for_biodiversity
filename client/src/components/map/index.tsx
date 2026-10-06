@@ -11,7 +11,7 @@ import { useAreas } from "@/hooks/use-areas";
 import { useFilteredAreas } from "@/hooks/use-filtered-areas";
 import { clampBbox, unionBbox } from "@/lib/bbox";
 import { useAtom } from "jotai";
-import { mapCursorAtom, popupAtom } from "@/store";
+import { mapCursorAtom, popupAtom, useMapBbox } from "@/store";
 import { pickAreaFeature, pickHoverFeature } from "@/lib/pick-area-feature";
 
 const style = { width: "100%", height: "100%" };
@@ -32,6 +32,8 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
   const { data: areas, isPending, failureCount } = useAreas();
   const { data: matches, isFiltered } = useFilteredAreas();
   const [framedOnMount] = useState(isFiltered || params.areaId !== undefined);
+  const [urlBbox, setUrlBbox] = useMapBbox();
+  const [sharedBbox] = useState(() => urlBbox && clampBbox(urlBbox, MAX_BOUNDS));
 
   const areaBbox = params.areaId
     ? areas?.find((area) => area.id === params.areaId)?.bbox || null
@@ -69,6 +71,19 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
     setMapLoaded(true);
   };
 
+  // Measured on the padded frame the fits use, so a shared box reopens beside the sidebar.
+  // getBounds() can't be used: it follows whatever padding the last fit left on the camera.
+  const handleMoveEnd = (evt: MapEvent) => {
+    const map = evt.target;
+    const { clientWidth, clientHeight } = map.getCanvas();
+    const right = clientWidth - FIT_PADDING.right;
+    const bottom = clientHeight - FIT_PADDING.bottom;
+    if (right <= FIT_PADDING.left || bottom <= FIT_PADDING.top) return;
+    const northWest = map.unproject([FIT_PADDING.left, FIT_PADDING.top]);
+    const southEast = map.unproject([right, bottom]);
+    setUrlBbox([northWest.lng, southEast.lat, southEast.lng, northWest.lat]);
+  };
+
   const handleClick = (evt: MapMouseEvent) => {
     const id = pickAreaFeature(evt.features ?? [])?.id;
     if (id !== undefined && id !== null) {
@@ -91,6 +106,8 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
 
   if (framedOnMount && isPending && failureCount === 0) return null;
 
+  const initialBbox = sharedBbox ?? targetBbox;
+
   return (
     <ReactMapGL
       ref={mapRef}
@@ -103,13 +120,14 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
       dragRotate={false}
       touchPitch={false}
       initialViewState={
-        targetBbox
-          ? { bounds: targetBbox, fitBoundsOptions: { padding: FIT_PADDING } }
+        initialBbox
+          ? { bounds: initialBbox, fitBoundsOptions: { padding: FIT_PADDING } }
           : { zoom: 1, bounds: MAX_BOUNDS }
       }
       interactiveLayerIds={["wdpa-layer", "bioregions-layer"]}
       cursor={cursor}
       onLoad={handleLoad}
+      onMoveEnd={handleMoveEnd}
       onClick={handleClick}
       onMouseMove={handleHover}
       onDragStart={() => setCursor("grabbing")}
