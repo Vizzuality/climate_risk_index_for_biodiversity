@@ -1,7 +1,7 @@
 import marimo
 
 __generated_with = "0.24.1"
-app = marimo.App()
+app = marimo.App(width="medium")
 
 
 @app.cell
@@ -263,7 +263,8 @@ def _(mo):
     | `name_fr` | French name |
     | `source` | `CPCAD`, `DFO_MPA`, `DFO_OECM`, `EBSA`, `Conservation_Network` |
     | `source_url` | Download URL of the source dataset |
-    | `layer_type` | `MPA`, `OECM`, `AOI`, `Network Site`, `EBSA` |
+    | `governance_type` | `MCA` (Marine Conserved Area: designated, governance in place), `AOI` (Area of Interest: proposed/draft, governance under consultation), `EBSA` (science-identified, no governance) |
+    | `area_type` | `MPA`, `OECM`, `AOI`, `Network Site`, `EBSA` |
     | `status` | `Designated`, `Proposed`, `Draft`, `Identified`, `Other` |
     | `designation_type` | Marine Protected Area, Ecological Reserve, Migratory Bird Sanctuary, etc. |
     | `iucn_category` | IUCN category (from CPCAD only) |
@@ -358,7 +359,10 @@ def _(
                 "name_fr": _r["NAME_F"],
                 "source": "CPCAD",
                 "source_url": SOURCE_URL["CPCAD"],
-                "layer_type": PA_OECM_LAYER.get(_r["PA_OECM_DF"], "MPA"),
+                "governance_type": "AOI"
+                if CPCAD_STATUS.get(_r["STATUS"]) == "Proposed"
+                else "MCA",
+                "area_type": PA_OECM_LAYER.get(_r["PA_OECM_DF"], "MPA"),
                 "status": CPCAD_STATUS.get(_r["STATUS"], ""),
                 "designation_type": _r["TYPE_E"],
                 "iucn_category": IUCN_LABELS.get(_r["IUCN_CAT"], ""),
@@ -392,7 +396,8 @@ def _(SOURCE_URL, gdf_dfo_mpa, gdf_dfo_oecm, gdf_marine, gpd):
                 "name_fr": row["NAME_F"],
                 "source": "DFO_MPA",
                 "source_url": SOURCE_URL["DFO_MPA"],
-                "layer_type": "MPA",
+                "governance_type": "MCA",
+                "area_type": "MPA",
                 "status": "Designated",
                 "designation_type": "Marine Protected Area",
                 "iucn_category": "",
@@ -413,7 +418,8 @@ def _(SOURCE_URL, gdf_dfo_mpa, gdf_dfo_oecm, gdf_marine, gpd):
                 "name_fr": _r["NAME_F"],
                 "source": "DFO_OECM",
                 "source_url": SOURCE_URL["DFO_OECM"],
-                "layer_type": "OECM",
+                "governance_type": "MCA",
+                "area_type": "OECM",
                 "status": "Designated",
                 "designation_type": "Other Effective Area-Based Conservation Measure",
                 "iucn_category": "",
@@ -439,18 +445,21 @@ def _(SOURCE_URL, gdf_cn, gdf_ebsa, gdf_marine, gpd, pd):
         ),
         "Tier 2 Network Site": ("Network Site", "Draft"),
     }
-    cn_filtered = gdf_cn[gdf_cn["Class_E"].isin(cn_class_map.keys())].copy()
+    # Source mixes typographic and straight apostrophes in Class_E
+    _cn = gdf_cn.assign(Class_E=gdf_cn["Class_E"].str.replace("’", "'"))
+    cn_filtered = _cn[_cn["Class_E"].isin(cn_class_map.keys())].copy()
     cn_filtered = cn_filtered.to_crs(gdf_marine.crs)
     cn_rows = []
     for _, _r in cn_filtered.iterrows():
-        layer_type, _status = cn_class_map[_r["Class_E"]]
+        area_type, _status = cn_class_map[_r["Class_E"]]
         cn_rows.append(
             {
                 "name": _r["Name_E"],
                 "name_fr": _r["Name_F"],
                 "source": "Conservation_Network",
                 "source_url": SOURCE_URL["Conservation_Network"],
-                "layer_type": layer_type,
+                "governance_type": "AOI",
+                "area_type": area_type,
                 "status": _status,
                 "designation_type": _r["Class_E"],
                 "iucn_category": "",
@@ -470,7 +479,8 @@ def _(SOURCE_URL, gdf_cn, gdf_ebsa, gdf_marine, gpd, pd):
                 "name_fr": _r["Nom"],
                 "source": "EBSA",
                 "source_url": SOURCE_URL["EBSA"],
-                "layer_type": "EBSA",
+                "governance_type": "EBSA",
+                "area_type": "EBSA",
                 "status": "Identified",
                 "designation_type": "Ecologically and Biologically Significant Area",
                 "iucn_category": "",
@@ -527,7 +537,13 @@ def _(mo):
 
 
 @app.cell
-def _(BIOREGIONS_GDB_PATH, BOUNDARIES_OUTPUT_PATH, EASTERN_CANADA_PATH, gpd, pd):
+def _(
+    BIOREGIONS_GDB_PATH,
+    BOUNDARIES_OUTPUT_PATH,
+    EASTERN_CANADA_PATH,
+    gpd,
+    pd,
+):
     # Load Federal Marine Bioregions — keep Pacific & Arctic only
     bioregions_gdb = f"/vsizip/{BIOREGIONS_GDB_PATH}/FederalMarineBioregions_GDB/FederalMarineBioregions.gdb"
     gdf_bioregions = gpd.read_file(bioregions_gdb, layer="FederalMarineBioregions")
