@@ -129,7 +129,7 @@ function DiscreteLegend() {
 function CategoriesLegend({ items }: Readonly<{ items: readonly LegendSwatch[] }>) {
   return (
     <ul className="flex flex-wrap gap-1 px-1">
-      {items.map(({ label, color, shape }) => (
+      {items.map(({ label, color, shape, fillOpacity }) => (
         <li
           key={label}
           className="flex items-center gap-2 pr-4 text-[10px] leading-4 text-slate-700"
@@ -137,7 +137,16 @@ function CategoriesLegend({ items }: Readonly<{ items: readonly LegendSwatch[] }
           <span
             aria-hidden
             className={cn("size-3 shrink-0 rounded-[2px]", shape === "outline" && "border")}
-            style={shape === "outline" ? { borderColor: color } : { backgroundColor: color }}
+            style={
+              shape === "outline"
+                ? {
+                    borderColor: color,
+                    backgroundColor: fillOpacity
+                      ? `color-mix(in srgb, ${color} ${fillOpacity * 100}%, transparent)`
+                      : undefined,
+                  }
+                : { backgroundColor: color }
+            }
           />
           {label}
         </li>

@@ -4,6 +4,7 @@ import { Layer, type LayerProps } from "react-map-gl/mapbox";
 import { useParams } from "@tanstack/react-router";
 import { AREAS_SOURCE_ID, AREAS_SOURCE_LAYER } from "@/containers/map/layers/areas-source";
 import { useFilteredAreas } from "@/hooks/use-filtered-areas";
+import { AREA_FILL_OPACITY } from "@/lib/map-layers";
 import { PROTECTION_TYPES } from "@/lib/protection-types";
 
 const AREA_ID = ["to-string", ["get", "id"]];
@@ -42,9 +43,9 @@ export const WDPALayer = ({
         layout={layout}
         beforeId="maritimes-region-b5kyh8"
         paint={{
-          "fill-color": "transparent",
+          "fill-color": TYPE_COLOR,
           "fill-outline-color": "#EAF3ED",
-          "fill-opacity": opacity,
+          "fill-opacity": AREA_FILL_OPACITY * opacity,
         }}
         {...selected}
       />

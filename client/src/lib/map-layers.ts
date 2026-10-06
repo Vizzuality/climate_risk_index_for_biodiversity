@@ -1,10 +1,17 @@
 import { PROTECTION_TYPES } from "@/lib/protection-types";
 
+export const AREA_FILL_OPACITY = 0.2;
+
 export const BIOREGIONS_OUTLINE_COLOR = "#ec9427";
 // Darker than the raster's orange classes, which the outline colour blends into.
 export const BIOREGIONS_HIGHLIGHT_COLOR = "#b45309";
 
-export type LegendSwatch = { label: string; color: string; shape: "outline" | "fill" };
+export type LegendSwatch = {
+  label: string;
+  color: string;
+  shape: "outline" | "fill";
+  fillOpacity?: number;
+};
 
 export type MapLayerLegend =
   | { type: "discrete" }
@@ -21,6 +28,7 @@ export const MAP_LAYERS = [
         label: shortLabel,
         color,
         shape: "outline" as const,
+        fillOpacity: AREA_FILL_OPACITY,
       })),
     },
   },
