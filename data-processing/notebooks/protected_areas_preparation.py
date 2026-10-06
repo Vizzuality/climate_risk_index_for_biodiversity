@@ -515,6 +515,10 @@ def _(
         ignore_index=True,
     )
     gdf_merged = gpd.GeoDataFrame(gdf_merged, crs=gdf_marine.crs)
+    # Some EBSA and Conservation Network geometries are invalid in the source
+    gdf_merged["geometry"] = gdf_merged.geometry.make_valid(
+        method="structure", keep_collapsed=False
+    )
     missing_url = gdf_merged["url"].fillna("").eq("")
     gdf_merged.loc[missing_url, "url"] = gdf_merged.loc[missing_url, "name"].apply(
         lambda n: match_website_url(n, df_website)
