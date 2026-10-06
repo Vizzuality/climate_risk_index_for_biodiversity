@@ -23,12 +23,12 @@ import {
 import { stringifySearch } from "@/lib/search-params";
 import { rootSearch, useScenario } from "@/store";
 
-const area = (id: string, name: string, low: number, high: number, layer_type = ""): Area => ({
+const area = (id: string, name: string, low: number, high: number, area_type = ""): Area => ({
   id,
   name,
   name_fr: name,
   source: "",
-  layer_type,
+  area_type,
   status: "",
   designation_type: "",
   iucn_category: "",
