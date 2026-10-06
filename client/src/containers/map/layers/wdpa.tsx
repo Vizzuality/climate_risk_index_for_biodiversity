@@ -3,10 +3,14 @@ import { Layer, type LayerProps } from "react-map-gl/mapbox";
 import { useParams } from "@tanstack/react-router";
 import { AREAS_SOURCE_ID, AREAS_SOURCE_LAYER } from "@/containers/map/layers/areas-source";
 import { useFilteredAreas } from "@/hooks/use-filtered-areas";
+import { AREAS_OUTLINE_COLOR } from "@/lib/map-layers";
 
 const AREA_ID = ["to-string", ["get", "id"]];
 
-export const WDPALayer = ({ visible }: Readonly<{ visible: boolean }>) => {
+export const WDPALayer = ({
+  visible,
+  opacity,
+}: Readonly<{ visible: boolean; opacity: number }>) => {
   const layout = { visibility: visible ? "visible" : "none" } as const;
   const { areaId } = useParams({ strict: false });
   const { data: matches, isFiltered } = useFilteredAreas();
@@ -30,6 +34,7 @@ export const WDPALayer = ({ visible }: Readonly<{ visible: boolean }>) => {
         paint={{
           "fill-color": "transparent",
           "fill-outline-color": "#EAF3ED",
+          "fill-opacity": opacity,
         }}
         {...selected}
       />
@@ -43,6 +48,7 @@ export const WDPALayer = ({ visible }: Readonly<{ visible: boolean }>) => {
         beforeId="maritimes-region-b5kyh8"
         paint={{
           "line-color": "#1e3152",
+          "line-opacity": opacity,
         }}
         {...selected}
       />
@@ -55,8 +61,9 @@ export const WDPALayer = ({ visible }: Readonly<{ visible: boolean }>) => {
         layout={layout}
         beforeId="maritimes-region-b5kyh8"
         paint={{
-          "line-color": "#5eead4",
+          "line-color": AREAS_OUTLINE_COLOR,
           "line-offset": -1,
+          "line-opacity": opacity,
         }}
         {...selected}
       />
@@ -69,8 +76,9 @@ export const WDPALayer = ({ visible }: Readonly<{ visible: boolean }>) => {
         layout={layout}
         beforeId="maritimes-region-b5kyh8"
         paint={{
-          "line-color": "#5eead4",
+          "line-color": AREAS_OUTLINE_COLOR,
           "line-offset": 1,
+          "line-opacity": opacity,
         }}
         {...selected}
       />

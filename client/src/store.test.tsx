@@ -10,7 +10,13 @@ import {
   RouterProvider,
 } from "@tanstack/react-router";
 import { stringifySearch } from "@/lib/search-params";
-import { rootSearch, useContextualLayers, useMapBbox, useScenario } from "@/store";
+import {
+  rootSearch,
+  useContextualLayers,
+  useLayerSettings,
+  useMapBbox,
+  useScenario,
+} from "@/store";
 
 function Toggle() {
   const [scenario, setScenario] = useScenario();
@@ -35,6 +41,22 @@ function LayerToggles() {
   );
 }
 
+function LayerSettingsProbe() {
+  const { isVisible, opacity, setVisible, setOpacity } = useLayerSettings();
+  return (
+    <>
+      <output aria-label="risk">{`${isVisible("risk")}:${opacity("risk")}`}</output>
+      <output aria-label="areas">{`${isVisible("areas")}:${opacity("areas")}`}</output>
+      <button onClick={() => setVisible("risk", false)}>hide risk</button>
+      <button onClick={() => setVisible("risk", true)}>show risk</button>
+      <button onClick={() => setVisible("areas", false)}>hide areas settings</button>
+      <button onClick={() => setOpacity("risk", 60)}>dim risk</button>
+      <button onClick={() => setOpacity("risk", 100)}>restore risk</button>
+      <button onClick={() => setOpacity("areas", 40)}>dim areas</button>
+    </>
+  );
+}
+
 function BboxProbe() {
   const [bbox, setBbox] = useMapBbox();
   return (
@@ -52,6 +74,7 @@ function renderAt(path: string) {
       <>
         <Toggle />
         <LayerToggles />
+        <LayerSettingsProbe />
         <BboxProbe />
         <Link to="/areas">areas</Link>
         <Outlet />
@@ -137,6 +160,46 @@ describe("useContextualLayers", () => {
   it("carries the layers across links", async () => {
     renderAt("/areas/1192?layers=bioregions");
     expect(await findLinkHref("areas")).toBe("/areas?layers=bioregions");
+  });
+});
+
+describe("useLayerSettings", () => {
+  it("writes visibility and opacity and strips them when back to the defaults", async () => {
+    const router = renderAt("/areas");
+    expect(await findStatus("risk")).toBe("true:100");
+    fireEvent.click(screen.getByRole("button", { name: "hide risk" }));
+    await hrefBecomes(router, "/areas?hidden=risk");
+    fireEvent.click(screen.getByRole("button", { name: "dim risk" }));
+    await hrefBecomes(router, "/areas?hidden=risk&opacity=risk:60");
+    expect(await findStatus("risk")).toBe("false:60");
+    fireEvent.click(screen.getByRole("button", { name: "show risk" }));
+    fireEvent.click(screen.getByRole("button", { name: "restore risk" }));
+    await hrefBecomes(router, "/areas");
+    expect(await findStatus("risk")).toBe("true:100");
+  });
+
+  it("carries the settings across links", async () => {
+    renderAt("/areas/1192?hidden=areas&opacity=risk:60");
+    expect(await findLinkHref("areas")).toBe("/areas?hidden=areas&opacity=risk:60");
+  });
+
+  it("drops settings for contextual layers that aren't on the map", async () => {
+    renderAt("/areas?layers=&hidden=areas,risk&opacity=areas:40,risk:60");
+    expect(await findStatus("areas")).toBe("false:100");
+    expect(await findStatus("risk")).toBe("false:60");
+    expect(await findLinkHref("areas")).toBe("/areas?layers=&hidden=risk&opacity=risk:60");
+  });
+
+  it("clears a contextual layer's settings when it is switched off", async () => {
+    const router = renderAt("/areas");
+    fireEvent.click(await screen.findByRole("button", { name: "hide areas settings" }));
+    fireEvent.click(screen.getByRole("button", { name: "dim areas" }));
+    await hrefBecomes(router, "/areas?hidden=areas&opacity=areas:40");
+    fireEvent.click(screen.getByRole("button", { name: "hide areas" }));
+    await hrefBecomes(router, "/areas?layers=");
+    fireEvent.click(screen.getByRole("button", { name: "show areas" }));
+    await hrefBecomes(router, "/areas");
+    expect(await findStatus("areas")).toBe("true:100");
   });
 });
 
