@@ -9,7 +9,7 @@ export type AreaQueryRow = {
   name: string;
   name_fr: string;
   source: string;
-  layer_type: string;
+  area_type: string;
   status: string;
   designation_type: string;
   iucn_category: string;
@@ -77,7 +77,7 @@ export function buildAreas(rows: AreaQueryRow[]): Area[] {
       name: low.name,
       name_fr: low.name_fr,
       source: low.source,
-      layer_type: low.layer_type,
+      area_type: low.area_type,
       status: low.status,
       designation_type: low.designation_type,
       iucn_category: low.iucn_category,

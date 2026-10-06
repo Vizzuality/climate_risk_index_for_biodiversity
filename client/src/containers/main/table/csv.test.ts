@@ -11,7 +11,7 @@ const area: Area = {
   name: "Bird Islands",
   name_fr: "Îles aux Oiseaux",
   source: "",
-  layer_type: "",
+  area_type: "",
   status: "",
   designation_type: "",
   iucn_category: "",
