@@ -35,7 +35,9 @@ const round = (value: number) => Number(value.toFixed(5));
 export const bboxCodec: SearchCodec<Bbox | null> = {
   parse: (raw) => {
     if (typeof raw !== "string") return null;
-    const values = raw.split(",").map((value) => (value.trim() === "" ? NaN : Number(value)));
+    const values = raw
+      .split(",")
+      .map((value) => (value.trim() === "" ? Number.NaN : Number(value)));
     if (values.length !== 4 || !values.every(Number.isFinite)) return null;
     const [west, south, east, north] = values;
     return west < east && south < north ? [west, south, east, north] : null;
