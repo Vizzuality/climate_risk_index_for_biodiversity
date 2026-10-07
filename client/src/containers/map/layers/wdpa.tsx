@@ -1,11 +1,22 @@
 import { useMemo } from "react";
+import type { ExpressionSpecification } from "mapbox-gl";
 import { Layer, type LayerProps } from "react-map-gl/mapbox";
 import { useParams } from "@tanstack/react-router";
 import { AREAS_SOURCE_ID, AREAS_SOURCE_LAYER } from "@/containers/map/layers/areas-source";
 import { useFilteredAreas } from "@/hooks/use-filtered-areas";
-import { AREAS_OUTLINE_COLOR } from "@/lib/map-layers";
+import { AREA_FILL_OPACITY } from "@/lib/map-layers";
+import { PROTECTION_TYPES } from "@/lib/protection-types";
 
 const AREA_ID = ["to-string", ["get", "id"]];
+
+const CORE_LINE_COLOR = "#1e3152";
+
+const TYPE_COLOR = [
+  "match",
+  ["get", "layer_type"],
+  ...PROTECTION_TYPES.flatMap((type) => [type.layerType, type.color]),
+  CORE_LINE_COLOR,
+] as ExpressionSpecification;
 
 export const WDPALayer = ({
   visible,
@@ -32,9 +43,9 @@ export const WDPALayer = ({
         layout={layout}
         beforeId="maritimes-region-b5kyh8"
         paint={{
-          "fill-color": "transparent",
+          "fill-color": TYPE_COLOR,
           "fill-outline-color": "#EAF3ED",
-          "fill-opacity": opacity,
+          "fill-opacity": AREA_FILL_OPACITY * opacity,
         }}
         {...selected}
       />
@@ -47,7 +58,7 @@ export const WDPALayer = ({
         layout={layout}
         beforeId="maritimes-region-b5kyh8"
         paint={{
-          "line-color": "#1e3152",
+          "line-color": CORE_LINE_COLOR,
           "line-opacity": opacity,
         }}
         {...selected}
@@ -61,7 +72,7 @@ export const WDPALayer = ({
         layout={layout}
         beforeId="maritimes-region-b5kyh8"
         paint={{
-          "line-color": AREAS_OUTLINE_COLOR,
+          "line-color": TYPE_COLOR,
           "line-offset": -1,
           "line-opacity": opacity,
         }}
@@ -76,7 +87,7 @@ export const WDPALayer = ({
         layout={layout}
         beforeId="maritimes-region-b5kyh8"
         paint={{
-          "line-color": AREAS_OUTLINE_COLOR,
+          "line-color": TYPE_COLOR,
           "line-offset": 1,
           "line-opacity": opacity,
         }}
