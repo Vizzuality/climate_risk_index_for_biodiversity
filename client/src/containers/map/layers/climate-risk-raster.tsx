@@ -14,6 +14,7 @@ import { DeckGLOverlay } from "@/components/map/deckgl-overlay";
 import { DiscardMasked } from "@/containers/map/layers/gpu-modules/discard-masked";
 import epsg3857 from "@/data/epsg-3857.json";
 import { HIGH_EMISSIONS_RASTER_URL, LOW_EMISSIONS_RASTER_URL } from "@/lib/data-urls";
+import { BASEMAP_LAND_FILL_LAYER_ID } from "@/lib/map-layers";
 import { buildRiskColormap, COLORMAP_WIDTH } from "@/lib/risk-colormap";
 import type { SCENARIO } from "@/types";
 
@@ -103,7 +104,7 @@ export function ClimateRiskRasterLayer({
     updateTriggers: { renderTile: [colormap] },
     onTileUnload: (tile) => (tile.content as TileData | null)?.texture.destroy(),
     // @ts-expect-error beforeId is read by @deck.gl/mapbox but is not part of LayerProps
-    beforeId: "country-boundaries",
+    beforeId: BASEMAP_LAND_FILL_LAYER_ID,
   });
 
   return <DeckGLOverlay layers={[layer]} interleaved onDeviceInitialized={setDevice} />;

@@ -3,7 +3,11 @@ import { Layer, type LayerProps } from "react-map-gl/mapbox";
 import { useAreaFilters } from "@/containers/main/store";
 import { AREAS_SOURCE_ID, BIOREGIONS_SOURCE_LAYER } from "@/containers/map/layers/areas-source";
 import { BIOREGIONS } from "@/lib/bioregions";
-import { BIOREGIONS_HIGHLIGHT_COLOR, BIOREGIONS_OUTLINE_COLOR } from "@/lib/map-layers";
+import {
+  BASEMAP_BOUNDARIES_LAYER_ID,
+  BIOREGIONS_HIGHLIGHT_COLOR,
+  BIOREGIONS_OUTLINE_COLOR,
+} from "@/lib/map-layers";
 
 export const BioregionsLayer = ({
   visible,
@@ -25,7 +29,7 @@ export const BioregionsLayer = ({
         source-layer={BIOREGIONS_SOURCE_LAYER}
         source={AREAS_SOURCE_ID}
         layout={layout}
-        beforeId="maritimes-region-b5kyh8"
+        beforeId={BASEMAP_BOUNDARIES_LAYER_ID}
         paint={{
           "fill-color": "transparent",
           "fill-outline-color": BIOREGIONS_OUTLINE_COLOR,
@@ -39,7 +43,7 @@ export const BioregionsLayer = ({
         source-layer={BIOREGIONS_SOURCE_LAYER}
         source={AREAS_SOURCE_ID}
         layout={layout}
-        beforeId="maritimes-region-b5kyh8"
+        beforeId={BASEMAP_BOUNDARIES_LAYER_ID}
         paint={{
           "line-color": "#edd17e",
           "line-offset": -1,
@@ -53,7 +57,7 @@ export const BioregionsLayer = ({
         source-layer={BIOREGIONS_SOURCE_LAYER}
         source={AREAS_SOURCE_ID}
         layout={layout}
-        beforeId="maritimes-region-b5kyh8"
+        beforeId={BASEMAP_BOUNDARIES_LAYER_ID}
         paint={{
           "line-color": "#edd17e",
           "line-opacity": 0.4 * opacity,
@@ -65,7 +69,7 @@ export const BioregionsLayer = ({
         source-layer={BIOREGIONS_SOURCE_LAYER}
         source={AREAS_SOURCE_ID}
         layout={layout}
-        beforeId="maritimes-region-b5kyh8"
+        beforeId={BASEMAP_BOUNDARIES_LAYER_ID}
         filter={selected}
         paint={{ "fill-color": BIOREGIONS_HIGHLIGHT_COLOR, "fill-opacity": 0.15 * opacity }}
       />
@@ -75,7 +79,7 @@ export const BioregionsLayer = ({
         source-layer={BIOREGIONS_SOURCE_LAYER}
         source={AREAS_SOURCE_ID}
         layout={layout}
-        beforeId="maritimes-region-b5kyh8"
+        beforeId={BASEMAP_BOUNDARIES_LAYER_ID}
         filter={selected}
         paint={{
           "line-color": BIOREGIONS_HIGHLIGHT_COLOR,
