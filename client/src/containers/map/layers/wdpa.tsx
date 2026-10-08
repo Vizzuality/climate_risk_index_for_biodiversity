@@ -3,7 +3,7 @@ import { Layer, type LayerProps } from "react-map-gl/mapbox";
 import { useParams } from "@tanstack/react-router";
 import { AREAS_SOURCE_ID, AREAS_SOURCE_LAYER } from "@/containers/map/layers/areas-source";
 import { useFilteredAreas } from "@/hooks/use-filtered-areas";
-import { AREAS_OUTLINE_COLOR } from "@/lib/map-layers";
+import { AREAS_OUTLINE_COLOR, BASEMAP_BOUNDARIES_LAYER_ID } from "@/lib/map-layers";
 
 const AREA_ID = ["to-string", ["get", "id"]];
 
@@ -30,7 +30,7 @@ export const WDPALayer = ({
         source-layer={AREAS_SOURCE_LAYER}
         source={AREAS_SOURCE_ID}
         layout={layout}
-        beforeId="maritimes-region-b5kyh8"
+        beforeId={BASEMAP_BOUNDARIES_LAYER_ID}
         paint={{
           "fill-color": "transparent",
           "fill-outline-color": "#EAF3ED",
@@ -45,7 +45,7 @@ export const WDPALayer = ({
         source-layer={AREAS_SOURCE_LAYER}
         source={AREAS_SOURCE_ID}
         layout={layout}
-        beforeId="maritimes-region-b5kyh8"
+        beforeId={BASEMAP_BOUNDARIES_LAYER_ID}
         paint={{
           "line-color": "#1e3152",
           "line-opacity": opacity,
@@ -59,7 +59,7 @@ export const WDPALayer = ({
         source-layer={AREAS_SOURCE_LAYER}
         source={AREAS_SOURCE_ID}
         layout={layout}
-        beforeId="maritimes-region-b5kyh8"
+        beforeId={BASEMAP_BOUNDARIES_LAYER_ID}
         paint={{
           "line-color": AREAS_OUTLINE_COLOR,
           "line-offset": -1,
@@ -74,7 +74,7 @@ export const WDPALayer = ({
         source-layer={AREAS_SOURCE_LAYER}
         source={AREAS_SOURCE_ID}
         layout={layout}
-        beforeId="maritimes-region-b5kyh8"
+        beforeId={BASEMAP_BOUNDARIES_LAYER_ID}
         paint={{
           "line-color": AREAS_OUTLINE_COLOR,
           "line-offset": 1,
