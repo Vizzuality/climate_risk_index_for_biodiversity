@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.24.1"
+__generated_with = "0.25.1"
 app = marimo.App(width="medium")
 
 
@@ -41,20 +41,19 @@ def _():
     import json
     import unicodedata
     from difflib import SequenceMatcher
-    from pathlib import Path
 
     import geopandas as gpd
     import pandas as pd
     import requests
     from bs4 import BeautifulSoup
 
-    return BeautifulSoup, Path, SequenceMatcher, gpd, json, pd, requests, unicodedata
+    return BeautifulSoup, SequenceMatcher, gpd, json, pd, requests, unicodedata
 
 
 @app.cell
-def _(Path):
+def _(mo):
     # File paths and constants for all source datasets and output
-    DATA_DIR = Path("../data")
+    DATA_DIR = mo.notebook_dir().parent / "data"
 
     # CPCAD
     CPCAD_PATH = DATA_DIR / "01_raw" / "ProtectedConservedArea_2025.zip"
@@ -93,10 +92,10 @@ def _(Path):
         DATA_DIR / "02_intermediate" / "marine_conservation_areas_merged.gpkg"
     )
     BOUNDARIES_OUTPUT_PATH = (
-        DATA_DIR / "03_primary" / "marine_administrative_boundaries.gpkg"
+        DATA_DIR / "02_intermediate" / "marine_administrative_boundaries.gpkg"
     )
     MERGED_WITH_REGIONS_PATH = (
-        DATA_DIR / "03_primary" / "marine_conservation_areas_with_regions.gpkg"
+        DATA_DIR / "02_intermediate" / "marine_conservation_areas_with_regions.gpkg"
     )
     return (
         BIOREGIONS_GDB_PATH,

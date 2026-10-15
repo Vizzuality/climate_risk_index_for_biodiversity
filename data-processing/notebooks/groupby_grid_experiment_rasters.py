@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.24.1"
+__generated_with = "0.25.1"
 app = marimo.App(width="medium")
 
 
@@ -12,16 +12,14 @@ def _():
 
 
 @app.cell
-def _():
-    import pathlib
-
+def _(mo):
     import duckdb
     import numpy as np
     import polars as pl
     import rasterio
     import rioxarray  # noqa F401
 
-    DATAPATH = pathlib.Path.cwd() / "data"
+    DATAPATH = mo.notebook_dir().parent / "data"
     DATASET = (
         DATAPATH / "01_raw" / "CRIB_VSEspecies_SSP126_585_2100_Canada_parquet/*.parquet"
     )
@@ -127,15 +125,24 @@ def _(con, pl):
 
 @app.cell
 def _(DATAPATH, np, rasterio, result, var_numeric_cols):
+    from rasterio.fill import fillnodata
 
     NODATA = -9999
 
-    df = result.to_pandas()
+    RES = 0.05
 
+    # Round away float noise so coords match the regular grid below
+    df = result.to_pandas().round({"Lat": 3, "Lon": 3})
+
+    # Pixel-center coords of the full grid; lats run North -> South. Reindexing
+    # keeps rows/cols missing from the data as NaN instead of dropping them,
+    # which would shift the raster's geotransform.
+    lats = np.round(np.arange(df.Lat.max(), df.Lat.min() - RES / 2, -RES), 3)
+    lons = np.round(np.arange(df.Lon.min(), df.Lon.max() + RES / 2, RES), 3)
     ds = (
         df.set_index(["Experiment", "Lat", "Lon"])
         .to_xarray()
-        .sortby("Lat", ascending=False)  # North -> South
+        .reindex(Lat=lats, Lon=lons)
     )
 
     crs = "EPSG:4326"
@@ -145,9 +152,23 @@ def _(DATAPATH, np, rasterio, result, var_numeric_cols):
         da = ds_exp[var_numeric_cols].to_array(dim="band")
         da = da.fillna(NODATA)
         da.rio.write_nodata(NODATA, inplace=True)
-        da = da.rio.set_spatial_dims(x_dim="Lon", y_dim="Lat").rio.write_crs(crs)
-        filename = DATAPATH / "03_primary" / f"{experiment}.tif"
-        da.rio.to_raster(filename, dtype=np.float32)
+        # Rename instead of rio.set_spatial_dims: that setting lives on the
+        # accessor and is lost on copy(), while x/y dims are found by default
+        da = da.rename(Lon="x", Lat="y").rio.write_crs(crs)
+        # Dilate valid pixels one cell (diagonals included) into nodata
+        dilated = np.stack(
+            [
+                fillnodata(
+                    band,
+                    mask=band != NODATA,
+                    max_search_distance=1.5,
+                    smoothing_iterations=0,
+                )
+                for band in da.values.astype(np.float32)
+            ]
+        )
+        filename = DATAPATH / "02_intermediate" / f"{experiment}_fill.tif"
+        da.copy(data=dilated).rio.to_raster(filename, dtype=np.float32)
         with rasterio.open(filename, "r+") as dst:
             dst.descriptions = tuple(da.band.values.astype(str))
     return (da,)
@@ -175,7 +196,7 @@ def _(DATAPATH):
     from exactextract import exact_extract
 
     mpas = gpd.read_file(
-        DATAPATH / "01_raw" / "marine_conservation_areas_with_regions.gpkg"
+        DATAPATH / "02_intermediate" / "marine_conservation_areas_with_regions.gpkg"
     )
     mpas = mpas.reset_index(names="id")
 
@@ -212,7 +233,7 @@ def _(DATAPATH, cols_to_keep, da, exact_extract, mpas, rasterio):
     res = []
 
     for exp in experiments:
-        tif_path = DATAPATH / "03_primary" / f"{exp}_fill.tif"
+        tif_path = DATAPATH / "02_intermediate" / f"{exp}_fill.tif"
 
         zs_mean = exact_extract(
             tif_path,
