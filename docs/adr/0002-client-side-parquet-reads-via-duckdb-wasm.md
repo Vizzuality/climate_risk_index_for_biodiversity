@@ -123,3 +123,12 @@ be regenerated with every archive because the ids are not stable.
 `mpas_stats.parquet`, `mpas.pmtiles` and the two COGs are read from the
 public CloudFront bucket instead of `client/src/data/`; see ADR 0006.
 `mpas_bbox.parquet` stays bundled.
+
+## Amendment (2026-10-15, bbox in the stats extract)
+
+Per-area bbox now comes from the stats extract itself: the conservation
+areas preparation computes it from the source geometries and
+`mpas_stats.parquet` carries it as a `bbox` column (`list<double>`,
+`[xmin, ymin, xmax, ymax]` in EPSG:4326). The client reads it from the
+stats query; `mpas_bbox.parquet` and `build_mpas_bbox.py` are removed,
+so the bbox can no longer drift from the ids of the hosted archive.

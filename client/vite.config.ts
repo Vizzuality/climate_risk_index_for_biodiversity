@@ -16,9 +16,7 @@ export default defineConfig({
     tanstackStart(),
     nitroV2Plugin({
       compatibilityDate: "2026-07-09",
-      // Nitro's own static handler cannot answer Range requests, which the
-      // app-served mpas_bbox.parquet needs to support even though duckdb-wasm
-      // currently reads it whole; serve-static can.
+      // Nitro's own static handler cannot answer Range requests; serve-static can.
       serveStatic: false,
       handlers: [
         {

@@ -20,10 +20,8 @@ function makeRow(experiment: number, base: number, overrides: Partial<AreaQueryR
     n_distinct_specid: 12.4,
     ClimVuln_min: base - 0.1,
     ClimVuln_max: base + 0.1,
-    bbox_xmin: -60.41,
-    bbox_ymin: 46.35,
-    bbox_xmax: -60.35,
-    bbox_ymax: 46.39,
+    // typed array, not a plain array, like the Arrow Vector duckdb-wasm returns
+    bbox: Float64Array.of(-60.41, 46.35, -60.35, 46.39),
     ...Object.fromEntries(INDICATOR_COLUMNS.map((c, i) => [c, base + i / 100])),
     ...overrides,
   } as AreaQueryRow;
@@ -68,8 +66,8 @@ describe("buildAreas", () => {
     expect(climVuln?.scenario.high.max).toBeCloseTo(0.7);
   });
 
-  it("leaves bbox null when the area has no row in the bbox file", () => {
-    const noBbox = { bbox_xmin: null, bbox_ymin: null, bbox_xmax: null, bbox_ymax: null };
+  it("leaves bbox null when the area has no bbox", () => {
+    const noBbox = { bbox: null };
     const [area] = buildAreas([makeRow(126, 0.2, noBbox), makeRow(585, 0.6, noBbox)]);
 
     expect(area.bbox).toBeNull();
