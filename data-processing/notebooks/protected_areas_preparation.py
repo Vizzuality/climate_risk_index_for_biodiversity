@@ -38,6 +38,7 @@ def _(mo):
 @app.cell
 def _():
     # Imports
+    import json
     import unicodedata
     from difflib import SequenceMatcher
     from pathlib import Path
@@ -47,7 +48,7 @@ def _():
     import requests
     from bs4 import BeautifulSoup
 
-    return BeautifulSoup, Path, SequenceMatcher, gpd, pd, requests, unicodedata
+    return BeautifulSoup, Path, SequenceMatcher, gpd, json, pd, requests, unicodedata
 
 
 @app.cell
@@ -273,6 +274,7 @@ def _(mo):
     | `url` | Link to area page or report |
     | `area_km2` | Area in km² |
     | `region` | Marine bioregion(s) the geometry intersects (comma-separated if multiple) |
+    | `bbox` | Bounding box `[xmin, ymin, xmax, ymax]` in lon/lat (EPSG:4326), as a JSON string |
     | `geometry` | Polygon |
     """)
     return
@@ -578,7 +580,7 @@ def _(
 
 
 @app.cell
-def _(MERGED_WITH_REGIONS_PATH, gdf_boundaries, gdf_merged, gpd):
+def _(MERGED_WITH_REGIONS_PATH, gdf_boundaries, gdf_merged, gpd, json):
     # Assign marine bioregion(s) to each feature via spatial join
     gdf_bounds_proj = gdf_boundaries.to_crs(gdf_merged.crs)  # type: ignore[assignment]
     joined = gpd.sjoin(
@@ -590,7 +592,11 @@ def _(MERGED_WITH_REGIONS_PATH, gdf_boundaries, gdf_merged, gpd):
     region_agg = joined.groupby(joined.index)["region"].apply(
         lambda x: ", ".join(sorted(x.dropna().unique()))
     )
-    gdf_with_regions = gdf_merged.assign(region=region_agg.fillna(""))
+    # Lon/lat bounding box of each feature, for zooming the map to an area.
+    # JSON string `[xmin, ymin, xmax, ymax]`: GPKG and MVT have no array type
+    bounds = gdf_merged.geometry.to_crs("EPSG:4326").bounds
+    bbox = [json.dumps(b) for b in bounds.values.tolist()]
+    gdf_with_regions = gdf_merged.assign(region=region_agg.fillna(""), bbox=bbox)
     gdf_with_regions.to_file(MERGED_WITH_REGIONS_PATH, driver="GPKG")
     return
 

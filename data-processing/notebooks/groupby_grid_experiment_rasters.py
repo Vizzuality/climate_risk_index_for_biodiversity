@@ -267,7 +267,12 @@ def _(all):
 
 @app.cell
 def _(DATAPATH, all):
-    all.to_parquet(DATAPATH / "03_primary" / "mpas_stats.parquet")
+    import json
+
+    # bbox arrives as a JSON string from the GPKG; store it as list<double>
+    all.assign(bbox=all["bbox"].map(json.loads)).to_parquet(
+        DATAPATH / "03_primary" / "mpas_stats.parquet"
+    )
     return
 
 
