@@ -10,8 +10,10 @@ export const RISK_CLASSES = [
   { min: 0.650018122866379, color: "#D95730", label: "Critical" },
 ] as const;
 
-export function riskColorFor(value: number): string {
-  let color: string = RISK_CLASSES[0].color;
+export type RiskClass = (typeof RISK_CLASSES)[number];
+
+export function riskClassFor(value: number): RiskClass {
+  let match: RiskClass = RISK_CLASSES[0];
   for (const cls of RISK_CLASSES) {
     if (value >= cls.min) match = cls;
   }
