@@ -21,6 +21,7 @@ const area: Area = {
   assessed_species: 12,
   regions: [],
   bbox: null,
+  species: { low: [], high: [] },
   indicator: [{ name: "ClimVuln", type: "numerical", scenario: { low: NO_STATS, high: NO_STATS } }],
 };
 

@@ -22,6 +22,10 @@ function makeRow(experiment: number, base: number, overrides: Partial<AreaQueryR
     ClimVuln_max: base + 0.1,
     // typed array, not a plain array, like the Arrow Vector duckdb-wasm returns
     bbox: Float64Array.of(-60.41, 46.35, -60.35, 46.39),
+    top_species: [
+      { id: 137115, common_name: "beluga", scientific_name: "Delphinapterus leucas", score: base },
+      { id: 157545, common_name: null, scientific_name: "Proclea graffii", score: base - 0.1 },
+    ],
     ...Object.fromEntries(INDICATOR_COLUMNS.map((c, i) => [c, base + i / 100])),
     ...overrides,
   } as AreaQueryRow;
@@ -64,6 +68,29 @@ describe("buildAreas", () => {
     expect(climVuln?.scenario.low.max).toBeCloseTo(0.3);
     expect(climVuln?.scenario.high.min).toBeCloseTo(0.5);
     expect(climVuln?.scenario.high.max).toBeCloseTo(0.7);
+  });
+
+  it("keeps the top species of each scenario in rank order", () => {
+    const [area] = buildAreas([makeRow(126, 0.2), makeRow(585, 0.6)]);
+
+    expect(area.species.low.map((s) => s.scientific_name)).toEqual([
+      "Delphinapterus leucas",
+      "Proclea graffii",
+    ]);
+    expect(area.species.low[1]).toEqual({
+      id: 157545,
+      common_name: null,
+      scientific_name: "Proclea graffii",
+      score: 0.1,
+    });
+    expect(area.species.high[0].score).toBe(0.6);
+  });
+
+  it("gives an empty species list to a scenario without top species", () => {
+    const [area] = buildAreas([makeRow(126, 0.2, { top_species: null }), makeRow(585, 0.6)]);
+
+    expect(area.species.low).toEqual([]);
+    expect(area.species.high).toHaveLength(2);
   });
 
   it("leaves bbox null when the area has no bbox", () => {

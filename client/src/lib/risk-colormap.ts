@@ -13,7 +13,11 @@ export const RISK_CLASSES = [
 export function riskColorFor(value: number): string {
   let color: string = RISK_CLASSES[0].color;
   for (const cls of RISK_CLASSES) {
-    if (value >= cls.min) color = cls.color;
+    if (value >= cls.min) match = cls;
   }
-  return color;
+  return match;
+}
+
+export function riskColorFor(value: number): string {
+  return riskClassFor(value).color;
 }

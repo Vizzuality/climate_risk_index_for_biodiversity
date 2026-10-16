@@ -38,6 +38,7 @@ const area = (id: string, name: string, low: number, high: number, area_type = "
   assessed_species: null,
   regions: [],
   bbox: null,
+  species: { low: [], high: [] },
   indicator: [
     {
       name: "ClimVuln",
