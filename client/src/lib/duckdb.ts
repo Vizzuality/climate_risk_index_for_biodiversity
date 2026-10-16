@@ -1,9 +1,10 @@
 import * as duckdb from "@duckdb/duckdb-wasm";
 import duckdbWasmUrl from "@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm?url";
 import duckdbWorkerUrl from "@duckdb/duckdb-wasm/dist/duckdb-browser-mvp.worker.js?url";
-import { STATS_URL } from "@/lib/data-urls";
+import { AREA_SPECIES_URL, STATS_URL } from "@/lib/data-urls";
 
 export const STATS_FILE = "mpas_stats.parquet";
+export const AREA_SPECIES_FILE = "area_species.parquet";
 
 let connection: Promise<duckdb.AsyncDuckDBConnection> | null = null;
 
@@ -14,6 +15,12 @@ async function boot(): Promise<duckdb.AsyncDuckDBConnection> {
     await db.instantiate(duckdbWasmUrl);
     const absolute = (url: string) => new URL(url, window.location.origin).href;
     await db.registerFileURL(STATS_FILE, STATS_URL, duckdb.DuckDBDataProtocol.HTTP, false);
+    await db.registerFileURL(
+      AREA_SPECIES_FILE,
+      AREA_SPECIES_URL,
+      duckdb.DuckDBDataProtocol.HTTP,
+      false,
+    );
     const conn = await db.connect();
     // Point extension autoloading at the copy under public/ (layout:
     // <repo>/<duckdb version>/<platform>/<name>.duckdb_extension.wasm) so the

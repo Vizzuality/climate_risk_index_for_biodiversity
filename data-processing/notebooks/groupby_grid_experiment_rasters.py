@@ -257,7 +257,7 @@ def _(DATAPATH, cols_to_keep, da, exact_extract, mpas, rasterio):
 
         zs["experiment"] = exp
         res.append(zs)
-    return RasterioRasterSource, clim_idx, experiments, res
+    return (res,)
 
 
 @app.cell
@@ -265,160 +265,7 @@ def _(res):
     import pandas as pd
 
     all = pd.concat(res).sort_values(["id", "experiment"]).reset_index(drop=True)
-    return all, pd
-
-
-@app.cell
-def _(
-    DATAPATH,
-    DATASET,
-    RasterioRasterSource,
-    clim_idx,
-    con,
-    exact_extract,
-    experiments,
-    mpas,
-    pd,
-    rasterio,
-):
-    # Top 5 species per area and experiment, ranked by ClimVuln weighted by
-    # the species' distribution in the area. An area uses the valid cells of
-    # the dilated ClimVuln band (exactextract skips nodata), like the zonal
-    # stats. Cells with data keep their own species; cells filled by the
-    # dilation borrow them from their valid 8-neighbours weighted by 1/d, the
-    # same rule fillnodata applies.
-    _area_cells = []
-    for _exp in experiments:
-        with rasterio.open(DATAPATH / "02_intermediate" / f"{_exp}_fill.tif") as _src:
-            _cells = exact_extract(
-                RasterioRasterSource(_src, clim_idx),
-                mpas,
-                ops=["center_x", "center_y", "coverage"],
-                include_cols="id",
-                output="pandas",
-            )
-        _area_cells.append(
-            _cells.explode(["center_x", "center_y", "coverage"]).assign(experiment=_exp)
-        )
-    area_cells = (
-        pd.concat(_area_cells)
-        .dropna(subset=["center_x"])
-        .astype({"center_x": float, "center_y": float, "coverage": float})
-    )
-    con.register("area_cells", area_cells)
-
-    # Grid indices from the 0.05° pixel centers (k * 0.05 + 0.025)
-    top_species = con.execute(
-        """
-        WITH species AS (
-            SELECT
-                CAST(Experiment AS INTEGER) AS experiment,
-                CAST(round(Lon / 0.05 - 0.5) AS INTEGER) AS gi,
-                CAST(round(Lat / 0.05 - 0.5) AS INTEGER) AS gj,
-                SpecID,
-                ClimVuln
-            FROM read_parquet($dataset)
-            WHERE ClimVuln IS NOT NULL
-        ),
-        valid AS (SELECT DISTINCT experiment, gi, gj FROM species),
-        cells AS (
-            SELECT
-                id,
-                experiment,
-                coverage,
-                CAST(round(center_x / 0.05 - 0.5) AS INTEGER) AS gi,
-                CAST(round(center_y / 0.05 - 0.5) AS INTEGER) AS gj
-            FROM area_cells
-        ),
-        area_coverage AS (
-            SELECT id, experiment, sum(coverage) AS coverage
-            FROM cells
-            GROUP BY id, experiment
-        ),
-        offsets AS (
-            SELECT di, dj, 1 / sqrt(di * di + dj * dj) AS w
-            FROM range(-1, 2) t1(di), range(-1, 2) t2(dj)
-            WHERE di <> 0 OR dj <> 0
-        ),
-        -- Valid cells are their own source; filled cells take their valid
-        -- 8-neighbours weighted by 1/d
-        sources AS (
-            SELECT id, experiment, gi, gj, coverage, gi AS src_gi, gj AS src_gj, 1.0 AS w
-            FROM cells SEMI JOIN valid USING (experiment, gi, gj)
-            UNION ALL
-            SELECT f.id, f.experiment, f.gi, f.gj, f.coverage, v.gi, v.gj, o.w
-            FROM (SELECT * FROM cells ANTI JOIN valid USING (experiment, gi, gj)) f
-            CROSS JOIN offsets o
-            JOIN valid v
-                ON v.experiment = f.experiment
-                AND v.gi = f.gi + o.di
-                AND v.gj = f.gj + o.dj
-        ),
-        source_weights AS (
-            SELECT id, experiment, gi, gj, any_value(coverage) AS coverage, sum(w) AS w
-            FROM sources
-            GROUP BY id, experiment, gi, gj
-        ),
-        -- A species' ClimVuln in a cell, counting its absence from a source as 0
-        cell_species AS (
-            SELECT s.id, s.experiment, s.gi, s.gj, sp.SpecID, sum(s.w * sp.ClimVuln) AS wv
-            FROM sources s
-            JOIN species sp
-                ON sp.experiment = s.experiment
-                AND sp.gi = s.src_gi
-                AND sp.gj = s.src_gj
-            GROUP BY s.id, s.experiment, s.gi, s.gj, sp.SpecID
-        ),
-        -- Mean over the whole area, so a species scores by both its ClimVuln and
-        -- the share of the area it occupies
-        ranked AS (
-            SELECT
-                cs.id,
-                cs.experiment,
-                cs.SpecID,
-                sum(sw.coverage * cs.wv / sw.w) / any_value(a.coverage) AS score,
-                row_number() OVER (
-                    PARTITION BY cs.id, cs.experiment ORDER BY score DESC, cs.SpecID
-                ) AS rnk
-            FROM cell_species cs
-            JOIN source_weights sw USING (id, experiment, gi, gj)
-            JOIN area_coverage a USING (id, experiment)
-            GROUP BY cs.id, cs.experiment, cs.SpecID
-            QUALIFY rnk <= 5
-        ),
-        names AS (
-            SELECT
-                SpecID,
-                any_value(NULLIF(Comname, '')) AS common_name,
-                any_value(SPname) AS scientific_name
-            FROM read_parquet($dataset)
-            GROUP BY SpecID
-        )
-        SELECT
-            r.id,
-            r.experiment,
-            list(
-                struct_pack(
-                    id := r.SpecID,
-                    common_name := n.common_name,
-                    scientific_name := n.scientific_name,
-                    score := r.score
-                )
-                ORDER BY r.rnk
-            ) AS top_species
-        FROM ranked r
-        JOIN names n USING (SpecID)
-        GROUP BY r.id, r.experiment
-        """,
-        {"dataset": str(DATASET)},
-    ).df()
-    return (top_species,)
-
-
-@app.cell
-def _(top_species):
-    top_species.head()
-    return
+    return (all,)
 
 
 @app.cell
@@ -440,13 +287,13 @@ def _(all):
 
 
 @app.cell
-def _(DATAPATH, all, top_species):
+def _(DATAPATH, all):
     import json
 
     # bbox arrives as a JSON string from the GPKG; store it as list<double>
-    all.assign(bbox=all["bbox"].map(json.loads)).merge(
-        top_species, on=["id", "experiment"], how="left"
-    ).to_parquet(DATAPATH / "03_primary" / "mpas_stats.parquet")
+    all.assign(bbox=all["bbox"].map(json.loads)).to_parquet(
+        DATAPATH / "03_primary" / "mpas_stats.parquet"
+    )
     return
 
 

@@ -13,15 +13,6 @@ export type IndicatorStats = {
   mean: number | null;
 };
 
-// One of the top species of an area, ranked by its ClimVuln weighted by its
-// distribution in the area.
-export type AreaSpecies = {
-  id: number;
-  common_name: string | null;
-  scientific_name: string;
-  score: number;
-};
-
 export type Area = {
   id: string;
   name: string;
@@ -37,7 +28,6 @@ export type Area = {
   assessed_species: number | null;
   regions: string[];
   bbox: [number, number, number, number] | null;
-  species: Record<SCENARIO, AreaSpecies[]>;
   indicator: {
     name: string;
     scenario: {

@@ -1,4 +1,4 @@
-import { Area, AreaSpecies, IndicatorStats } from "@/containers/main/table/columns";
+import { Area, IndicatorStats } from "@/containers/main/table/columns";
 import { getDuckDBConnection, STATS_FILE } from "@/lib/duckdb";
 import { EXPERIMENT_TO_SCENARIO, INDICATOR_COLUMNS } from "@/lib/indicators";
 import { SCENARIO } from "@/types";
@@ -22,8 +22,6 @@ export type AreaQueryRow = {
   ClimVuln_max: number | null;
   // list<double> [xmin, ymin, xmax, ymax]; Arrow yields it as an iterable Vector
   bbox: Iterable<number> | null;
-  // list<struct>, top species first; Arrow yields it as an iterable Vector
-  top_species: Iterable<AreaSpecies> | null;
 } & Record<(typeof INDICATOR_COLUMNS)[number], number | null>;
 
 // BIGINT columns are cast in SQL so Arrow yields numbers, not BigInts.
@@ -31,15 +29,7 @@ const AREAS_QUERY = `
   SELECT
     s.* REPLACE (
       CAST(s.experiment AS INTEGER) AS experiment,
-      NULLIF(s.url, '') AS url,
-      CAST(
-        s.top_species AS STRUCT(
-          id INTEGER,
-          common_name VARCHAR,
-          scientific_name VARCHAR,
-          score DOUBLE
-        )[]
-      ) AS top_species
+      NULLIF(s.url, '') AS url
     )
   FROM '${STATS_FILE}' s
 `;
@@ -48,16 +38,6 @@ function bbox(row: AreaQueryRow): Area["bbox"] {
   if (!row.bbox) return null;
   const [xmin, ymin, xmax, ymax] = row.bbox;
   return [xmin, ymin, xmax, ymax];
-}
-
-function topSpecies(row: AreaQueryRow): AreaSpecies[] {
-  if (!row.top_species) return [];
-  return Array.from(row.top_species, ({ id, common_name, scientific_name, score }) => ({
-    id,
-    common_name,
-    scientific_name,
-    score,
-  }));
 }
 
 function scenarioStats(
@@ -101,7 +81,6 @@ export function buildAreas(rows: AreaQueryRow[]): Area[] {
       assessed_species: low.n_distinct_specid,
       regions: low.region ? low.region.split(", ") : [],
       bbox: bbox(low),
-      species: { low: topSpecies(low), high: topSpecies(high) },
       indicator: INDICATOR_COLUMNS.map((name) => ({
         name,
         type: "numerical" as const,

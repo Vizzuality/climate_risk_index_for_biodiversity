@@ -37,7 +37,8 @@ export default function Detail() {
       <Intro />
       <AreaStats />
       <ClimateRiskChart />
-      <AreaSpecies />
+      {/* Keyed so the search and "Show all" reset when another area opens */}
+      <AreaSpecies key={area.id} />
     </div>
   );
 }
