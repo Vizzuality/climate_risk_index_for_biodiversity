@@ -1,6 +1,7 @@
 import Intro from "@/containers/detail/intro";
 import AreaStats from "@/containers/detail/stats";
 import ClimateRiskChart from "@/containers/detail/climate-risk-chart";
+import AreaSpecies from "@/containers/detail/species";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "@tanstack/react-router";
 import { useAreas } from "@/hooks/use-areas";
@@ -36,6 +37,8 @@ export default function Detail() {
       <Intro />
       <AreaStats />
       <ClimateRiskChart />
+      {/* Keyed so the search and "Show all" reset when another area opens */}
+      <AreaSpecies key={area.id} />
     </div>
   );
 }

@@ -145,3 +145,13 @@ along with `@developmentseed/deck.gl-raster`, `@developmentseed/geotiff`,
 dependencies. The bundled EPSG:3857 PROJJSON is removed too, so the layer
 falls back to the library's resolver, which fetches
 `https://epsg.io/3857.json` before the raster renders.
+
+## Amendment (2026-10-16, species per area)
+
+The species within each area are a second parquet, `area_species.parquet`
+(one row per area, experiment and species: about 1.9M rows, 18 MB), built
+by `data-processing/notebooks/area_species.py`. It is not part of the
+startup read: the detail view queries the selected area only, filtering on
+`id` alone. The file is sorted by `id` in row groups of about ten areas, so
+DuckDB prunes row groups by their `id` stats and one area costs about
+175 KB in a few range requests, plus the ~90 KB footer once.
