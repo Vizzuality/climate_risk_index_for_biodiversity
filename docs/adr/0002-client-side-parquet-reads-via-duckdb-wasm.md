@@ -132,3 +132,16 @@ areas preparation computes it from the source geometries and
 `[xmin, ymin, xmax, ymax]` in EPSG:4326). The client reads it from the
 stats query; `mpas_bbox.parquet` and `build_mpas_bbox.py` are removed,
 so the bbox can no longer drift from the ids of the hosted archive.
+
+## Amendment (2026-10-16, paletted rasters)
+
+The COGs are now categorical: one
+Byte band holding the risk class (1–4), nodata 0 and an embedded color
+table. `COGLayer`'s
+default pipeline renders paletted COGs, so the custom `rg32float` tile
+upload, the masking shader module and the colormap texture are removed,
+along with `@developmentseed/deck.gl-raster`, `@developmentseed/geotiff`,
+`@developmentseed/proj` and `@luma.gl/shadertools` as direct
+dependencies. The bundled EPSG:3857 PROJJSON is removed too, so the layer
+falls back to the library's resolver, which fetches
+`https://epsg.io/3857.json` before the raster renders.
