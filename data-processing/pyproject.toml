@@ -19,7 +19,6 @@ dependencies = [
     "kedro-datasets[geopandas,polars]>=4.1.0",
     "exactextract>=0.2.2",
     "pydantic>=2.11.7",
-    "mapbox-tilesets>=1.14.0",
     "httpx>=0.28.1",
     "s3fs>=2025.5.1",
     "marimo>=0.23.14",

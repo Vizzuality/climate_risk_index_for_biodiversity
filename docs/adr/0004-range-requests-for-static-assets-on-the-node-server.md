@@ -66,3 +66,9 @@ real range read.
 never ranges into it, and no other locally-served asset needs partial
 reads, retire the middleware and let Nitro's static handler serve
 `mpas_bbox.parquet` directly.
+
+## Amendment (2026-10-15)
+
+`mpas_bbox.parquet` was removed (ADR 0002), so no data file is served
+from the app origin any more; the middleware now only serves `public/`
+(the duckdb extensions). The follow-up above to retire it still applies.

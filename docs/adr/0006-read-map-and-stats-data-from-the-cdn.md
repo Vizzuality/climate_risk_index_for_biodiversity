@@ -43,3 +43,10 @@ bundled, and `build_mpas_bbox.py` builds it from the hosted archive.
 - **Follow-ups**: versioned paths per extract (`data/<extract>/…`) with
   immutable caching. Move bbox into the extract. Allow `OPTIONS` on the
   distribution for headroom.
+
+## Amendment (2026-10-15)
+
+The deferred alternative was taken: `mpas_stats.parquet` now carries a
+`bbox` column, so the bundled `mpas_bbox.parquet` and
+`build_mpas_bbox.py` are gone (see ADR 0002). Every data file the client
+reads comes from the CDN.

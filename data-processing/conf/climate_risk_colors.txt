@@ -1,0 +1,7 @@
+# Color table for the classified ClimVuln COG: value R G B A.
+# Mirrors RISK_CLASSES in client/src/lib/risk-colormap.ts
+0 0 0 0 0
+1 69 185 199 255
+2 181 226 209 255
+3 241 188 131 255
+4 217 87 48 255

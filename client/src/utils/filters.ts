@@ -22,7 +22,7 @@ type AreaFilterPredicates = {
 const AREA_FILTER_PREDICATES: AreaFilterPredicates = {
   protection: (area, values) =>
     PROTECTION_TYPES.some(
-      (type) => type.layerType === area.layer_type && values.includes(type.value),
+      (type) => type.areaType === area.area_type && values.includes(type.value),
     ),
   region: (area, values) =>
     BIOREGIONS.some(

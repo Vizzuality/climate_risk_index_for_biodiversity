@@ -1,5 +1,6 @@
 DATA_DIR := "./data"
 RAW_DATA := DATA_DIR / "01_raw"
+INTERMEDIATE_DATA := DATA_DIR / "02_intermediate"
 PRIMARY_DATA := DATA_DIR / "03_primary"
 BUCKET := "s3://crib-assets-732401078342-ca-central-1-an"
 DATA_ASSETS_PATH := BUCKET / "data"
@@ -8,28 +9,35 @@ AWS_PROFILE := env("AWS_PROFILE", "crib")
 CDN_CACHE := "public, max-age=300, s-maxage=86400"
 
 bioregions-to-json:
-    gdal vector reproject -d epsg:4326 -f GeoJSON {{ RAW_DATA }}/marine_administrative_boundaries.gpkg {{ PRIMARY_DATA }}/bioregions.json
+    gdal vector reproject -d epsg:4326 -f GeoJSON {{ INTERMEDIATE_DATA }}/marine_administrative_boundaries.gpkg {{ PRIMARY_DATA }}/bioregions.json
 
 pmtiles:
     tippecanoe --force -zg -o {{ PRIMARY_DATA }}/mpas.pmtiles \
         -L '{"file": "{{ PRIMARY_DATA }}/mpas_indexed.json", "layer":"mpas"}' \
         -L '{"file": "{{ PRIMARY_DATA }}/bioregions.json", "layer":"bioregions"}'
 
-fill-nodata input output distance="1":
-    #!/usr/bin/env bash
-    set -euo pipefail
+# Climate risk classes of ClimVuln, from the Vulnerability thresholds (tlow,
+# tmed, thigh) in 01_raw/thresholds_standardized.csv. Mirrors RISK_CLASSES in
+# client/src/lib/risk-colormap.ts; colors are in conf/climate_risk_colors.txt.
+# 0 nodata (the filled rasters' -9999), 1 negligible, 2 moderate, 3 high, 4 critical
+VULN_RISK_CLASSES := "-9999=0; \
+    [0,0.2345909125689)=1; \
+    [0.2345909125689,0.443899021417284)=2; \
+    [0.443899021417284,0.650018122866379)=3; \
+    [0.650018122866379,inf)=4"
 
-    bands=$(gdalinfo {{ input }} | grep -c '^Band ')
-    tmp_files=()
+# Classify band 19 (ClimVuln) of a filled raster into a paletted COG.
+# nodata is cleared before reclassify and set after it: inside a pipeline, a
+# later edit --nodata is already applied when the mapping is evaluated.
+classify-vulnerability input output:
+    gdal raster pipeline \
+      ! read {{ input }} \
+      ! select --band 19 \
+      ! edit --nodata none \
+      ! reclassify --ot Byte --mapping "{{ VULN_RISK_CLASSES }}" \
+      ! edit --nodata 0 --color-map conf/climate_risk_colors.txt \
+      ! write -f COG --co COMPRESS=DEFLATE --co RESAMPLING=NEAREST --co TILING_SCHEME=GoogleMapsCompatible --co ZOOM_LEVEL_STRATEGY=UPPER --overwrite {{ output }}
 
-    for ((b=1; b<=bands; b++)); do
-        tmp="/tmp/b${b}.tif"
-        gdal raster fill-nodata -b $b --max-distance {{ distance }} {{ input }} "$tmp" --overwrite
-        tmp_files+=("$tmp")
-    done
-
-    gdal raster stack ${tmp_files[@]} {{ output }} --overwrite
-    rm "${tmp_files[@]}"
 
 sync-data-cdn:
     aws s3 sync {{ PRIMARY_DATA }} {{ DATA_ASSETS_PATH }} --profile {{ AWS_PROFILE }} \
