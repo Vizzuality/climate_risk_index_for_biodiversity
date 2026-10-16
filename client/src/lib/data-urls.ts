@@ -1,4 +1,4 @@
-const DATA_BASE_URL = "http://localhost:8080";
+const DATA_BASE_URL = "https://d2g59ujvhm7q3s.cloudfront.net/data";
 
 // The CDN answers CORS preflight with 403, so every read must be a simple
 // request: GET or HEAD with at most a single `Range: bytes=a-b` header.
