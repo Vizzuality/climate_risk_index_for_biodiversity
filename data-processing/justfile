@@ -6,7 +6,6 @@ BUCKET := "s3://crib-assets-732401078342-ca-central-1-an"
 DATA_ASSETS_PATH := BUCKET / "data"
 DISTRIBUTION_ID := "E3GMH6GBO0IVNA"
 AWS_PROFILE := env("AWS_PROFILE", "crib")
-CDN_CACHE := "public, max-age=300, s-maxage=86400"
 
 bioregions-to-json:
     gdal vector reproject -d epsg:4326 -f GeoJSON {{ INTERMEDIATE_DATA }}/marine_administrative_boundaries.gpkg {{ PRIMARY_DATA }}/bioregions.json
@@ -43,15 +42,15 @@ sync-data-cdn:
     aws s3 sync {{ PRIMARY_DATA }} {{ DATA_ASSETS_PATH }} --profile {{ AWS_PROFILE }} \
         --exclude "*" --include "*_cog.tif" --exclude "*/*" \
         --content-type "image/tiff; application=geotiff; profile=cloud-optimized" \
-        --cache-control "{{ CDN_CACHE }}"
+        --cache-control "public, max-age=86400, s-maxage=86400"
     aws s3 sync {{ PRIMARY_DATA }} {{ DATA_ASSETS_PATH }} --profile {{ AWS_PROFILE }} \
         --exclude "*" --include "*.pmtiles" --exclude "*/*" \
         --content-type "application/vnd.pmtiles" \
-        --cache-control "{{ CDN_CACHE }}"
+        --cache-control "public, max-age=300, s-maxage=86400"
     aws s3 sync {{ PRIMARY_DATA }} {{ DATA_ASSETS_PATH }} --profile {{ AWS_PROFILE }} \
         --exclude "*" --include "*.parquet" --exclude "*/*" \
         --content-type "application/vnd.apache.parquet" \
-        --cache-control "{{ CDN_CACHE }}"
+        --cache-control "public, max-age=300, s-maxage=86400"
 
 invalidate-cache:
     aws cloudfront create-invalidation --distribution-id {{ DISTRIBUTION_ID }} \
