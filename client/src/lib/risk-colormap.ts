@@ -4,16 +4,22 @@
 // from the COG's color table; keep data-processing/conf/climate_risk_colors.txt
 // in sync.
 export const RISK_CLASSES = [
-  { min: 0, color: "#45B9C7", label: "Negligible" },
-  { min: 0.2345909125689, color: "#B5E2D1", label: "Moderate" },
-  { min: 0.443899021417284, color: "#F1BC83", label: "High" },
-  { min: 0.650018122866379, color: "#D95730", label: "Critical" },
+  { min: 0, color: "#45B9C7", label: "Negligible", textColor: "text-slate-900" },
+  { min: 0.2345909125689, color: "#B5E2D1", label: "Moderate", textColor: "text-slate-900" },
+  { min: 0.443899021417284, color: "#F1BC83", label: "High", textColor: "text-slate-900" },
+  { min: 0.650018122866379, color: "#D95730", label: "Critical", textColor: "text-white" },
 ] as const;
 
-export function riskColorFor(value: number): string {
-  let color: string = RISK_CLASSES[0].color;
+export type RiskClass = (typeof RISK_CLASSES)[number];
+
+export function riskClassFor(value: number): RiskClass {
+  let match: RiskClass = RISK_CLASSES[0];
   for (const cls of RISK_CLASSES) {
-    if (value >= cls.min) color = cls.color;
+    if (value >= cls.min) match = cls;
   }
-  return color;
+  return match;
+}
+
+export function riskColorFor(value: number): string {
+  return riskClassFor(value).color;
 }
