@@ -1,6 +1,7 @@
 import Chart from "@/containers/detail/climate-risk-chart/chart";
+import type { Area } from "@/containers/main/table/columns";
 
-export default function ClimateRiskChart() {
+export default function ClimateRiskChart({ indicator }: { indicator: Area["indicator"] }) {
   return (
     <div className="climate-risk-chart space-y-4">
       <h3 className="text-slate-700 font-semibold text-[20px]">Climate Risk</h3>
@@ -30,7 +31,7 @@ export default function ClimateRiskChart() {
         </ul>
       </div>
       <div className="chart-placeholder">
-        <Chart />
+        <Chart indicator={indicator} />
       </div>
     </div>
   );

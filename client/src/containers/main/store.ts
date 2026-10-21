@@ -58,7 +58,7 @@ export const validateAreaListSearch = (
 });
 
 // Non-strict so the hook works under any route tree whose list route validates `q`.
-export const useAreaSearch = () => {
+export const useListSearch = () => {
   const { q = AREA_LIST_SEARCH_DEFAULTS.q } = useSearch({ strict: false });
   const navigate = useNavigate();
   const setQ = (next: string) =>

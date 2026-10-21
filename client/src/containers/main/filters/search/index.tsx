@@ -2,12 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { SearchIcon } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
-import { useAreaSearch } from "@/containers/main/store";
+import { useListSearch } from "@/containers/main/store";
 
 import { useDebounce } from "@/hooks/use-debounce";
 
-export function Search() {
-  const [q, setQ] = useAreaSearch();
+export function Search({ placeholder }: Readonly<{ placeholder: string }>) {
+  const [q, setQ] = useListSearch();
   const [value, setValue] = useState(q);
   // The last value this input wrote, so its own round-trip through the URL doesn't
   // overwrite keystrokes typed while the navigation was in flight.
@@ -32,8 +32,8 @@ export function Search() {
       />
       <Input
         type="search"
-        aria-label="Search area by name"
-        placeholder="Search area by name"
+        aria-label={placeholder}
+        placeholder={placeholder}
         value={value}
         onChange={(e) => {
           setValue(e.target.value);

@@ -2,7 +2,7 @@ import type { Column, RowData } from "@tanstack/react-table";
 import { ChevronDown, ChevronUp, ChevronsUpDown } from "lucide-react";
 import type { ReactNode } from "react";
 
-import type { AreaTableFeatures } from "@/containers/main/table/features";
+import type { DataTableFeatures } from "@/containers/main/table/features";
 import { cn } from "@/lib/utils";
 
 const SORT_ICONS = { asc: ChevronUp, desc: ChevronDown } as const;
@@ -14,7 +14,7 @@ export function SortButton<TData extends RowData, TValue>({
   addon,
   children,
 }: Readonly<{
-  column: Column<AreaTableFeatures, TData, TValue>;
+  column: Column<DataTableFeatures, TData, TValue>;
   enableSortingRemoval?: boolean;
   className?: string;
   addon?: ReactNode;
