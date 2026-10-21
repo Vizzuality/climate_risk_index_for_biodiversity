@@ -51,6 +51,10 @@ sync-data-cdn:
         --exclude "*" --include "*.parquet" --exclude "*/*" \
         --content-type "application/vnd.apache.parquet" \
         --cache-control "public, max-age=300, s-maxage=86400"
+    aws s3 sync {{ PRIMARY_DATA }}/species_climvuln {{ DATA_ASSETS_PATH }}/species_climvuln --profile {{ AWS_PROFILE }} \
+        --exclude "*" --include "*_cog.tif" \
+        --content-type "image/tiff; application=geotiff; profile=cloud-optimized" \
+        --cache-control "public, max-age=86400, s-maxage=86400"
 
 invalidate-cache:
     aws cloudfront create-invalidation --distribution-id {{ DISTRIBUTION_ID }} \
