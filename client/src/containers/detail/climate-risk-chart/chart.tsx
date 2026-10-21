@@ -3,7 +3,6 @@
 
 import { useRef, useEffect, useMemo, useState } from "react";
 import * as d3 from "d3";
-import { useSelectedArea } from "@/hooks/use-selected-area";
 import { useScenario } from "@/store";
 import categoriesMetadata from "@/data/categories-metadata.json";
 import { Area } from "@/containers/main/table/columns";
@@ -51,11 +50,9 @@ const getMainMetrics = (data: Area["indicator"], scenario: SCENARIO) => {
   ];
 };
 
-export default function RadarChart() {
+export default function RadarChart({ indicator }: { indicator: Area["indicator"] }) {
   const svgRef = useRef<SVGSVGElement>(null);
-  const area = useSelectedArea();
   const [scenario] = useScenario();
-  const indicator = area?.indicator;
 
   const data: DataPoint[] = useMemo(
     () =>
@@ -273,7 +270,7 @@ export default function RadarChart() {
   if (noData) {
     return (
       <div className="flex items-center justify-center my-12">
-        <p className="text-gray-500">No data available for this area.</p>
+        <p className="text-gray-500">No data available.</p>
       </div>
     );
   }

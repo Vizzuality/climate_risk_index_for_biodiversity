@@ -22,6 +22,13 @@ export function toCsv<T>(rows: readonly T[], columns: readonly CsvColumn<T>[]): 
   ].join("");
 }
 
+export const csvFilename = (name: string, date: Date) => {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const day = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+  const time = `${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`;
+  return `crib-${name}-${day}-${time}.csv`;
+};
+
 // The BOM makes Excel read the file as UTF-8 instead of the system code page.
 export function downloadCsv(filename: string, csv: string) {
   const blob = new Blob(["﻿", csv], { type: "text/csv;charset=utf-8" });

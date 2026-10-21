@@ -89,7 +89,7 @@ function renderTable(path = "/areas") {
       <>
         <ScenarioButtons />
         <FiltersProbe />
-        <Search />
+        <Search placeholder="Search area by name" />
         <FiltersModal />
         <DataTable />
       </>
