@@ -22,15 +22,15 @@ export function useSpeciesRiskRasterLayers({
   const setSpeciesBbox = useSetAtom(speciesBboxAtom);
   if (speciesId === undefined) return [];
 
-  // Like the scenario rasters, both scenarios stay mounted and the inactive
-  // one gets an unreachable `minZoom` so it fetches nothing.
+  // Like the scenario rasters, both scenarios stay mounted and the inactive or
+  // hidden one gets an unreachable `minZoom` so it fetches nothing.
   return SCENARIOS.map((s) => {
-    const active = s === scenario;
+    const shown = visible && s === scenario;
     return new COGLayer({
       id: `species-risk-${s}`,
       geotiff: speciesRasterUrl(speciesId, s),
-      visible: visible && active,
-      minZoom: active ? 0 : 99,
+      visible: shown,
+      minZoom: shown ? 0 : 99,
       maxCacheSize: 200, // number of tiles
       opacity,
       // Both scenarios cover the same range, so one reports it for the map to fit.
