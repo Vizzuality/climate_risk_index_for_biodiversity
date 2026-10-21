@@ -3,6 +3,7 @@ import {
   retainSearchParams,
   stripSearchParams,
   useNavigate,
+  useParams,
   useSearch,
 } from "@tanstack/react-router";
 import { atom } from "jotai";
@@ -113,7 +114,14 @@ export const useLayerSettings = () => {
   const hiddenLayers = useMemo(() => hiddenLayersCodec.parse(hidden), [hidden]);
   const opacities = useMemo(() => layerOpacityCodec.parse(opacity), [opacity]);
 
-  const isLayerOnMap = (layer: MapLayer) => isOnMap(layer, contextualLayers);
+  const { speciesId } = useParams({ strict: false });
+
+  // A selected species' raster takes the place of the overall one, which shares its colors.
+  const isLayerOnMap = (layer: MapLayer) => {
+    if (layer === "species") return speciesId !== undefined;
+    if (layer === "risk") return speciesId === undefined;
+    return isOnMap(layer, contextualLayers);
+  };
   const isVisible = (layer: MapLayer) => isLayerOnMap(layer) && !hiddenLayers.includes(layer);
   const layerOpacity = (layer: MapLayer) => opacities[layer] ?? 100;
 
@@ -152,6 +160,9 @@ export const useMapBbox = () => {
     });
   return [value, setBbox] as const;
 };
+
+// The extent of the selected species' raster, known once its COG header loads.
+export const speciesBboxAtom = atom<{ speciesId: number; bbox: Bbox } | null>(null);
 
 export const popupAtom = atom<(GeoJSONFeature & { lngLat: LngLat }) | null>(null);
 
