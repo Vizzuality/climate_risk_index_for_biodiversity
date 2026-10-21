@@ -36,6 +36,7 @@ export const MAP_LAYERS = [
       ],
     },
   },
+  { value: "species", label: "Species Climate Risk", legend: { type: "discrete" } },
   { value: "risk", label: "Climate Risk Index", legend: { type: "discrete" } },
 ] as const satisfies readonly { value: string; label: string; legend: MapLayerLegend }[];
 
