@@ -9,22 +9,33 @@ export const SPECIES_STATS_FILE = "species_stats.parquet";
 
 let connection: Promise<duckdb.AsyncDuckDBConnection> | null = null;
 
+async function download(url: string): Promise<Uint8Array> {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`Fetching ${url} failed: ${response.status}`);
+  return new Uint8Array(await response.arrayBuffer());
+}
+
 async function boot(): Promise<duckdb.AsyncDuckDBConnection> {
   const worker = new Worker(duckdbWorkerUrl);
   try {
     const db = new duckdb.AsyncDuckDB(new duckdb.ConsoleLogger(duckdb.LogLevel.WARNING), worker);
-    await db.instantiate(duckdbWasmUrl);
+    // The stats files are read whole, and DuckDB's range reads go one request
+    // at a time, so they're downloaded in one request each while the wasm loads.
+    const [stats, speciesStats] = await Promise.all([
+      download(STATS_URL),
+      download(SPECIES_STATS_URL),
+      db.instantiate(duckdbWasmUrl),
+    ]);
+    // This build reads HTTP files whole unless told otherwise. CloudFront
+    // answers DuckDB's ranged HEAD probe with a 200, so it needs the fallback
+    // probe (a `Range: bytes=0-0` GET) that full HTTP reads enable.
+    await db.open({ filesystem: { forceFullHTTPReads: false, allowFullHTTPReads: true } });
     const absolute = (url: string) => new URL(url, window.location.origin).href;
-    await db.registerFileURL(STATS_FILE, STATS_URL, duckdb.DuckDBDataProtocol.HTTP, false);
+    await db.registerFileBuffer(STATS_FILE, stats);
+    await db.registerFileBuffer(SPECIES_STATS_FILE, speciesStats);
     await db.registerFileURL(
       AREA_SPECIES_FILE,
       AREA_SPECIES_URL,
-      duckdb.DuckDBDataProtocol.HTTP,
-      false,
-    );
-    await db.registerFileURL(
-      SPECIES_STATS_FILE,
-      SPECIES_STATS_URL,
       duckdb.DuckDBDataProtocol.HTTP,
       false,
     );
