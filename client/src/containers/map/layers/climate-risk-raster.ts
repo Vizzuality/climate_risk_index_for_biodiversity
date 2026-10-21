@@ -1,6 +1,5 @@
 import { COGLayer } from "@developmentseed/deck.gl-geotiff";
 
-import { DeckGLOverlay } from "@/components/map/deckgl-overlay";
 import { HIGH_EMISSIONS_RASTER_URL, LOW_EMISSIONS_RASTER_URL } from "@/lib/data-urls";
 import { BASEMAP_LAND_FILL_LAYER_ID } from "@/lib/map-layers";
 import type { SCENARIO } from "@/types";
@@ -12,7 +11,7 @@ const RASTER_URLS: Record<SCENARIO, string> = {
 
 // The COGs are paletted (risk class per pixel, color table and nodata set by
 // `just classify-vulnerability`), so the layer's default pipeline renders them.
-export function ClimateRiskRasterLayer({
+export function climateRiskRasterLayers({
   scenario,
   visible,
   opacity,
@@ -23,7 +22,7 @@ export function ClimateRiskRasterLayer({
   // select no tiles. `minZoom` must be finite on both sides: Tileset2D ignores
   // non-finite values, so it would never reset. `maxCacheSize` is fixed
   // because the default scales with selected tiles.
-  const layers = (Object.keys(RASTER_URLS) as SCENARIO[]).map((s) => {
+  return (Object.keys(RASTER_URLS) as SCENARIO[]).map((s) => {
     const active = s === scenario;
     return new COGLayer({
       id: `climate-risk-${s}`,
@@ -36,6 +35,4 @@ export function ClimateRiskRasterLayer({
       beforeId: BASEMAP_LAND_FILL_LAYER_ID,
     });
   });
-
-  return <DeckGLOverlay layers={layers} interleaved />;
 }

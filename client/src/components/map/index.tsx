@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import ReactMapGL, { Popup } from "react-map-gl/mapbox";
 
 import type { MapRef } from "react-map-gl/mapbox";
@@ -10,8 +10,8 @@ import { useNavigate, useParams } from "@tanstack/react-router";
 import { useAreas } from "@/hooks/use-areas";
 import { useFilteredAreas } from "@/hooks/use-filtered-areas";
 import { clampBbox, unionBbox } from "@/lib/bbox";
-import { useAtom } from "jotai";
-import { mapCursorAtom, popupAtom, useMapBbox } from "@/store";
+import { useAtom, useAtomValue } from "jotai";
+import { mapCursorAtom, popupAtom, speciesBboxAtom, useMapBbox } from "@/store";
 import { pickAreaFeature, pickHoverFeature } from "@/lib/pick-area-feature";
 
 const style = { width: "100%", height: "100%" };
@@ -31,6 +31,7 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [cursor, setCursor] = useAtom(mapCursorAtom);
   const { data: areas, isPending, failureCount } = useAreas();
   const { data: matches, isFiltered } = useFilteredAreas();
+  const speciesBbox = useAtomValue(speciesBboxAtom);
   const [framedOnMount] = useState(isFiltered || params.areaId !== undefined);
   const [urlBbox, setUrlBbox] = useMapBbox();
   const [sharedBbox] = useState(() => urlBbox && clampBbox(urlBbox, MAX_BOUNDS));
@@ -38,6 +39,8 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
   const areaBbox = params.areaId
     ? areas?.find((area) => area.id === params.areaId)?.bbox || null
     : null;
+  const selectedSpeciesBbox =
+    speciesBbox && String(speciesBbox.speciesId) === params.speciesId ? speciesBbox.bbox : null;
   const searchBbox = useMemo(
     () => (isFiltered && matches ? unionBbox(matches) : null),
     [isFiltered, matches],
@@ -46,13 +49,22 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
   // camera clamp that follows pushes other matches out of view. A box wholly outside
   // clamps to null and leaves the camera alone.
   const targetBbox = useMemo(() => {
-    const bbox = areaBbox ?? searchBbox;
+    const bbox = areaBbox ?? selectedSpeciesBbox ?? searchBbox;
     return bbox && clampBbox(bbox, MAX_BOUNDS);
-  }, [areaBbox, searchBbox]);
+  }, [areaBbox, selectedSpeciesBbox, searchBbox]);
 
-  // The box the camera shows: the map opens on the initial target box, so refitting it on
-  // load would replay the same view as an animation.
+  // The box the camera shows: the map opens on the target box of the render that mounts it,
+  // so refitting it on load would replay the same view as an animation. Boxes that arrive
+  // later, like a species' range once its raster header loads, are fitted on load.
   const fittedBbox = useRef(targetBbox);
+  const mapMounted = useRef(false);
+  const waitingForAreas = framedOnMount && isPending && failureCount === 0;
+
+  useLayoutEffect(() => {
+    if (waitingForAreas || mapMounted.current) return;
+    mapMounted.current = true;
+    fittedBbox.current = targetBbox;
+  }, [waitingForAreas, targetBbox]);
 
   useEffect(() => {
     if (!targetBbox || !mapLoaded || targetBbox === fittedBbox.current) return;
@@ -67,7 +79,6 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
     evt.target.setTerrain(null);
     evt.target.touchZoomRotate.disableRotation();
     evt.target.keyboard.disableRotation();
-    fittedBbox.current = targetBbox;
     setMapLoaded(true);
   };
 
@@ -104,7 +115,7 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
     }
   };
 
-  if (framedOnMount && isPending && failureCount === 0) return null;
+  if (waitingForAreas) return null;
 
   const initialBbox = sharedBbox ?? targetBbox;
 
