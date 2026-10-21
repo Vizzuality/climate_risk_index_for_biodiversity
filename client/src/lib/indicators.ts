@@ -1,4 +1,5 @@
-import { SCENARIO } from "@/types";
+import type { Area, IndicatorStats } from "@/containers/main/table/columns";
+import type { SCENARIO } from "@/types";
 
 export const EXPERIMENT_TO_SCENARIO: Record<number, SCENARIO> = {
   126: "low", // SSP1-2.6
@@ -29,3 +30,28 @@ export const INDICATOR_COLUMNS = [
   "ClimExpoSD",
   "ClimVulnSD",
 ] as const;
+
+type IndicatorColumn = (typeof INDICATOR_COLUMNS)[number];
+
+// A row of mpas_stats.parquet or species_stats.parquet: the mean of every
+// indicator, plus the ClimVuln range.
+export type IndicatorRow = Record<IndicatorColumn, number | null> & {
+  ClimVuln_min: number | null;
+  ClimVuln_max: number | null;
+};
+
+function scenarioStats(row: IndicatorRow, name: IndicatorColumn): IndicatorStats {
+  const mean = row[name];
+  return {
+    min: name === "ClimVuln" ? row.ClimVuln_min : mean,
+    mean,
+    max: name === "ClimVuln" ? row.ClimVuln_max : mean,
+  };
+}
+
+export const buildIndicators = (low: IndicatorRow, high: IndicatorRow): Area["indicator"] =>
+  INDICATOR_COLUMNS.map((name) => ({
+    name,
+    type: "numerical" as const,
+    scenario: { low: scenarioStats(low, name), high: scenarioStats(high, name) },
+  }));

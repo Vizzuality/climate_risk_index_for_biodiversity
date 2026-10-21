@@ -50,7 +50,10 @@ export async function fetchAreaSpecies(areaId: string): Promise<Record<SCENARIO,
 }
 
 // Case-insensitive substring match on the common or scientific name.
-export function filterSpecies(species: AreaSpecies[], query: string): AreaSpecies[] {
+export function filterSpecies<T extends Pick<AreaSpecies, "common_name" | "scientific_name">>(
+  species: T[],
+  query: string,
+): T[] {
   const q = query.trim().toLowerCase();
   if (!q) return species;
   return species.filter(

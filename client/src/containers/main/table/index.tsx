@@ -14,7 +14,7 @@ import { type TableArea, areaColumns, toTableAreas } from "./columns";
 import { AREA_CSV_COLUMNS, areasCsvFilename } from "@/containers/main/table/csv";
 import { DownloadButton } from "@/components/download-button";
 
-import { type AreaTableFeatures, areaTableFeatures } from "@/containers/main/table/features";
+import { type DataTableFeatures, dataTableFeatures } from "@/containers/main/table/features";
 import { DataTableLegend } from "@/containers/main/table/legend";
 import { useFilteredAreas } from "@/hooks/use-filtered-areas";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -27,7 +27,7 @@ import { useScenario } from "@/store";
 
 const ARIA_SORT = { asc: "ascending", desc: "descending" } as const;
 
-type AreaRowProps = Readonly<{ row: Row<AreaTableFeatures, TableArea> }>;
+type AreaRowProps = Readonly<{ row: Row<DataTableFeatures, TableArea> }>;
 
 const AreaRow = memo(function AreaRow({ row }: AreaRowProps) {
   return (
@@ -52,7 +52,7 @@ export default function DataTable() {
   const tableData = useMemo(() => toTableAreas(filteredData, scenario), [filteredData, scenario]);
 
   const table = useTable({
-    features: areaTableFeatures,
+    features: dataTableFeatures,
     data: tableData,
     columns: areaColumns,
     state: { sorting },

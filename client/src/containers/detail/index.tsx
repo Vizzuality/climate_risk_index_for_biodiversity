@@ -36,7 +36,7 @@ export default function Detail() {
     <div className="space-y-4">
       <Intro />
       <AreaStats />
-      <ClimateRiskChart />
+      <ClimateRiskChart indicator={area.indicator} />
       {/* Keyed so the search and "Show all" reset when another area opens */}
       <AreaSpecies key={area.id} />
     </div>
