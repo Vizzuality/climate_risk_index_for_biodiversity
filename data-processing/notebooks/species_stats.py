@@ -21,7 +21,8 @@ def _(mo):
     `mpas_stats.parquet`. Sorted by species so the client can read a single
     species' rows with range requests.
 
-    Also writes one float ClimVuln COG per species and experiment.
+    Also writes one ClimVuln COG per species and experiment, classified into
+    the risk classes like the scenario COGs (`just classify-vulnerability`).
     """)
     return
 
@@ -94,43 +95,25 @@ def _(DATAPATH, con):
 
 
 @app.cell
-def _(COG_DIR, SPECIES_RASTERS, ThreadPoolExecutor, mo, subprocess):
-    # ClimVuln (0-1) as float, same tiling as the scenario COGs. nodata -9999
-    # comes from the species rasters.
+def _(COG_DIR, DATAPATH, SPECIES_RASTERS, ThreadPoolExecutor, mo, subprocess):
+    # Classified and paletted like the scenario COGs, so the client renders
+    # them with the COG layer's default pipeline. The recipe runs from the
+    # justfile's directory, which mo.notebook_dir() can't give inside the pool's
+    # threads.
     def to_cog(path):
-        subprocess.run(
+        result = subprocess.run(
             [
-                "gdal",
-                "raster",
-                "pipeline",
-                "!",
-                "read",
+                "just",
+                "classify-vulnerability",
                 str(path),
-                "!",
-                "select",
-                "--band",
-                "19",
-                "!",
-                "write",
-                "-f",
-                "COG",
-                "--co",
-                "COMPRESS=DEFLATE",
-                "--co",
-                "PREDICTOR=YES",
-                "--co",
-                "RESAMPLING=NEAREST",
-                "--co",
-                "TILING_SCHEME=GoogleMapsCompatible",
-                "--co",
-                "ZOOM_LEVEL_STRATEGY=UPPER",
-                "--overwrite",
-                "--quiet",
                 str(COG_DIR / f"{path.stem}_climvuln_cog.tif"),
             ],
-            check=True,
+            cwd=DATAPATH.parent,
             capture_output=True,
+            text=True,
         )
+        if result.returncode:
+            raise RuntimeError(f"{path.name}: {result.stderr}")
 
     COG_DIR.mkdir(exist_ok=True)
     with ThreadPoolExecutor(max_workers=4) as _pool:
@@ -140,6 +123,11 @@ def _(COG_DIR, SPECIES_RASTERS, ThreadPoolExecutor, mo, subprocess):
             title="ClimVuln COGs",
         ):
             pass
+    return
+
+
+@app.cell
+def _():
     return
 
 
