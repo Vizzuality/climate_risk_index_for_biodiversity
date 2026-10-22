@@ -1,7 +1,7 @@
 import { type ColumnDef, sortFn_basic } from "@tanstack/react-table";
 import { Link } from "@tanstack/react-router";
 
-import type { AreaTableFeatures } from "@/containers/main/table/features";
+import type { DataTableFeatures } from "@/containers/main/table/features";
 import { RiskClassesInfo } from "@/containers/main/table/risk-classes-info";
 import { RiskIndexChart } from "@/containers/main/table/risk-index-chart";
 import { SortButton } from "@/containers/main/table/sort-button";
@@ -90,7 +90,7 @@ export type TableArea = Area & { risk: number | undefined };
 export const toTableAreas = (areas: Area[], scenario: SCENARIO): TableArea[] =>
   areas.map((area) => ({ ...area, risk: climVulnMean(area, scenario) }));
 
-export const areaColumns: ColumnDef<AreaTableFeatures, TableArea>[] = [
+export const areaColumns: ColumnDef<DataTableFeatures, TableArea>[] = [
   {
     accessorKey: "name",
     header: ({ column }) => (

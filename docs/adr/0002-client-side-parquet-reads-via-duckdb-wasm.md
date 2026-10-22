@@ -155,3 +155,11 @@ startup read: the detail view queries the selected area only, filtering on
 `id` alone. The file is sorted by `id` in row groups of about ten areas, so
 DuckDB prunes row groups by their `id` stats and one area costs about
 175 KB in a few range requests, plus the ~90 KB footer once.
+
+## Amendment (2026-10-21, species list)
+
+The species section reads a third parquet, `species_stats.parquet` (one
+row per species and experiment: about 10.7k rows, 670 KB), built by
+`data-processing/notebooks/species_stats.py`. Like the areas, the list
+reads it whole on first visit, selecting only the names and the ClimVuln
+mean, min and max, and filters and sorts in memory.

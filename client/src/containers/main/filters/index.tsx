@@ -4,7 +4,7 @@ import { Search } from "@/containers/main/filters/search";
 export function Filters() {
   return (
     <div className="flex items-center gap-2">
-      <Search />
+      <Search placeholder="Search area by name" />
       <FiltersModal />
     </div>
   );

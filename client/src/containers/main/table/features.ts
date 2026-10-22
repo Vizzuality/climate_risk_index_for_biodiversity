@@ -5,10 +5,10 @@ import {
   tableFeatures,
 } from "@tanstack/react-table";
 
-export const areaTableFeatures = tableFeatures({
+export const dataTableFeatures = tableFeatures({
   rowSortingFeature,
   sortedRowModel: createSortedRowModel(),
   columnMeta: metaHelper<{ className?: string }>(),
 });
 
-export type AreaTableFeatures = typeof areaTableFeatures;
+export type DataTableFeatures = typeof dataTableFeatures;

@@ -14,6 +14,8 @@ import { Route as AreaIdRouteImport } from './routes/$areaId'
 import { Route as DashboardRouteImport } from './routes/_dashboard'
 import { Route as DashboardAreasIndexRouteImport } from './routes/_dashboard/areas/index'
 import { Route as DashboardAreasAreaIdRouteImport } from './routes/_dashboard/areas/$areaId'
+import { Route as DashboardSpeciesIndexRouteImport } from './routes/_dashboard/species/index'
+import { Route as DashboardSpeciesSpeciesIdRouteImport } from './routes/_dashboard/species/$speciesId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -39,18 +41,33 @@ const DashboardAreasAreaIdRoute = DashboardAreasAreaIdRouteImport.update({
   path: '/areas/$areaId',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardSpeciesIndexRoute = DashboardSpeciesIndexRouteImport.update({
+  id: '/species/',
+  path: '/species/',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardSpeciesSpeciesIdRoute =
+  DashboardSpeciesSpeciesIdRouteImport.update({
+    id: '/species/$speciesId',
+    path: '/species/$speciesId',
+    getParentRoute: () => DashboardRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$areaId': typeof AreaIdRoute
   '/areas/$areaId': typeof DashboardAreasAreaIdRoute
+  '/species/$speciesId': typeof DashboardSpeciesSpeciesIdRoute
   '/areas/': typeof DashboardAreasIndexRoute
+  '/species/': typeof DashboardSpeciesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$areaId': typeof AreaIdRoute
   '/areas/$areaId': typeof DashboardAreasAreaIdRoute
+  '/species/$speciesId': typeof DashboardSpeciesSpeciesIdRoute
   '/areas': typeof DashboardAreasIndexRoute
+  '/species': typeof DashboardSpeciesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -58,20 +75,36 @@ export interface FileRoutesById {
   '/$areaId': typeof AreaIdRoute
   '/_dashboard': typeof DashboardRouteWithChildren
   '/_dashboard/areas/$areaId': typeof DashboardAreasAreaIdRoute
+  '/_dashboard/species/$speciesId': typeof DashboardSpeciesSpeciesIdRoute
   '/_dashboard/areas/': typeof DashboardAreasIndexRoute
+  '/_dashboard/species/': typeof DashboardSpeciesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/$areaId' | '/areas/$areaId' | '/areas/'
+  fullPaths:
+    | '/'
+    | '/$areaId'
+    | '/areas/$areaId'
+    | '/species/$speciesId'
+    | '/areas/'
+    | '/species/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/$areaId' | '/areas/$areaId' | '/areas'
+  to:
+    | '/'
+    | '/$areaId'
+    | '/areas/$areaId'
+    | '/species/$speciesId'
+    | '/areas'
+    | '/species'
   id:
     | '__root__'
     | '/'
     | '/$areaId'
     | '/_dashboard'
     | '/_dashboard/areas/$areaId'
+    | '/_dashboard/species/$speciesId'
     | '/_dashboard/areas/'
+    | '/_dashboard/species/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -117,17 +150,35 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardAreasAreaIdRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/_dashboard/species/': {
+      id: '/_dashboard/species/'
+      path: '/species'
+      fullPath: '/species/'
+      preLoaderRoute: typeof DashboardSpeciesIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/_dashboard/species/$speciesId': {
+      id: '/_dashboard/species/$speciesId'
+      path: '/species/$speciesId'
+      fullPath: '/species/$speciesId'
+      preLoaderRoute: typeof DashboardSpeciesSpeciesIdRouteImport
+      parentRoute: typeof DashboardRoute
+    }
   }
 }
 
 interface DashboardRouteChildren {
   DashboardAreasAreaIdRoute: typeof DashboardAreasAreaIdRoute
+  DashboardSpeciesSpeciesIdRoute: typeof DashboardSpeciesSpeciesIdRoute
   DashboardAreasIndexRoute: typeof DashboardAreasIndexRoute
+  DashboardSpeciesIndexRoute: typeof DashboardSpeciesIndexRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardAreasAreaIdRoute: DashboardAreasAreaIdRoute,
+  DashboardSpeciesSpeciesIdRoute: DashboardSpeciesSpeciesIdRoute,
   DashboardAreasIndexRoute: DashboardAreasIndexRoute,
+  DashboardSpeciesIndexRoute: DashboardSpeciesIndexRoute,
 }
 
 const DashboardRouteWithChildren = DashboardRoute._addFileChildren(

@@ -1,6 +1,7 @@
 import { useDeferredValue, useState } from "react";
 import { SearchIcon } from "lucide-react";
 
+import { RiskBadge } from "@/components/risk-badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -15,7 +16,6 @@ import {
 import { useAreaSpecies } from "@/hooks/use-area-species";
 import { useSelectedArea } from "@/hooks/use-selected-area";
 import { filterSpecies } from "@/lib/area-species";
-import { riskClassFor } from "@/lib/risk-colormap";
 import { useScenario } from "@/store";
 
 // Areas hold hundreds to thousands of species; the rest are behind "Show all".
@@ -25,18 +25,6 @@ const scoreFormatter = new Intl.NumberFormat("en-US", {
   minimumFractionDigits: 2,
   maximumFractionDigits: 2,
 });
-
-function RiskBadge({ value }: { value: number }) {
-  const { color, label, textColor } = riskClassFor(value);
-  return (
-    <span
-      className={`inline-flex items-center rounded-sm px-1.5 py-0.5 text-xs font-medium ${textColor}`}
-      style={{ backgroundColor: color }}
-    >
-      {label}
-    </span>
-  );
-}
 
 export default function AreaSpecies() {
   const area = useSelectedArea();
