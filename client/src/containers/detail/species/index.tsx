@@ -26,6 +26,37 @@ const scoreFormatter = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 2,
 });
 
+type SpeciesSearchProps = Readonly<{
+  isPending: boolean;
+  isError: boolean;
+  isEmpty: boolean;
+  query: string;
+  onQueryChange: (query: string) => void;
+}>;
+
+function SpeciesSearch({ isPending, isError, isEmpty, query, onQueryChange }: SpeciesSearchProps) {
+  if (isPending) return <Skeleton className="h-64 w-full" />;
+  if (isError) return <p className="text-sm text-slate-400">The species couldn’t be loaded.</p>;
+  if (isEmpty) return <p className="text-sm text-slate-400">No species data for this scenario.</p>;
+
+  return (
+    <div className="relative">
+      <SearchIcon
+        aria-hidden
+        className="pointer-events-none absolute top-1/2 left-3 size-5 -translate-y-1/2 text-slate-500"
+      />
+      <Input
+        type="search"
+        aria-label="Search species by name"
+        placeholder="Search species by name"
+        value={query}
+        onChange={(e) => onQueryChange(e.target.value)}
+        className="h-10 w-full rounded-[4px] border-slate-300 pl-10 shadow-none placeholder:text-slate-500"
+      />
+    </div>
+  );
+}
+
 export default function AreaSpecies() {
   const area = useSelectedArea();
   const [scenario] = useScenario();
@@ -45,28 +76,13 @@ export default function AreaSpecies() {
         The species assessed in the area, ranked by their climate risk weighted by how much of the
         area they occupy.
       </p>
-      {isPending ? (
-        <Skeleton className="h-64 w-full" />
-      ) : isError ? (
-        <p className="text-sm text-slate-400">The species couldn’t be loaded.</p>
-      ) : species.length === 0 ? (
-        <p className="text-sm text-slate-400">No species data for this scenario.</p>
-      ) : (
-        <div className="relative">
-          <SearchIcon
-            aria-hidden
-            className="pointer-events-none absolute top-1/2 left-3 size-5 -translate-y-1/2 text-slate-500"
-          />
-          <Input
-            type="search"
-            aria-label="Search species by name"
-            placeholder="Search species by name"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="h-10 w-full rounded-[4px] border-slate-300 pl-10 shadow-none placeholder:text-slate-500"
-          />
-        </div>
-      )}
+      <SpeciesSearch
+        isPending={isPending}
+        isError={isError}
+        isEmpty={species.length === 0}
+        query={query}
+        onQueryChange={setQuery}
+      />
       {species.length > 0 &&
         (matches.length === 0 ? (
           <p className="text-sm text-slate-400">No species match “{deferredQuery.trim()}”.</p>
