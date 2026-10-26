@@ -50,7 +50,7 @@ const getMainMetrics = (data: Area["indicator"], scenario: SCENARIO) => {
   ];
 };
 
-export default function RadarChart({ indicator }: { indicator: Area["indicator"] }) {
+export default function RadarChart({ indicator }: Readonly<{ indicator: Area["indicator"] }>) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [scenario] = useScenario();
 

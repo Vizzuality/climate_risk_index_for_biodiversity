@@ -1,7 +1,9 @@
 import Chart from "@/containers/detail/climate-risk-chart/chart";
 import type { Area } from "@/containers/main/table/columns";
 
-export default function ClimateRiskChart({ indicator }: { indicator: Area["indicator"] }) {
+export default function ClimateRiskChart({
+  indicator,
+}: Readonly<{ indicator: Area["indicator"] }>) {
   return (
     <div className="climate-risk-chart space-y-4">
       <h3 className="text-slate-700 font-semibold text-[20px]">Climate Risk</h3>
