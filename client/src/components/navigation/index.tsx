@@ -27,9 +27,9 @@ export default function Navigation() {
             <li key={to}>
               <Link
                 to={to}
-                className="flex h-22 flex-col items-center justify-center gap-2 px-2 py-4"
-                inactiveProps={{ className: "text-slate-700" }}
-                activeProps={{ className: "bg-slate-700 text-white border-l-3 border-primary" }}
+                className="flex h-22 flex-col items-center justify-center gap-2 border-l-3 px-2 py-4"
+                inactiveProps={{ className: "border-transparent text-slate-700" }}
+                activeProps={{ className: "border-primary bg-slate-700 text-white" }}
               >
                 <Icon aria-hidden="true" className="size-4 shrink-0" strokeWidth={1.2} />
                 <span className="overflow-wrap-anywhere break-word w-full text-center whitespace-normal text-[10px] leading-3 font-medium tracking-[0.4px]">
