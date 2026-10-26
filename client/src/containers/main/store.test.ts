@@ -6,7 +6,7 @@ const validate = (search: Record<string, unknown>) =>
 
 describe("validateAreaListSearch", () => {
   it("keeps known protection types in their canonical order", () => {
-    expect(validate({ protection: "aoi,pa" }).protection).toBe("pa,aoi");
+    expect(validate({ protection: "aoi,mca" }).protection).toBe("mca,aoi");
   });
 
   it("drops unknown and repeated protection types", () => {
@@ -16,7 +16,7 @@ describe("validateAreaListSearch", () => {
   it("defaults to EBSA when the param is missing or not a string", () => {
     expect(validate({}).protection).toBe("ebsa");
     expect(validate({ protection: 1 }).protection).toBe("ebsa");
-    expect(validate({ protection: ["pa"] }).protection).toBe("ebsa");
+    expect(validate({ protection: ["mca"] }).protection).toBe("ebsa");
   });
 
   it("keeps an empty param as no protection filter", () => {

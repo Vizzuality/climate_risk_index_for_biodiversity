@@ -18,7 +18,7 @@ export type Area = {
   name: string;
   name_fr: string;
   source: string;
-  area_type: string;
+  governance_type: string;
   status: string;
   designation_type: string;
   iucn_category: string;

@@ -40,21 +40,18 @@ describe("filterByAreaName", () => {
 });
 
 describe("filterAreas", () => {
-  const typed = (name: string, area_type: string) => ({ name, area_type }) as Area;
-  const typedAreas = [
-    typed("Reserve", "MPA"),
-    typed("Bank", "EBSA"),
-    typed("Site", "Network Site"),
-  ];
+  const typed = (name: string, governance_type: string) => ({ name, governance_type }) as Area;
+  const typedAreas = [typed("Reserve", "MCA"), typed("Bank", "EBSA"), typed("Site", "AOI")];
 
   it("returns the same list when no filter is active", () => {
     expect(filterAreas(typedAreas, NO_AREA_FILTERS)).toBe(typedAreas);
   });
 
   it("keeps areas of any selected protection type", () => {
-    expect(
-      filterAreas(typedAreas, { ...NO_AREA_FILTERS, protection: ["pa", "network-site"] }),
-    ).toEqual([typed("Reserve", "MPA"), typed("Site", "Network Site")]);
+    expect(filterAreas(typedAreas, { ...NO_AREA_FILTERS, protection: ["mca", "aoi"] })).toEqual([
+      typed("Reserve", "MCA"),
+      typed("Site", "AOI"),
+    ]);
   });
 
   it("keeps areas touching any selected bioregion", () => {
