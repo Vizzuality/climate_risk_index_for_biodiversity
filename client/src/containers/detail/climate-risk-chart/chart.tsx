@@ -277,7 +277,7 @@ export default function RadarChart({ indicator }: Readonly<{ indicator: Area["in
 
   return (
     <div className="relative flex flex-col items-center ">
-      <svg ref={svgRef} width={500} height={500} />
+      <svg ref={svgRef} width={500} height={500} aria-label="Climate risk radar chart" />
       {tooltip.visible && (
         <div
           className="absolute bg-gray-800 text-white px-2 py-1 rounded text-sm pointer-events-none z-10"
