@@ -23,12 +23,12 @@ import {
 import { stringifySearch } from "@/lib/search-params";
 import { rootSearch, useScenario } from "@/store";
 
-const area = (id: string, name: string, low: number, high: number, area_type = ""): Area => ({
+const area = (id: string, name: string, low: number, high: number, governance_type = ""): Area => ({
   id,
   name,
   name_fr: name,
   source: "",
-  area_type,
+  governance_type,
   status: "",
   designation_type: "",
   iucn_category: "",
@@ -51,9 +51,9 @@ const area = (id: string, name: string, low: number, high: number, area_type = "
 });
 
 const AREAS = [
-  area("1", "Alpha", 0.9, 0.2, "MPA"),
+  area("1", "Alpha", 0.9, 0.2, "MCA"),
   area("2", "Bravo", 0.5, 0.5, "EBSA"),
-  area("3", "Charlie", 0.1, 0.8, "OECM"),
+  area("3", "Charlie", 0.1, 0.8, "AOI"),
 ];
 
 vi.mock("@/hooks/use-areas", () => ({ useAreas: () => ({ data: AREAS, isPending: false }) }));
@@ -154,7 +154,7 @@ describe("DataTable", () => {
   });
 
   it("filters from the protection search param on load", async () => {
-    renderTable("/areas?protection=ebsa,oecm");
+    renderTable("/areas?protection=ebsa,aoi");
     await screen.findByRole("link", { name: "Bravo" });
     expect(areaOrder()).toEqual(["Bravo", "Charlie"]);
   });
@@ -163,25 +163,23 @@ describe("DataTable", () => {
     const router = renderTable("/areas?q=a&protection=");
     fireEvent.click(await screen.findByRole("button", { name: "Filters" }));
     fireEvent.click(await screen.findByRole("button", { name: "Type of protection" }));
-    fireEvent.click(await screen.findByRole("option", { name: "Conservation network site" }));
-    fireEvent.click(screen.getByRole("option", { name: "Protected area" }));
+    fireEvent.click(await screen.findByRole("option", { name: "Area of Interest" }));
+    fireEvent.click(screen.getByRole("option", { name: "Marine Conserved Area" }));
     fireEvent.keyDown(document.activeElement ?? document.body, { key: "Escape" });
     fireEvent.click(await screen.findByRole("button", { name: "Apply Filters" }));
 
-    await waitFor(() =>
-      expect(router.state.location.href).toBe("/areas?q=a&protection=pa,network-site"),
-    );
-    expect(areaOrder()).toEqual(["Alpha"]);
+    await waitFor(() => expect(router.state.location.href).toBe("/areas?q=a&protection=mca,aoi"));
+    expect(areaOrder()).toEqual(["Alpha", "Charlie"]);
   });
 
   it("keeps the parsed filters stable when the scenario changes", async () => {
-    const router = renderTable("/areas?protection=pa");
+    const router = renderTable("/areas?protection=mca");
     await screen.findByRole("link", { name: "Alpha" });
     const before = renderedFilters;
 
     fireEvent.click(screen.getByRole("button", { name: "high scenario" }));
     await waitFor(() =>
-      expect(router.state.location.href).toBe("/areas?protection=pa&scenario=high"),
+      expect(router.state.location.href).toBe("/areas?protection=mca&scenario=high"),
     );
     expect(renderedFilters).toBe(before);
   });

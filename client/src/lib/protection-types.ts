@@ -1,9 +1,11 @@
 export const PROTECTION_TYPES = [
-  { value: "pa", areaType: "MPA", label: "Protected area" },
-  { value: "oecm", areaType: "OECM", label: "Other effective area-based conservation measure" },
-  { value: "ebsa", areaType: "EBSA", label: "Ecologically and Biologically Significant Area" },
-  { value: "network-site", areaType: "Network Site", label: "Conservation network site" },
-  { value: "aoi", areaType: "AOI", label: "Area of Interest" },
+  { value: "mca", governanceType: "MCA", label: "Marine Conserved Area" },
+  { value: "aoi", governanceType: "AOI", label: "Area of Interest" },
+  {
+    value: "ebsa",
+    governanceType: "EBSA",
+    label: "Ecologically and Biologically Significant Area",
+  },
 ] as const;
 
 export type ProtectionType = (typeof PROTECTION_TYPES)[number]["value"];

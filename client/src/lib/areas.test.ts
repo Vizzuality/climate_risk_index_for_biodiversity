@@ -9,7 +9,7 @@ function makeRow(experiment: number, base: number, overrides: Partial<AreaQueryR
     name: "Bird Islands",
     name_fr: "Îles aux Oiseaux",
     source: "CPCAD",
-    area_type: "MPA",
+    governance_type: "MCA",
     status: "Designated",
     designation_type: "Migratory Bird Sanctuary",
     iucn_category: "IV",
