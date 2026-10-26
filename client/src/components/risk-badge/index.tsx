@@ -1,6 +1,6 @@
 import { riskClassFor } from "@/lib/risk-colormap";
 
-export function RiskBadge({ value }: { value: number }) {
+export function RiskBadge({ value }: Readonly<{ value: number }>) {
   const { color, label, textColor } = riskClassFor(value);
   return (
     <span

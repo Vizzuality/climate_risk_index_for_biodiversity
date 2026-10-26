@@ -7,7 +7,7 @@ const scoreFormatter = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 2,
 });
 
-export default function SpeciesStats({ species }: { species: SpeciesDetail }) {
+export default function SpeciesStats({ species }: Readonly<{ species: SpeciesDetail }>) {
   const [scenario] = useScenario();
   const climVuln = species.indicator.find(({ name }) => name === "ClimVuln")?.scenario[scenario];
   const { min = null, mean = null, max = null } = climVuln ?? {};

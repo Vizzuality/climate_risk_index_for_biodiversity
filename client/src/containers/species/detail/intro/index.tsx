@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 
 import { type SpeciesDetail, speciesName } from "@/lib/species";
 
-export default function SpeciesIntro({ species }: { species: SpeciesDetail }) {
+export default function SpeciesIntro({ species }: Readonly<{ species: SpeciesDetail }>) {
   const name = speciesName(species);
 
   return (
