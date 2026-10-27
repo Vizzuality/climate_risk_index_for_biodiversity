@@ -73,8 +73,7 @@ export default function AreaSpecies() {
     <section className="space-y-4">
       <h3 className="text-slate-700 font-semibold text-[20px]">Species within the area</h3>
       <p className="text-slate-700">
-        The species assessed in the area, ranked by their climate risk weighted by how much of the
-        area they occupy.
+        The species assessed in the area, ranked by their mean climate risk within the area.
       </p>
       <SpeciesSearch
         isPending={isPending}
@@ -89,7 +88,7 @@ export default function AreaSpecies() {
         ) : (
           <Table>
             <TableBody>
-              {rows.map(({ species_id, common_name, scientific_name, score }) => (
+              {rows.map(({ species_id, common_name, scientific_name, ClimVuln }) => (
                 <TableRow key={species_id}>
                   <TableCell className="whitespace-normal text-slate-700">
                     {common_name && <span className="block capitalize">{common_name}</span>}
@@ -97,8 +96,8 @@ export default function AreaSpecies() {
                   </TableCell>
                   <TableCell>
                     <span className="flex items-center justify-end gap-2 tabular-nums text-slate-700">
-                      {scoreFormatter.format(score)}
-                      <RiskBadge value={score} />
+                      {scoreFormatter.format(ClimVuln)}
+                      <RiskBadge value={ClimVuln} />
                     </span>
                   </TableCell>
                 </TableRow>
