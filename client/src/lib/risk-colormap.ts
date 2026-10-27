@@ -2,12 +2,12 @@
 // supplied with the rasters; the detail chart applies them to every indicator
 // until per-indicator breaks are provided. The map raster takes its colors
 // from the COG's color table; keep data-processing/conf/climate_risk_colors.txt
-// in sync.
+// in sync. Badges carry white labels, so they take a darker `badgeColor`.
 export const RISK_CLASSES = [
-  { min: 0, color: "#45B9C7", label: "Negligible", textColor: "text-slate-900" },
-  { min: 0.2345909125689, color: "#B5E2D1", label: "Moderate", textColor: "text-slate-900" },
-  { min: 0.443899021417284, color: "#F1BC83", label: "High", textColor: "text-slate-900" },
-  { min: 0.650018122866379, color: "#D95730", label: "Critical", textColor: "text-white" },
+  { min: 0, color: "#45B9C7", badgeColor: "#36B2C1", label: "Negligible" },
+  { min: 0.2345909125689, color: "#B5E2D1", badgeColor: "#4DC195", label: "Moderate" },
+  { min: 0.443899021417284, color: "#F1BC83", badgeColor: "#F4942B", label: "High" },
+  { min: 0.650018122866379, color: "#D95730", badgeColor: "#D95730", label: "Critical" },
 ] as const;
 
 export type RiskClass = (typeof RISK_CLASSES)[number];
