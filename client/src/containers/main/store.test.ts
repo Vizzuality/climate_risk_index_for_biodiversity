@@ -13,10 +13,10 @@ describe("validateAreaListSearch", () => {
     expect(validate({ protection: "ebsa,bogus,ebsa" }).protection).toBe("ebsa");
   });
 
-  it("defaults to EBSA when the param is missing or not a string", () => {
-    expect(validate({}).protection).toBe("ebsa");
-    expect(validate({ protection: 1 }).protection).toBe("ebsa");
-    expect(validate({ protection: ["mca"] }).protection).toBe("ebsa");
+  it("defaults to MCA when the param is missing or not a string", () => {
+    expect(validate({}).protection).toBe("mca");
+    expect(validate({ protection: 1 }).protection).toBe("mca");
+    expect(validate({ protection: ["aoi"] }).protection).toBe("mca");
   });
 
   it("keeps an empty param as no protection filter", () => {

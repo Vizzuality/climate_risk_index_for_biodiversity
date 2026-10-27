@@ -8,7 +8,7 @@ import { multiValue, type SearchCodec } from "@/lib/search-params";
 // (utils/filters.ts). An inactive filter serializes to "". The default selection is stripped
 // from the URL, so a cleared filter that has a default stays as an empty param.
 const AREA_FILTER_CODECS = {
-  protection: multiValue(PROTECTION_TYPE_VALUES, ["ebsa"]),
+  protection: multiValue(PROTECTION_TYPE_VALUES, ["mca"]),
   region: multiValue(BIOREGION_VALUES),
 };
 

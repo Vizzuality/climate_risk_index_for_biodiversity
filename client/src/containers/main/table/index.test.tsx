@@ -124,10 +124,10 @@ describe("DataTable", () => {
   });
 
   it("filters from the q search param and pre-fills the search box", async () => {
-    renderTable("/areas?q=bra");
+    renderTable("/areas?q=alp");
     const search = await screen.findByRole<HTMLInputElement>("searchbox");
-    expect(search.value).toBe("bra");
-    expect(areaOrder()).toEqual(["Bravo"]);
+    expect(search.value).toBe("alp");
+    expect(areaOrder()).toEqual(["Alpha"]);
   });
 
   it("writes the search to q and drops it when cleared", async () => {
@@ -148,9 +148,9 @@ describe("DataTable", () => {
   });
 
   it("keeps q out of area detail links", async () => {
-    renderTable("/areas?scenario=high&q=bra");
-    const link = await screen.findByRole("link", { name: "Bravo" });
-    expect(link.getAttribute("href")).toBe("/areas/2?scenario=high");
+    renderTable("/areas?scenario=high&q=alp");
+    const link = await screen.findByRole("link", { name: "Alpha" });
+    expect(link.getAttribute("href")).toBe("/areas/1?scenario=high");
   });
 
   it("filters from the protection search param on load", async () => {
@@ -173,21 +173,21 @@ describe("DataTable", () => {
   });
 
   it("keeps the parsed filters stable when the scenario changes", async () => {
-    const router = renderTable("/areas?protection=mca");
-    await screen.findByRole("link", { name: "Alpha" });
+    const router = renderTable("/areas?protection=ebsa");
+    await screen.findByRole("link", { name: "Bravo" });
     const before = renderedFilters;
 
     fireEvent.click(screen.getByRole("button", { name: "high scenario" }));
     await waitFor(() =>
-      expect(router.state.location.href).toBe("/areas?protection=mca&scenario=high"),
+      expect(router.state.location.href).toBe("/areas?protection=ebsa&scenario=high"),
     );
     expect(renderedFilters).toBe(before);
   });
 
-  it("starts on EBSA and keeps an empty param once the filters are cleared", async () => {
+  it("starts on MCA and keeps an empty param once the filters are cleared", async () => {
     const router = renderTable("/areas");
-    await screen.findByRole("link", { name: "Bravo" });
-    expect(areaOrder()).toEqual(["Bravo"]);
+    await screen.findByRole("link", { name: "Alpha" });
+    expect(areaOrder()).toEqual(["Alpha"]);
 
     fireEvent.click(screen.getByRole("button", { name: "Filters" }));
     fireEvent.click(await screen.findByRole("button", { name: "Clear" }));
