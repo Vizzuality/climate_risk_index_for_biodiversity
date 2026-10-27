@@ -1,10 +1,16 @@
 import * as duckdb from "@duckdb/duckdb-wasm";
 import duckdbWasmUrl from "@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm?url";
 import duckdbWorkerUrl from "@duckdb/duckdb-wasm/dist/duckdb-browser-mvp.worker.js?url";
-import { AREA_SPECIES_URL, SPECIES_STATS_URL, STATS_URL } from "@/lib/data-urls";
+import {
+  AREAS_PER_SPECIES_URL,
+  SPECIES_PER_AREA_URL,
+  SPECIES_STATS_URL,
+  STATS_URL,
+} from "@/lib/data-urls";
 
 export const STATS_FILE = "mpas_stats.parquet";
-export const AREA_SPECIES_FILE = "area_species.parquet";
+export const SPECIES_PER_AREA_FILE = "species_per_area.parquet";
+export const AREAS_PER_SPECIES_FILE = "areas_per_species.parquet";
 export const SPECIES_STATS_FILE = "species_stats.parquet";
 
 let connection: Promise<duckdb.AsyncDuckDBConnection> | null = null;
@@ -34,8 +40,14 @@ async function boot(): Promise<duckdb.AsyncDuckDBConnection> {
     await db.registerFileBuffer(STATS_FILE, stats);
     await db.registerFileBuffer(SPECIES_STATS_FILE, speciesStats);
     await db.registerFileURL(
-      AREA_SPECIES_FILE,
-      AREA_SPECIES_URL,
+      SPECIES_PER_AREA_FILE,
+      SPECIES_PER_AREA_URL,
+      duckdb.DuckDBDataProtocol.HTTP,
+      false,
+    );
+    await db.registerFileURL(
+      AREAS_PER_SPECIES_FILE,
+      AREAS_PER_SPECIES_URL,
       duckdb.DuckDBDataProtocol.HTTP,
       false,
     );

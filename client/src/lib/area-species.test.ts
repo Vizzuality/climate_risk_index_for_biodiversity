@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { buildAreaSpecies, filterSpecies, type AreaSpeciesRow } from "@/lib/area-species";
 
-const row = (experiment: number, species_id: number, score: number): AreaSpeciesRow => ({
+const row = (experiment: number, species_id: number, ClimVuln: number): AreaSpeciesRow => ({
   experiment,
   species_id,
   common_name: null,
   scientific_name: `Species ${species_id}`,
-  score,
+  ClimVuln,
 });
 
 describe("buildAreaSpecies", () => {
@@ -24,7 +24,7 @@ describe("buildAreaSpecies", () => {
       species_id: 1,
       common_name: null,
       scientific_name: "Species 1",
-      score: 0.7,
+      ClimVuln: 0.7,
     });
   });
 
@@ -39,10 +39,15 @@ describe("filterSpecies", () => {
       species_id: 1,
       common_name: "Gray whale",
       scientific_name: "Eschrichtius robustus",
-      score: 0.7,
+      ClimVuln: 0.7,
     },
-    { species_id: 2, common_name: null, scientific_name: "Proclea graffii", score: 0.6 },
-    { species_id: 3, common_name: "Beluga", scientific_name: "Delphinapterus leucas", score: 0.5 },
+    { species_id: 2, common_name: null, scientific_name: "Proclea graffii", ClimVuln: 0.6 },
+    {
+      species_id: 3,
+      common_name: "Beluga",
+      scientific_name: "Delphinapterus leucas",
+      ClimVuln: 0.5,
+    },
   ];
 
   it("matches either name, ignoring case and surrounding spaces, keeping the rank order", () => {

@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import ClimateRiskChart from "@/containers/detail/climate-risk-chart";
+import SpeciesAreas from "@/containers/species/detail/areas";
 import Intro from "@/containers/species/detail/intro";
 import SpeciesStats from "@/containers/species/detail/stats";
 import { useSelectedSpecies } from "@/hooks/use-selected-species";
@@ -35,6 +36,8 @@ export default function SpeciesDetail() {
       <Intro species={species} />
       <SpeciesStats species={species} />
       <ClimateRiskChart indicator={species.indicator} />
+      {/* Keyed so the search and "Show all" reset when another species opens */}
+      <SpeciesAreas key={species.id} speciesId={species.id} />
     </div>
   );
 }
