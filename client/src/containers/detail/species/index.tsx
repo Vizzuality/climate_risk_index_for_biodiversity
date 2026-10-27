@@ -1,4 +1,5 @@
 import { useDeferredValue, useMemo, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { SearchIcon } from "lucide-react";
 
 import { ScenarioScores } from "@/components/scenario-scores";
@@ -90,8 +91,14 @@ export default function AreaSpecies() {
               {rows.map(({ species_id, common_name, scientific_name, scores }) => (
                 <TableRow key={species_id}>
                   <TableCell className="whitespace-normal text-slate-700">
-                    {common_name && <span className="block capitalize">{common_name}</span>}
-                    <span className="block italic text-slate-500">{scientific_name}</span>
+                    <Link
+                      to="/species/$speciesId"
+                      params={{ speciesId: String(species_id) }}
+                      className="block hover:underline"
+                    >
+                      {common_name && <span className="block capitalize">{common_name}</span>}
+                      <span className="block italic text-slate-500">{scientific_name}</span>
+                    </Link>
                   </TableCell>
                   <TableCell>
                     <ScenarioScores scores={scores} />
