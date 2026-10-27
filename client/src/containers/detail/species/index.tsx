@@ -116,7 +116,7 @@ export default function AreaSpecies() {
           </Table>
         ))}
       {matches.length > COLLAPSED_ROWS && (
-        <Button variant="outline" size="sm" onClick={() => setExpanded(!expanded)}>
+        <Button variant="outline" size="sm" className="mb-6" onClick={() => setExpanded(!expanded)}>
           {expanded ? "Show fewer" : `Show all ${matches.length} species`}
         </Button>
       )}
