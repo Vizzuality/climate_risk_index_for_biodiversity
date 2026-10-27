@@ -1,4 +1,5 @@
 import Chart from "@/containers/detail/climate-risk-chart/chart";
+import { ScenarioSelector } from "@/containers/detail/climate-risk-chart/scenario-selector";
 import type { Area } from "@/containers/main/table/columns";
 
 export default function ClimateRiskChart({
@@ -35,6 +36,7 @@ export default function ClimateRiskChart({
       <div className="chart-placeholder">
         <Chart indicator={indicator} />
       </div>
+      <ScenarioSelector />
     </div>
   );
 }
