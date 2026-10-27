@@ -203,7 +203,7 @@ def _(mo):
     The same rows written twice, each sorted by the key the client filters on
     so row groups are pruned by their min/max stats: by area for the species in
     an area, by species for the areas a species is in. Row groups of 10240 rows
-    (~10 areas) balance the bytes read per query against the footer size.
+    (~5 areas) balance the bytes read per query against the footer size.
     """)
     return
 
