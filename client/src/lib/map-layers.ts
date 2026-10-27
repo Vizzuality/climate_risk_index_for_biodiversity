@@ -1,7 +1,7 @@
 // Basemap style layers the app's layers are inserted under: the raster under the land fill, so it
 // can reach past the coast without covering land, and the vector layers under the basemap's
 // boundaries and labels.
-export const BASEMAP_LAND_FILL_LAYER_ID = "land-fill";
+export const BASEMAP_LAND_FILL_LAYER_ID = "country-land";
 export const BASEMAP_BOUNDARIES_LAYER_ID = "admin-1-boundary-bg";
 
 export const AREAS_OUTLINE_COLOR = "#5eead4";
