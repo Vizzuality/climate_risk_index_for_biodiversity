@@ -123,7 +123,7 @@ export default function SpeciesAreas({ speciesId }: Readonly<{ speciesId: number
           </Table>
         ))}
       {matches.length > COLLAPSED_ROWS && (
-        <Button variant="outline" size="sm" onClick={() => setExpanded(!expanded)}>
+        <Button variant="outline" size="sm" className="mb-6" onClick={() => setExpanded(!expanded)}>
           {expanded ? "Show fewer" : `Show all ${matches.length} areas`}
         </Button>
       )}
