@@ -5,7 +5,7 @@ import type { MapRef } from "react-map-gl/mapbox";
 
 import "mapbox-gl/dist/mapbox-gl.css";
 import type { MapEvent, MapMouseEvent } from "mapbox-gl";
-import { useNavigate, useParams } from "@tanstack/react-router";
+import { useMatchRoute, useNavigate, useParams } from "@tanstack/react-router";
 
 import { useAreas } from "@/hooks/use-areas";
 import { useFilteredAreas } from "@/hooks/use-filtered-areas";
@@ -26,6 +26,8 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
   const mapRef = useRef<MapRef>(null);
   const navigate = useNavigate();
   const params = useParams({ strict: false });
+  const matchRoute = useMatchRoute();
+  const areasClickable = Boolean(matchRoute({ to: "/areas", fuzzy: true }));
   const [popup, setPopup] = useAtom(popupAtom);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [cursor, setCursor] = useAtom(mapCursorAtom);
@@ -96,6 +98,7 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
   };
 
   const handleClick = (evt: MapMouseEvent) => {
+    if (!areasClickable) return;
     const id = pickAreaFeature(evt.features ?? [])?.id;
     if (id !== undefined && id !== null) {
       navigate({ to: "/areas/$areaId", params: { areaId: String(id) } });
@@ -105,7 +108,7 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
   const handleHover = (evt: MapMouseEvent) => {
     // Only areas open on click; a held button means a drag, which owns the cursor.
     if (evt.originalEvent.buttons === 0) {
-      setCursor(pickAreaFeature(evt.features ?? []) ? "pointer" : undefined);
+      setCursor(areasClickable && pickAreaFeature(evt.features ?? []) ? "pointer" : undefined);
     }
     const feature = pickHoverFeature(evt.features ?? []);
     if (feature) {
