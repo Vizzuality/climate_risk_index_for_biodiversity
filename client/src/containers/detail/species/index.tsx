@@ -1,7 +1,7 @@
-import { useDeferredValue, useState } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 import { SearchIcon } from "lucide-react";
 
-import { RiskBadge } from "@/components/risk-badge";
+import { ScenarioScores } from "@/components/scenario-scores";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,15 +16,11 @@ import {
 import { useAreaSpecies } from "@/hooks/use-area-species";
 import { useSelectedArea } from "@/hooks/use-selected-area";
 import { filterSpecies } from "@/lib/area-species";
+import { withScenarioScores } from "@/lib/scenario-scores";
 import { useScenario } from "@/store";
 
 // Areas hold hundreds to thousands of species; the rest are behind "Show all".
 const COLLAPSED_ROWS = 10;
-
-const scoreFormatter = new Intl.NumberFormat("en-US", {
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-});
 
 type SpeciesSearchProps = Readonly<{
   isPending: boolean;
@@ -65,7 +61,10 @@ export default function AreaSpecies() {
   const [query, setQuery] = useState("");
   // Filtering thousands of rows can lag a keystroke; let the input update first
   const deferredQuery = useDeferredValue(query);
-  const species = data?.[scenario] ?? [];
+  const species = useMemo(
+    () => (data ? withScenarioScores(data, scenario, ({ species_id }) => species_id) : []),
+    [data, scenario],
+  );
   const matches = filterSpecies(species, deferredQuery);
   const rows = expanded ? matches : matches.slice(0, COLLAPSED_ROWS);
 
@@ -88,17 +87,14 @@ export default function AreaSpecies() {
         ) : (
           <Table>
             <TableBody>
-              {rows.map(({ species_id, common_name, scientific_name, ClimVuln }) => (
+              {rows.map(({ species_id, common_name, scientific_name, scores }) => (
                 <TableRow key={species_id}>
                   <TableCell className="whitespace-normal text-slate-700">
                     {common_name && <span className="block capitalize">{common_name}</span>}
                     <span className="block italic text-slate-500">{scientific_name}</span>
                   </TableCell>
                   <TableCell>
-                    <span className="flex items-center justify-end gap-2 tabular-nums text-slate-700">
-                      {scoreFormatter.format(ClimVuln)}
-                      <RiskBadge value={ClimVuln} />
-                    </span>
+                    <ScenarioScores scores={scores} />
                   </TableCell>
                 </TableRow>
               ))}
