@@ -31,7 +31,7 @@ export function ScenarioScores({ scores }: Readonly<{ scores: Scores }>) {
             ) : (
               <>
                 {scoreFormatter.format(score)}
-                <RiskBadge value={score} className="uppercase text-white" />
+                <RiskBadge value={score} />
               </>
             )}
           </span>
