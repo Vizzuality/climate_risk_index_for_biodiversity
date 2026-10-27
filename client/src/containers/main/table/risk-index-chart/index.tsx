@@ -27,12 +27,15 @@ function ScenarioTrack({
   const { min, mean, max } = stats;
   const toPercent = (value: number) => ((value - range.min) / (range.max - range.min)) * 100;
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const pointerTypeRef = useRef<string | null>(null);
+  const [open, setOpen] = useState(false);
   const [scrollViewport, setScrollViewport] = useState<Element | null>(null);
 
-  const onOpenChange = (open: boolean) => {
-    if (open) {
+  const onOpenChange = (nextOpen: boolean) => {
+    if (nextOpen) {
       setScrollViewport(triggerRef.current?.closest("[data-slot=scroll-area-viewport]") ?? null);
     }
+    setOpen(nextOpen);
   };
 
   return (
@@ -43,11 +46,21 @@ function ScenarioTrack({
             className="absolute inset-y-0 rounded-xs bg-slate-700"
             style={{ left: `${toPercent(min)}%`, width: `${toPercent(max) - toPercent(min)}%` }}
           />
-          <Popover onOpenChange={onOpenChange}>
+          <Popover open={open} onOpenChange={onOpenChange}>
             <PopoverTrigger
               ref={triggerRef}
+              onPointerEnter={(event) => event.pointerType === "mouse" && onOpenChange(true)}
+              onPointerLeave={(event) => event.pointerType === "mouse" && onOpenChange(false)}
+              onPointerDown={(event) => {
+                pointerTypeRef.current = event.pointerType;
+              }}
+              onClick={(event) => {
+                // Mouse users get the card on hover; a click would toggle it shut under the cursor.
+                if (pointerTypeRef.current === "mouse") event.preventDefault();
+                pointerTypeRef.current = null;
+              }}
               aria-label={`${label}: mean ${formatter.format(mean)}`}
-              className="absolute top-1/2 size-2 -translate-1/2 rotate-45 cursor-pointer shadow-md"
+              className="absolute top-1/2 size-2 -translate-1/2 rotate-45 shadow-md"
               style={{ left: `${toPercent(mean)}%`, backgroundColor: riskColorFor(mean) }}
             />
             <PopoverContent
@@ -57,6 +70,8 @@ function ScenarioTrack({
               collisionBoundary={scrollViewport}
               collisionPadding={STICKY_HEADER_PADDING}
               hideWhenDetached
+              onOpenAutoFocus={(event) => event.preventDefault()}
+              onCloseAutoFocus={(event) => event.preventDefault()}
             >
               <p className="mb-1 text-xs font-semibold">{label}</p>
               <ul className="flex flex-col gap-1 text-xs">
