@@ -124,7 +124,7 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
       ref={mapRef}
       mapboxAccessToken={import.meta.env.VITE_MAPBOX_TOKEN}
       style={style}
-      mapStyle="mapbox://styles/a-irvine/cmf43ty13003l01qscdneh6wp"
+      mapStyle="mapbox://styles/a-irvine/cmvhxv29300hm01s557qvcebi"
       projection="mercator"
       maxBounds={MAX_BOUNDS}
       maxPitch={0}
