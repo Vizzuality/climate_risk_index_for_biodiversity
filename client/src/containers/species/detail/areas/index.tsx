@@ -2,7 +2,7 @@ import { useDeferredValue, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { SearchIcon } from "lucide-react";
 
-import { RiskBadge } from "@/components/risk-badge";
+import { ScenarioScores } from "@/components/scenario-scores";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,16 +16,12 @@ import {
 } from "@/components/ui/table";
 import { useAreas } from "@/hooks/use-areas";
 import { useSpeciesAreas } from "@/hooks/use-species-areas";
+import { withScenarioScores } from "@/lib/scenario-scores";
 import { filterAreasByName, withAreaNames } from "@/lib/species-areas";
 import { useScenario } from "@/store";
 
 // Widespread species are in hundreds of areas; the rest are behind "Show all".
 const COLLAPSED_ROWS = 10;
-
-const scoreFormatter = new Intl.NumberFormat("en-US", {
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-});
 
 type AreasSearchProps = Readonly<{
   isPending: boolean;
@@ -66,7 +62,8 @@ export default function SpeciesAreas({ speciesId }: Readonly<{ speciesId: number
   const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query);
   const areas = useMemo(
-    () => withAreaNames(data?.[scenario] ?? [], allAreas ?? []),
+    () =>
+      withAreaNames(data ? withScenarioScores(data, scenario, ({ id }) => id) : [], allAreas ?? []),
     [data, scenario, allAreas],
   );
   const matches = filterAreasByName(areas, deferredQuery);
@@ -94,7 +91,7 @@ export default function SpeciesAreas({ speciesId }: Readonly<{ speciesId: number
         ) : (
           <Table>
             <TableBody>
-              {rows.map(({ id, name, ClimVuln }) => (
+              {rows.map(({ id, name, scores }) => (
                 <TableRow key={id}>
                   <TableCell className="whitespace-normal text-slate-700">
                     <Link to="/areas/$areaId" params={{ areaId: id }} className="hover:underline">
@@ -102,10 +99,7 @@ export default function SpeciesAreas({ speciesId }: Readonly<{ speciesId: number
                     </Link>
                   </TableCell>
                   <TableCell>
-                    <span className="flex items-center justify-end gap-2 tabular-nums text-slate-700">
-                      {scoreFormatter.format(ClimVuln)}
-                      <RiskBadge value={ClimVuln} />
-                    </span>
+                    <ScenarioScores scores={scores} />
                   </TableCell>
                 </TableRow>
               ))}

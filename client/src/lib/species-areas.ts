@@ -50,10 +50,10 @@ export async function fetchSpeciesAreas(
 
 // The species' areas with their names, keeping the order; ids missing from
 // the areas list are dropped.
-export function withAreaNames(
-  speciesAreas: SpeciesArea[],
+export function withAreaNames<T extends SpeciesArea>(
+  speciesAreas: T[],
   areas: Pick<Area, "id" | "name">[],
-): (SpeciesArea & { name: string })[] {
+): (T & { name: string })[] {
   const names = new Map(areas.map(({ id, name }) => [id, name]));
   return speciesAreas.flatMap((area) => {
     const name = names.get(area.id);
