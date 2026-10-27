@@ -16,9 +16,10 @@ def _(mo):
     mo.md(r"""
     # Species within each conservation area
 
-    One row per area, experiment and species, with the species' ClimVuln
-    weighted by its distribution in the area. Sorted by area so the client can
-    read a single area's rows with range requests.
+    One row per area, experiment and species with the mean of every indicator
+    over the species' cells in the area, in the same columns as
+    `mpas_stats.parquet`. Written sorted by area and by species so the client
+    can read a single area's or species' rows with range requests.
     """)
     return
 
@@ -36,13 +37,19 @@ def _(mo):
     DATASET = (
         DATAPATH / "01_raw" / "CRIB_VSEspecies_SSP126_585_2100_Canada_parquet/*.parquet"
     )
+    SPECIES_PER_AREA = DATAPATH / "03_primary" / "species_per_area.parquet"
+    AREAS_PER_SPECIES = DATAPATH / "03_primary" / "areas_per_species.parquet"
     EXPERIMENTS = (126, 585)
+
+    # The joins spill to disk instead of taking most of the RAM
+    duckdb.execute("SET memory_limit = '8GB'")
     return (
+        AREAS_PER_SPECIES,
         DATAPATH,
         DATASET,
         EXPERIMENTS,
         RasterioRasterSource,
-        duckdb,
+        SPECIES_PER_AREA,
         exact_extract,
         gpd,
         pd,
@@ -84,136 +91,158 @@ def _(
             _cells = exact_extract(
                 RasterioRasterSource(_src, _src.descriptions.index("ClimVuln") + 1),
                 mpas,
-                ops=["center_x", "center_y", "coverage"],
+                ops=["center_x", "center_y"],
                 include_cols="id",
                 output="pandas",
             )
         _area_cells.append(
-            _cells.explode(["center_x", "center_y", "coverage"]).assign(experiment=_exp)
+            _cells.explode(["center_x", "center_y"]).assign(experiment=_exp)
         )
     area_cells = (
         pd.concat(_area_cells)
         .dropna(subset=["center_x"])
-        .astype({"center_x": float, "center_y": float, "coverage": float})
+        .astype({"center_x": float, "center_y": float})
     )
     return (area_cells,)
 
 
-@app.cell
-def _(DATAPATH, DATASET, area_cells, duckdb):
-    con = duckdb.connect()
-    # The joins spill to disk instead of taking most of the RAM
-    con.execute("SET memory_limit = '8GB'")
-    con.register("area_cells", area_cells)
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    Cells with data keep their own species; cells filled by the dilation take
+    them from their valid 8-neighbours, the cells fillnodata read from. Grid
+    indices come from the 0.05° pixel centers (k * 0.05 + 0.025).
+    """)
+    return
 
-    # Cells with data keep their own species; cells filled by the dilation
-    # borrow them from their valid 8-neighbours weighted by 1/d, the same rule
-    # fillnodata applies. Grid indices come from the 0.05° pixel centers
-    # (k * 0.05 + 0.025). Row groups of ~10 areas keep a single area's read small.
-    con.execute(
+
+@app.cell
+def _(DATASET, area_cells, mo):
+    _df = mo.sql(
+        f"""
+        CREATE OR REPLACE TABLE area_sources AS
+        WITH valid AS (
+            SELECT DISTINCT
+                CAST(Experiment AS INTEGER) AS experiment,
+                CAST(round(Lon / 0.05 - 0.5) AS INTEGER) AS gi,
+                CAST(round(Lat / 0.05 - 0.5) AS INTEGER) AS gj
+            FROM read_parquet('{DATASET}')
+            WHERE ClimVuln IS NOT NULL
+        ),
+        cells AS (
+            SELECT DISTINCT
+                id,
+                experiment,
+                CAST(round(center_x / 0.05 - 0.5) AS INTEGER) AS gi,
+                CAST(round(center_y / 0.05 - 0.5) AS INTEGER) AS gj
+            FROM area_cells
+        ),
+        offsets AS (
+            SELECT di, dj
+            FROM range(-1, 2) t1(di), range(-1, 2) t2(dj)
+            WHERE di <> 0 OR dj <> 0
+        )
+        SELECT id, experiment, gi, gj
+        FROM cells SEMI JOIN valid USING (experiment, gi, gj)
+        UNION
+        SELECT f.id, f.experiment, v.gi, v.gj
+        FROM (SELECT * FROM cells ANTI JOIN valid USING (experiment, gi, gj)) f
+        CROSS JOIN offsets o
+        JOIN valid v
+            ON v.experiment = f.experiment
+            AND v.gi = f.gi + o.di
+            AND v.gj = f.gj + o.dj
+        """
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    Plain mean of every indicator over the species' cells in the area.
+    """)
+    return
+
+
+@app.cell
+def _(DATASET, area_sources, mo):
+    _df = mo.sql(
+        f"""
+        CREATE OR REPLACE TABLE area_species_stats AS
+        WITH species AS (
+            SELECT
+                CAST(Experiment AS INTEGER) AS experiment,
+                CAST(round(Lon / 0.05 - 0.5) AS INTEGER) AS gi,
+                CAST(round(Lat / 0.05 - 0.5) AS INTEGER) AS gj,
+                * EXCLUDE (Experiment, Lon, Lat)
+            FROM read_parquet('{DATASET}')
+            WHERE ClimVuln IS NOT NULL
+        )
+        SELECT
+            id,
+            experiment,
+            CAST(SpecID AS INTEGER) AS species_id,
+            any_value(NULLIF(Comname, '')) AS common_name,
+            any_value(SPname) AS scientific_name,
+            CAST(
+                avg(COLUMNS('^(Sens|Adapt|Expo)\\.|^Clim(Sens|Adapt|Expo|Vuln)(SD)?$'))
+                AS FLOAT
+            )
+        FROM area_sources
+        JOIN species USING (experiment, gi, gj)
+        GROUP BY id, experiment, SpecID
+        """
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    The same rows written twice, each sorted by the key the client filters on
+    so row groups are pruned by their min/max stats: by area for the species in
+    an area, by species for the areas a species is in. Row groups of 10240 rows
+    (~10 areas) balance the bytes read per query against the footer size.
+    """)
+    return
+
+
+@app.cell
+def _(SPECIES_PER_AREA, area_species_stats, mo):
+    _df = mo.sql(
         f"""
         COPY (
-            WITH species AS (
-                SELECT
-                    CAST(Experiment AS INTEGER) AS experiment,
-                    CAST(round(Lon / 0.05 - 0.5) AS INTEGER) AS gi,
-                    CAST(round(Lat / 0.05 - 0.5) AS INTEGER) AS gj,
-                    SpecID,
-                    ClimVuln
-                FROM read_parquet($dataset)
-                WHERE ClimVuln IS NOT NULL
-            ),
-            valid AS (SELECT DISTINCT experiment, gi, gj FROM species),
-            cells AS (
-                SELECT
-                    id,
-                    experiment,
-                    coverage,
-                    CAST(round(center_x / 0.05 - 0.5) AS INTEGER) AS gi,
-                    CAST(round(center_y / 0.05 - 0.5) AS INTEGER) AS gj
-                FROM area_cells
-            ),
-            area_coverage AS (
-                SELECT id, experiment, sum(coverage) AS coverage
-                FROM cells
-                GROUP BY id, experiment
-            ),
-            offsets AS (
-                SELECT di, dj, 1 / sqrt(di * di + dj * dj) AS w
-                FROM range(-1, 2) t1(di), range(-1, 2) t2(dj)
-                WHERE di <> 0 OR dj <> 0
-            ),
-            sources AS (
-                SELECT id, experiment, gi, gj, coverage, gi AS src_gi, gj AS src_gj, 1.0 AS w
-                FROM cells SEMI JOIN valid USING (experiment, gi, gj)
-                UNION ALL
-                SELECT f.id, f.experiment, f.gi, f.gj, f.coverage, v.gi, v.gj, o.w
-                FROM (SELECT * FROM cells ANTI JOIN valid USING (experiment, gi, gj)) f
-                CROSS JOIN offsets o
-                JOIN valid v
-                    ON v.experiment = f.experiment
-                    AND v.gi = f.gi + o.di
-                    AND v.gj = f.gj + o.dj
-            ),
-            source_weights AS (
-                SELECT id, experiment, gi, gj, any_value(coverage) AS coverage, sum(w) AS w
-                FROM sources
-                GROUP BY id, experiment, gi, gj
-            ),
-            -- A species' ClimVuln in a cell, counting its absence from a source as 0
-            cell_species AS (
-                SELECT s.id, s.experiment, s.gi, s.gj, sp.SpecID, sum(s.w * sp.ClimVuln) AS wv
-                FROM sources s
-                JOIN species sp
-                    ON sp.experiment = s.experiment
-                    AND sp.gi = s.src_gi
-                    AND sp.gj = s.src_gj
-                GROUP BY s.id, s.experiment, s.gi, s.gj, sp.SpecID
-            ),
-            -- Mean over the whole area, so a species scores by both its ClimVuln
-            -- and the share of the area it occupies
-            scores AS (
-                SELECT
-                    cs.id,
-                    cs.experiment,
-                    cs.SpecID,
-                    sum(sw.coverage * cs.wv / sw.w) / any_value(a.coverage) AS score
-                FROM cell_species cs
-                JOIN source_weights sw USING (id, experiment, gi, gj)
-                JOIN area_coverage a USING (id, experiment)
-                GROUP BY cs.id, cs.experiment, cs.SpecID
-            ),
-            names AS (
-                SELECT
-                    SpecID,
-                    any_value(NULLIF(Comname, '')) AS common_name,
-                    any_value(SPname) AS scientific_name
-                FROM read_parquet($dataset)
-                GROUP BY SpecID
-            )
-            SELECT
-                s.id,
-                s.experiment,
-                CAST(s.SpecID AS INTEGER) AS species_id,
-                n.common_name,
-                n.scientific_name,
-                CAST(s.score AS FLOAT) AS score
-            FROM scores s
-            JOIN names n USING (SpecID)
-            ORDER BY s.id, s.experiment, s.score DESC, s.SpecID
-        ) TO '{DATAPATH / "03_primary" / "area_species.parquet"}'
-            (FORMAT parquet, COMPRESSION zstd, ROW_GROUP_SIZE 20480)
-        """,
-        {"dataset": str(DATASET)},
+            FROM area_species_stats
+            ORDER BY id, experiment, species_id
+        ) TO '{SPECIES_PER_AREA}'
+            (FORMAT parquet, COMPRESSION zstd, ROW_GROUP_SIZE 10240)
+        """
     )
-    return (con,)
+    return
 
 
 @app.cell
-def _(DATAPATH, con):
-    con.sql(
-        f"SELECT * FROM '{DATAPATH / '03_primary' / 'area_species.parquet'}' LIMIT 10"
-    ).pl()
+def _(AREAS_PER_SPECIES, area_species_stats, mo):
+    _df = mo.sql(
+        f"""
+        COPY (
+            FROM area_species_stats
+            ORDER BY species_id, id, experiment
+        ) TO '{AREAS_PER_SPECIES}'
+            (FORMAT parquet, COMPRESSION zstd, ROW_GROUP_SIZE 10240)
+        """
+    )
+    return
+
+
+@app.cell
+def _(SPECIES_PER_AREA, mo):
+    _df = mo.sql(
+        f"""
+        SELECT * FROM '{SPECIES_PER_AREA}' LIMIT 10
+        """
+    )
     return
 
 

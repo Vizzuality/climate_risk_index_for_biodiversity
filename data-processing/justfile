@@ -11,9 +11,11 @@ bioregions-to-json:
     gdal vector reproject -d epsg:4326 -f GeoJSON {{ INTERMEDIATE_DATA }}/marine_administrative_boundaries.gpkg {{ PRIMARY_DATA }}/bioregions.json
 
 pmtiles:
-    tippecanoe --force -zg -o {{ PRIMARY_DATA }}/mpas.pmtiles \
-        -L '{"file": "{{ PRIMARY_DATA }}/mpas_indexed.json", "layer":"mpas"}' \
-        -L '{"file": "{{ PRIMARY_DATA }}/bioregions.json", "layer":"bioregions"}'
+    tippecanoe --force -zg \
+        -o {{ PRIMARY_DATA }}/mpas.pmtiles \
+        --named-layer="mpas:{{ PRIMARY_DATA }}/mpas_indexed.json" \
+        --named-layer="bioregions:{{ PRIMARY_DATA }}/bioregions.json"
+
 
 # Climate risk classes of ClimVuln, from the Vulnerability thresholds (tlow,
 # tmed, thigh) in 01_raw/thresholds_standardized.csv. Mirrors RISK_CLASSES in
@@ -60,7 +62,7 @@ invalidate-cache:
     aws cloudfront create-invalidation --distribution-id {{ DISTRIBUTION_ID }} \
         --paths "/*" --profile {{ AWS_PROFILE }}
 
-publish: sync-data-cdn invalidate-cache
+publish-data: sync-data-cdn invalidate-cache
 
 contours dem out:
     gdal pipeline \
