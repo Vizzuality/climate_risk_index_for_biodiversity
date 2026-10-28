@@ -42,7 +42,7 @@ export function MapLegend() {
         aria-controls={listId}
         aria-label={open ? "Hide legend" : "Show legend"}
         onClick={() => setOpen(!open)}
-        className="flex cursor-pointer items-center justify-center rounded-full bg-slate-50 p-2 text-teal-400 hover:bg-slate-200"
+        className="flex cursor-pointer items-center justify-center rounded-full bg-slate-50 p-2 text-slate-700 hover:bg-slate-200"
       >
         <Chevron className="size-4" aria-hidden />
       </button>

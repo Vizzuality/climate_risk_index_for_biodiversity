@@ -32,7 +32,7 @@ const RiskCell = ({ risk }: { risk: Species["climate_risk"] }) => {
       {hasData ? (
         <RiskIndexChart range={{ min: 0, max: 1 }} values={risk} />
       ) : (
-        <p className="flex h-6 items-center justify-center text-xs text-slate-400">No data</p>
+        <p className="flex h-6 items-center justify-center text-xs text-slate-500">No data</p>
       )}
     </div>
   );

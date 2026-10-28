@@ -33,8 +33,8 @@ type SpeciesSearchProps = Readonly<{
 
 function SpeciesSearch({ isPending, isError, isEmpty, query, onQueryChange }: SpeciesSearchProps) {
   if (isPending) return <Skeleton className="h-64 w-full" />;
-  if (isError) return <p className="text-sm text-slate-400">The species couldn’t be loaded.</p>;
-  if (isEmpty) return <p className="text-sm text-slate-400">No species data for this scenario.</p>;
+  if (isError) return <p className="text-sm text-slate-500">The species couldn’t be loaded.</p>;
+  if (isEmpty) return <p className="text-sm text-slate-500">No species data for this scenario.</p>;
 
   return (
     <div className="relative">
@@ -84,7 +84,7 @@ export default function AreaSpecies() {
       />
       {species.length > 0 &&
         (matches.length === 0 ? (
-          <p className="text-sm text-slate-400">No species match “{deferredQuery.trim()}”.</p>
+          <p className="text-sm text-slate-500">No species match “{deferredQuery.trim()}”.</p>
         ) : (
           <Table>
             <TableBody>
