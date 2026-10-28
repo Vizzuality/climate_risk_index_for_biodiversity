@@ -1,6 +1,7 @@
 import { AreasSource } from "@/containers/map/layers/areas-source";
 import { BioregionsLayer } from "@/containers/map/layers/bioregions";
 import { DeckGLOverlay } from "@/components/map/deckgl-overlay";
+import { BathymetryLayer } from "@/containers/map/layers/bathymetry";
 import { climateRiskRasterLayers } from "@/containers/map/layers/climate-risk-raster";
 import { useSpeciesRiskRasterLayers } from "@/containers/map/layers/species-risk-raster";
 import { WDPALayer } from "@/containers/map/layers/wdpa";
@@ -36,6 +37,7 @@ export default function LayerManager() {
         <BioregionsLayer {...settings("bioregions")} />
         <WDPALayer {...settings("areas")} />
       </AreasSource>
+      <BathymetryLayer {...settings("bathymetry")} />
       <DeckGLOverlay layers={rasters} interleaved />
     </>
   );

@@ -19,6 +19,12 @@ export const CONTEXTUAL_LAYERS = [
     description:
       "Canada's 12 federal marine bioregions. The ones selected in the region filter are highlighted.",
   },
+  {
+    value: "bathymetry",
+    group: "general",
+    label: mapLayerLabel("bathymetry"),
+    description: "Contour lines tracing the depth of the seafloor.",
+  },
 ] as const satisfies readonly {
   value: MapLayer;
   group: ContextualLayerGroup;

@@ -49,7 +49,7 @@ describe("MapLegend", () => {
     const router = renderAt("/areas?hidden=areas&opacity=areas:40,risk:60");
     fireEvent.click(await screen.findByRole("button", { name: "Remove Conservation areas" }));
     await waitFor(() =>
-      expect(router.state.location.search).toEqual({ layers: "", opacity: "risk:60" }),
+      expect(router.state.location.search).toEqual({ layers: "bathymetry", opacity: "risk:60" }),
     );
     expect(screen.queryByRole("heading", { name: "Conservation areas" })).toBeNull();
   });

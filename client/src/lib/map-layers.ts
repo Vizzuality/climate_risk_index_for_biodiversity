@@ -8,6 +8,8 @@ export const AREAS_OUTLINE_COLOR = "#5eead4";
 export const BIOREGIONS_OUTLINE_COLOR = "#ec9427";
 // Darker than the raster's orange classes, which the outline colour blends into.
 export const BIOREGIONS_HIGHLIGHT_COLOR = "#b45309";
+// The basemap style draws the depth contours; this must stay in sync with its line colour.
+export const BATHYMETRY_CONTOUR_COLOR = "#a6b0c5";
 
 export type LegendSwatch = { label: string; color: string; shape: "outline" | "fill" };
 
@@ -17,6 +19,14 @@ export type MapLayerLegend =
 
 // Top to bottom in the order the map draws them.
 export const MAP_LAYERS = [
+  {
+    value: "bathymetry",
+    label: "Bathymetry",
+    legend: {
+      type: "categories",
+      items: [{ label: "Depth contour", color: BATHYMETRY_CONTOUR_COLOR, shape: "outline" }],
+    },
+  },
   {
     value: "areas",
     label: "Conservation areas",

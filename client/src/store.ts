@@ -21,7 +21,7 @@ import { SCENARIO } from "@/types";
 
 const DEFAULT_SCENARIO: SCENARIO = "low";
 
-const contextualLayersCodec = multiValue(CONTEXTUAL_LAYER_VALUES, ["areas"]);
+const contextualLayersCodec = multiValue(CONTEXTUAL_LAYER_VALUES, ["areas", "bathymetry"]);
 
 const DEFAULT_LAYERS = contextualLayersCodec.serialize(contextualLayersCodec.parse(undefined));
 
