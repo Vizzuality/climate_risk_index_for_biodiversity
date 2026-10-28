@@ -15,7 +15,7 @@ const climVuln = (area: Area) =>
   area.indicator.find((indicator) => indicator.name === "ClimVuln")?.scenario;
 
 const hasData = (scenario: Record<SCENARIO, IndicatorStats> | undefined) =>
-  scenario !== undefined && scenario.low.mean !== null && scenario.high.mean !== null;
+  scenario?.low.mean != null && scenario.high.mean != null;
 
 // Every peer site weighs the same: mean of the peers' ClimVuln means, with the
 // lowest and highest peer mean as the range. The area itself is not a peer.
