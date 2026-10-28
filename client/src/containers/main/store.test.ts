@@ -6,7 +6,7 @@ const validate = (search: Record<string, unknown>) =>
 
 describe("validateAreaListSearch", () => {
   it("keeps known protection types in their canonical order", () => {
-    expect(validate({ protection: "aoi,mca" }).protection).toBe("mca,aoi");
+    expect(validate({ protection: "mca,aoi" }).protection).toBe("aoi,mca");
   });
 
   it("drops unknown and repeated protection types", () => {
