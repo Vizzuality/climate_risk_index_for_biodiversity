@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useSidebar } from "@/components/ui/sidebar";
 import { Switch } from "@/components/ui/switch";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { CONTEXTUAL_LAYER_GROUPS, CONTEXTUAL_LAYERS } from "@/lib/contextual-layers";
 import { cn } from "@/lib/utils";
 import { contextualLayersPanelOpenAtom, useContextualLayers } from "@/store";
@@ -20,7 +21,8 @@ export const useSidebarToggleClassName = () =>
     ? SIDEBAR_TOGGLE_OVER_PANEL
     : "duration-200 ease-linear";
 
-export function ContextualLayersPanel() {
+// Children are map controls drawn in a row after the trigger, so the panel covers them too.
+export function ContextualLayersPanel({ children }: Readonly<{ children?: React.ReactNode }>) {
   const [open, setOpen] = useAtom(contextualLayersPanelOpenAtom);
   const [visibleLayers, setLayerVisible] = useContextualLayers();
   const { state } = useSidebar();
@@ -43,20 +45,38 @@ export function ContextualLayersPanel() {
 
   return (
     <>
-      <Button
-        ref={triggerRef}
-        aria-expanded={open}
-        aria-controls={panelId}
+      <div
         inert={open}
-        onClick={() => setOpen(true)}
         className={cn(
-          "fixed top-4 z-4 hidden h-10 rounded-[4px] px-4 font-normal text-slate-700 shadow-none transition-[left,background-color] duration-200 ease-linear md:inline-flex",
-          collapsed ? "left-[6.125rem]" : "left-[calc(6.125rem+var(--sidebar-width))]",
+          "fixed top-4 right-4 z-4 flex items-center gap-2 transition-[left] duration-200 ease-linear md:right-auto",
+          collapsed ? "md:left-[6.125rem]" : "md:left-[calc(6.125rem+var(--sidebar-width))]",
         )}
       >
-        <LucideLayers aria-hidden />
-        Contextual Layers
-      </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              ref={triggerRef}
+              variant="ghost"
+              aria-label="Contextual layers"
+              aria-expanded={open}
+              aria-controls={panelId}
+              onClick={() => setOpen(true)}
+              className="hidden size-10 rounded-[4px] bg-slate-50 p-0 text-slate-700 hover:bg-slate-200 hover:text-slate-700 md:inline-flex"
+            >
+              <LucideLayers aria-hidden />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent
+            side="bottom"
+            align="start"
+            className="rounded-[4px] border border-slate-300 bg-slate-50 text-sm leading-5 text-slate-700 shadow-md"
+            arrowClassName="bg-transparent fill-transparent"
+          >
+            Contextual layers
+          </TooltipContent>
+        </Tooltip>
+        {children}
+      </div>
 
       {/* Stacked under the sidebar (z-10) so it slides out from behind it, and over the trigger. */}
       <section
