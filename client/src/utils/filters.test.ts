@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { filterAreas, filterByAreaName } from "@/utils/filters";
 import { NO_AREA_FILTERS } from "@/containers/main/store";
+import { AREA_SIZE_VALUES } from "@/lib/area-sizes";
 import { Area } from "@/containers/main/table/columns";
 
 const area = (name: string) => ({ name }) as Area;
@@ -68,5 +69,39 @@ describe("filterAreas", () => {
         region: ["northern-shelf", "strait-of-georgia"],
       }),
     ).toEqual([spanning, located("Gulf", ["Strait of Georgia"])]);
+  });
+
+  describe("size", () => {
+    const sized = (name: string, area_km2: number | null) => ({ name, area_km2 }) as Area;
+    const sizedAreas = [
+      sized("Small", 1.99),
+      sized("Lower edge", 2),
+      sized("Upper edge", 10),
+      sized("Large", 250),
+      sized("Unknown", null),
+    ];
+
+    it("keeps areas in any selected range, comparing km² as hectares", () => {
+      expect(filterAreas(sizedAreas, { ...NO_AREA_FILTERS, size: ["lt200", "gt1000"] })).toEqual([
+        sized("Small", 1.99),
+        sized("Upper edge", 10),
+        sized("Large", 250),
+      ]);
+    });
+
+    it("includes the lower bound and excludes the upper bound", () => {
+      expect(filterAreas(sizedAreas, { ...NO_AREA_FILTERS, size: ["200-500"] })).toEqual([
+        sized("Lower edge", 2),
+      ]);
+      expect(filterAreas(sizedAreas, { ...NO_AREA_FILTERS, size: ["500-1000"] })).toEqual([]);
+    });
+
+    it("hides areas without a size only while a size is selected", () => {
+      const all = AREA_SIZE_VALUES.slice();
+      expect(filterAreas(sizedAreas, { ...NO_AREA_FILTERS, size: all })).not.toContainEqual(
+        sized("Unknown", null),
+      );
+      expect(filterAreas(sizedAreas, NO_AREA_FILTERS)).toContainEqual(sized("Unknown", null));
+    });
   });
 });
