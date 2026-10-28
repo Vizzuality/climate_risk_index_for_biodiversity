@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { LucideDroplet, LucideEye, LucideEyeOff, LucideX } from "lucide-react";
 
+import { GovernanceTypesLegend } from "@/containers/map/legend/governance-types";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Slider } from "@/components/ui/slider";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -87,7 +88,9 @@ export function LegendItem({
           )}
         </div>
       </div>
-      {legend.type === "discrete" ? <DiscreteLegend /> : <CategoriesLegend items={legend.items} />}
+      {legend.type === "discrete" && <DiscreteLegend />}
+      {legend.type === "governance-types" && <GovernanceTypesLegend />}
+      {legend.type === "categories" && <CategoriesLegend items={legend.items} />}
     </li>
   );
 }
