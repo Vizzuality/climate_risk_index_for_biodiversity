@@ -3,6 +3,7 @@ import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-r
 import "@fontsource/red-hat-display/400.css";
 import "@fontsource/red-hat-display/500.css";
 import "@fontsource/red-hat-display/600.css";
+import "@fontsource/red-hat-display/700.css";
 import "@fontsource/red-hat-display/900.css";
 import appCss from "@/styles/globals.css?url";
 

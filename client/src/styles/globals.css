@@ -5,6 +5,40 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* The attribution and the scale share one bar. Mapbox prepends bottom controls, so the scale
+   added after the map's attribution comes first and row-reverse puts it on the right. */
+.mapboxgl-ctrl-bottom-right {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: 16px;
+  padding: 2px 5px;
+  background-color: rgb(0 0 0 / 0.2);
+  backdrop-filter: blur(2px);
+}
+
+.mapboxgl-ctrl-bottom-right .mapboxgl-ctrl {
+  float: none;
+  margin: 0;
+}
+
+.mapboxgl-ctrl.mapboxgl-ctrl-attrib {
+  padding: 0;
+  background-color: transparent;
+  font-size: 11px;
+  color: white;
+}
+
+.mapboxgl-ctrl-attrib a,
+.mapboxgl-ctrl-attrib a:hover {
+  color: white;
+  text-decoration: underline;
+}
+
+.mapboxgl-ctrl-attrib .mapbox-improve-map {
+  font-weight: inherit;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
