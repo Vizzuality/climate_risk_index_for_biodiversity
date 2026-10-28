@@ -5,6 +5,7 @@ import {
   type AreaFilters,
   isAreaFilterActive,
 } from "@/containers/main/store";
+import { AREA_SIZES, isInAreaSize } from "@/lib/area-sizes";
 import { BIOREGIONS } from "@/lib/bioregions";
 import { PROTECTION_TYPES } from "@/lib/protection-types";
 
@@ -28,6 +29,9 @@ const AREA_FILTER_PREDICATES: AreaFilterPredicates = {
     BIOREGIONS.some(
       (bioregion) => values.includes(bioregion.value) && area.regions.includes(bioregion.region),
     ),
+  size: ({ area_km2 }, values) =>
+    area_km2 !== null &&
+    AREA_SIZES.some((size) => values.includes(size.value) && isInAreaSize(area_km2, size)),
 };
 
 export const hasActiveAreaFilters = (filters: AreaFilters) =>

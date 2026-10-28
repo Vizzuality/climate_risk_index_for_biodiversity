@@ -12,13 +12,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { AREA_SIZES } from "@/lib/area-sizes";
 import { BIOREGIONS } from "@/lib/bioregions";
 import { PROTECTION_TYPES } from "@/lib/protection-types";
 import { cn } from "@/lib/utils";
 import { type AreaFilters, NO_AREA_FILTERS, useAreaFilters } from "@/containers/main/store";
 
-const SIZE_OPTIONS = ["<200Ha", "200-500Ha", "500-1000Ha", ">1000Ha"];
-const DEPTH_OPTIONS = ["100m", "200m", "1000m", "4000m"];
+const DEPTH_OPTIONS = ["100m", "200m", "1000m", "4000m"].map((depth) => ({
+  value: depth,
+  label: depth,
+}));
 
 const BUTTON_CLASSES = "h-9 rounded-[4px] font-normal text-slate-700";
 
@@ -42,26 +45,43 @@ function ComboboxField<T extends string>({ label, ...props }: ComboboxFieldProps
 
 const NO_OPTIONS = { options: [], value: [], onChange: () => {}, disabled: true } as const;
 
-type CheckboxFieldProps = Readonly<{ label: string; options: string[] }>;
+type CheckboxFieldProps<T extends string> = Readonly<{
+  label: string;
+  options: readonly { value: T; label: string }[];
+  value: readonly T[];
+  onChange: (value: T[]) => void;
+  disabled?: boolean;
+}>;
 
-function CheckboxField({ label, options }: CheckboxFieldProps) {
+function CheckboxField<T extends string>({
+  label,
+  options,
+  value,
+  onChange,
+  disabled,
+}: CheckboxFieldProps<T>) {
   const id = useId();
+  const toggle = (option: T, checked: boolean) =>
+    onChange(checked ? [...value, option] : value.filter((selected) => selected !== option));
+
   return (
     <fieldset className="flex flex-col gap-1">
       <legend className={cn(FIELD_LABEL_CLASSES, "mb-1")}>{label}</legend>
       <div className="flex flex-wrap gap-x-8 gap-y-2">
         {options.map((option) => (
-          <div key={option} className="flex items-center gap-2">
+          <div key={option.value} className="flex items-center gap-2">
             <Checkbox
-              id={`${id}-${option}`}
-              disabled
+              id={`${id}-${option.value}`}
+              disabled={disabled}
+              checked={value.includes(option.value)}
+              onCheckedChange={(checked) => toggle(option.value, checked === true)}
               className="border-primary bg-slate-50 shadow-none"
             />
             <label
-              htmlFor={`${id}-${option}`}
+              htmlFor={`${id}-${option.value}`}
               className="text-sm text-slate-700 peer-disabled:opacity-50"
             >
-              {option}
+              {option.label}
             </label>
           </div>
         ))}
@@ -115,8 +135,17 @@ export function FiltersModal() {
             onChange={(region) => setDraft((prev) => ({ ...prev, region }))}
           />
           <ComboboxField label="Species" placeholder="Select species" {...NO_OPTIONS} />
-          <CheckboxField label="Size" options={SIZE_OPTIONS} />
-          <CheckboxField label="Seafloor depth and topography" options={DEPTH_OPTIONS} />
+          <CheckboxField
+            label="Size"
+            options={AREA_SIZES}
+            value={draft.size}
+            onChange={(size) => setDraft((prev) => ({ ...prev, size }))}
+          />
+          <CheckboxField
+            label="Seafloor depth and topography"
+            {...NO_OPTIONS}
+            options={DEPTH_OPTIONS}
+          />
         </div>
 
         <div className="flex items-center justify-end gap-4">

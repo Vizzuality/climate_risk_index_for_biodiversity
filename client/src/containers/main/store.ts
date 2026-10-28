@@ -1,5 +1,6 @@
 import { type SearchSchemaInput, useNavigate, useSearch } from "@tanstack/react-router";
 
+import { AREA_SIZE_VALUES } from "@/lib/area-sizes";
 import { BIOREGION_VALUES } from "@/lib/bioregions";
 import { PROTECTION_TYPE_VALUES } from "@/lib/protection-types";
 import { multiValue, type SearchCodec } from "@/lib/search-params";
@@ -10,6 +11,7 @@ import { multiValue, type SearchCodec } from "@/lib/search-params";
 const AREA_FILTER_CODECS = {
   protection: multiValue(PROTECTION_TYPE_VALUES, ["mca"]),
   region: multiValue(BIOREGION_VALUES),
+  size: multiValue(AREA_SIZE_VALUES),
 };
 
 type AreaFilterCodecs = typeof AREA_FILTER_CODECS;
