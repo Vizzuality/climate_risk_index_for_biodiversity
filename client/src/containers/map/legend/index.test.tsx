@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import {
   createMemoryHistory,
@@ -10,6 +10,8 @@ import {
 import { MapLegend } from "@/containers/map/legend";
 import { stringifySearch } from "@/lib/search-params";
 import { rootSearch } from "@/store";
+
+vi.mock("@/hooks/use-areas", () => ({ useAreas: () => ({ data: undefined, isPending: true }) }));
 
 function renderAt(path: string) {
   const rootRoute = createRootRoute({ ...rootSearch, component: MapLegend });

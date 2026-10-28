@@ -1,11 +1,22 @@
 import { useMemo } from "react";
 import { Layer, type LayerProps } from "react-map-gl/mapbox";
+import type { ExpressionSpecification } from "mapbox-gl";
 import { useParams } from "@tanstack/react-router";
 import { AREAS_SOURCE_ID, AREAS_SOURCE_LAYER } from "@/containers/map/layers/areas-source";
 import { useFilteredAreas } from "@/hooks/use-filtered-areas";
-import { AREAS_OUTLINE_COLOR, BASEMAP_BOUNDARIES_LAYER_ID } from "@/lib/map-layers";
+import { BASEMAP_BOUNDARIES_LAYER_ID } from "@/lib/map-layers";
+import { PROTECTION_TYPES } from "@/lib/protection-types";
 
 const AREA_ID = ["to-string", ["get", "id"]];
+
+const GOVERNANCE_TYPE_COLOR = [
+  "match",
+  ["get", "governance_type"],
+  ...PROTECTION_TYPES.flatMap((type) => [type.governanceType, type.color]),
+  "transparent",
+] as ExpressionSpecification;
+
+const AREA_FILL_OPACITY = 0.12;
 
 export const WDPALayer = ({
   visible,
@@ -32,9 +43,8 @@ export const WDPALayer = ({
         layout={layout}
         beforeId={BASEMAP_BOUNDARIES_LAYER_ID}
         paint={{
-          "fill-color": "transparent",
-          "fill-outline-color": "#EAF3ED",
-          "fill-opacity": opacity,
+          "fill-color": GOVERNANCE_TYPE_COLOR,
+          "fill-opacity": AREA_FILL_OPACITY * opacity,
         }}
         {...selected}
       />
@@ -47,37 +57,8 @@ export const WDPALayer = ({
         layout={layout}
         beforeId={BASEMAP_BOUNDARIES_LAYER_ID}
         paint={{
-          "line-color": "#1e3152",
-          "line-opacity": opacity,
-        }}
-        {...selected}
-      />
-
-      <Layer
-        id="wdpa-layer-outline-left"
-        type="line"
-        source-layer={AREAS_SOURCE_LAYER}
-        source={AREAS_SOURCE_ID}
-        layout={layout}
-        beforeId={BASEMAP_BOUNDARIES_LAYER_ID}
-        paint={{
-          "line-color": AREAS_OUTLINE_COLOR,
-          "line-offset": -1,
-          "line-opacity": opacity,
-        }}
-        {...selected}
-      />
-
-      <Layer
-        id="wdpa-layer-outline-right"
-        type="line"
-        source-layer={AREAS_SOURCE_LAYER}
-        source={AREAS_SOURCE_ID}
-        layout={layout}
-        beforeId={BASEMAP_BOUNDARIES_LAYER_ID}
-        paint={{
-          "line-color": AREAS_OUTLINE_COLOR,
-          "line-offset": 1,
+          "line-color": GOVERNANCE_TYPE_COLOR,
+          "line-width": 1.5,
           "line-opacity": opacity,
         }}
         {...selected}

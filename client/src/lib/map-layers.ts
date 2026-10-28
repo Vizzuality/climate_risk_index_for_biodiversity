@@ -4,7 +4,6 @@
 export const BASEMAP_LAND_FILL_LAYER_ID = "country-land";
 export const BASEMAP_BOUNDARIES_LAYER_ID = "admin-1-boundary-bg";
 
-export const AREAS_OUTLINE_COLOR = "#5eead4";
 export const BIOREGIONS_OUTLINE_COLOR = "#ec9427";
 // Darker than the raster's orange classes, which the outline colour blends into.
 export const BIOREGIONS_HIGHLIGHT_COLOR = "#b45309";
@@ -15,6 +14,7 @@ export type LegendSwatch = { label: string; color: string; shape: "outline" | "f
 
 export type MapLayerLegend =
   | { type: "discrete" }
+  | { type: "governance-types" }
   | { type: "categories"; items: readonly LegendSwatch[] };
 
 // Top to bottom in the order the map draws them.
@@ -30,10 +30,7 @@ export const MAP_LAYERS = [
   {
     value: "areas",
     label: "Conservation areas",
-    legend: {
-      type: "categories",
-      items: [{ label: "Conservation area", color: AREAS_OUTLINE_COLOR, shape: "outline" }],
-    },
+    legend: { type: "governance-types" },
   },
   {
     value: "bioregions",
