@@ -23,7 +23,7 @@ export default function AreaPeerComparison() {
       <h3 className="text-slate-700 font-semibold text-[20px]">Comparison</h3>
       <p className="text-slate-700">
         Overall climate risk of the area against the average of the other areas in the same
-        bioregion and of the same protection type.
+        bioregion and of the same governance type.
       </p>
       <Table className="table-fixed">
         <TableBody>

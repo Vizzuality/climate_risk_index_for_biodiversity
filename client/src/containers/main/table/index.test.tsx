@@ -162,7 +162,7 @@ describe("DataTable", () => {
   it("writes the applied protection types to the URL", async () => {
     const router = renderTable("/areas?q=a&protection=");
     fireEvent.click(await screen.findByRole("button", { name: "Filters" }));
-    fireEvent.click(await screen.findByRole("button", { name: "Type of protection" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Governance type" }));
     fireEvent.click(await screen.findByRole("option", { name: "Area of Interest" }));
     fireEvent.click(screen.getByRole("option", { name: "Marine Conserved Area" }));
     fireEvent.keyDown(document.activeElement ?? document.body, { key: "Escape" });

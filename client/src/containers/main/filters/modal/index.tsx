@@ -120,8 +120,8 @@ export function FiltersModal() {
 
         <div className="flex flex-col gap-6">
           <ComboboxField
-            label="Type of protection"
-            placeholder="Select type of protection"
+            label="Governance type"
+            placeholder="Select governance type"
             options={PROTECTION_TYPES}
             value={draft.protection}
             onChange={(protection) => setDraft((prev) => ({ ...prev, protection }))}
