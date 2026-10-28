@@ -3,10 +3,10 @@ import ReactMapGL, { Popup } from "react-map-gl/mapbox";
 
 import type { MapRef } from "react-map-gl/mapbox";
 
-import "mapbox-gl/dist/mapbox-gl.css";
 import type { MapEvent, MapMouseEvent } from "mapbox-gl";
 import { useMatchRoute, useNavigate, useParams } from "@tanstack/react-router";
 
+import { ScaleBar } from "@/components/map/scale-bar";
 import { useAreas } from "@/hooks/use-areas";
 import { useFilteredAreas } from "@/hooks/use-filtered-areas";
 import { clampBbox, unionBbox } from "@/lib/bbox";
@@ -148,6 +148,7 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
       onDragEnd={() => setCursor(undefined)}
     >
       <>
+        <ScaleBar position="bottom-right" />
         {children}
         {popup && (
           <Popup longitude={popup.lngLat.lng} latitude={popup.lngLat.lat} closeButton={false}>
