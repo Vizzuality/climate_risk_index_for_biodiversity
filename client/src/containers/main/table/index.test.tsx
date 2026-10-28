@@ -168,7 +168,7 @@ describe("DataTable", () => {
     fireEvent.keyDown(document.activeElement ?? document.body, { key: "Escape" });
     fireEvent.click(await screen.findByRole("button", { name: "Apply Filters" }));
 
-    await waitFor(() => expect(router.state.location.href).toBe("/areas?q=a&protection=mca,aoi"));
+    await waitFor(() => expect(router.state.location.href).toBe("/areas?q=a&protection=aoi,mca"));
     expect(areaOrder()).toEqual(["Alpha", "Charlie"]);
   });
 
