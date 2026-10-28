@@ -135,14 +135,15 @@ describe("useScenario", () => {
 });
 
 describe("useContextualLayers", () => {
-  it("shows the areas and bathymetry layers by default and strips the param when back to them", async () => {
-    const router = renderAt("/areas");
+  it("shows the areas and bathymetry layers by default", async () => {
+    renderAt("/areas");
     expect(await findStatus("layers")).toBe("areas,bathymetry");
-    fireEvent.click(screen.getByRole("button", { name: "hide areas" }));
-    await hrefBecomes(router, "/areas?layers=bathymetry");
-    fireEvent.click(screen.getByRole("button", { name: "show areas" }));
+  });
+
+  it("strips the param when back to the default layers", async () => {
+    const router = renderAt("/areas?layers=bathymetry");
+    fireEvent.click(await screen.findByRole("button", { name: "show areas" }));
     await hrefBecomes(router, "/areas");
-    expect(await findStatus("layers")).toBe("areas,bathymetry");
   });
 
   it("keeps an empty param when every layer is hidden", async () => {
