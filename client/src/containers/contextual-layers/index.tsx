@@ -85,7 +85,7 @@ export function ContextualLayersPanel() {
               <LucideX aria-hidden />
             </Button>
           </div>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-slate-500">
             Show or hide the layers drawn on the map. Your selection is kept in the link, so shared
             maps open with the same layers.
           </p>

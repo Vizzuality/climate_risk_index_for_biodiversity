@@ -61,7 +61,7 @@ const IndicatorCell = ({ indicators }: { indicators: Area["indicator"] }) => {
       {hasData ? (
         <RiskIndexChart range={{ min: 0, max: 1 }} values={climVuln.scenario} />
       ) : (
-        <p className="flex h-6 items-center justify-center text-xs text-slate-400">No data</p>
+        <p className="flex h-6 items-center justify-center text-xs text-slate-500">No data</p>
       )}
     </div>
   );
@@ -71,7 +71,7 @@ const speciesFormatter = new Intl.NumberFormat("en-US", { maximumFractionDigits:
 
 const SpeciesCell = ({ count }: { count: number | null }) =>
   count === null ? (
-    <p className="text-center text-xs text-slate-400">No data</p>
+    <p className="text-center text-xs text-slate-500">No data</p>
   ) : (
     <p className="text-center text-xs leading-4 tracking-[0.24px] text-slate-700">
       {speciesFormatter.format(count)}

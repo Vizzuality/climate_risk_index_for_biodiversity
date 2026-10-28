@@ -42,7 +42,7 @@ export function SortButton<TData extends RowData, TValue>({
               ? column.getToggleSortingHandler()
               : () => column.toggleSorting(nextDesc)
           }
-          className="cursor-pointer after:absolute after:inset-0 after:rounded-sm focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-slate-400"
+          className="cursor-pointer after:absolute after:inset-0 after:rounded-sm focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-slate-500"
         >
           {children}
         </button>

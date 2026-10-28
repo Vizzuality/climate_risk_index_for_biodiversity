@@ -33,8 +33,8 @@ type AreasSearchProps = Readonly<{
 
 function AreasSearch({ isPending, isError, isEmpty, query, onQueryChange }: AreasSearchProps) {
   if (isPending) return <Skeleton className="h-64 w-full" />;
-  if (isError) return <p className="text-sm text-slate-400">The areas couldn’t be loaded.</p>;
-  if (isEmpty) return <p className="text-sm text-slate-400">No areas for this scenario.</p>;
+  if (isError) return <p className="text-sm text-slate-500">The areas couldn’t be loaded.</p>;
+  if (isEmpty) return <p className="text-sm text-slate-500">No areas for this scenario.</p>;
 
   return (
     <div className="relative">
@@ -87,7 +87,7 @@ export default function SpeciesAreas({ speciesId }: Readonly<{ speciesId: number
       />
       {areas.length > 0 &&
         (matches.length === 0 ? (
-          <p className="text-sm text-slate-400">No areas match “{deferredQuery.trim()}”.</p>
+          <p className="text-sm text-slate-500">No areas match “{deferredQuery.trim()}”.</p>
         ) : (
           <Table>
             <TableBody>

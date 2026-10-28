@@ -21,7 +21,7 @@ export function ScenarioScores({ scores }: Readonly<{ scores: Scores }>) {
           <span key={scenario} className="flex items-center gap-1">
             <span
               title={label}
-              className="flex size-4 items-center justify-center rounded-[4px] bg-slate-400 text-[10px] font-semibold text-white"
+              className="flex size-4 items-center justify-center rounded-[4px] bg-slate-500 text-[10px] font-semibold text-white"
             >
               <span aria-hidden>{tag}</span>
               <span className="sr-only">{label}</span>
