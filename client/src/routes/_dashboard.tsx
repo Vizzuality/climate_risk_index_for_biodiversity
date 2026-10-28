@@ -23,11 +23,12 @@ function DashboardLayout() {
             <Outlet />
           </DashboardSidebar>
         </div>
-        <ContextualLayersPanel />
+        <ContextualLayersPanel>
+          <ScenarioToggle />
+        </ContextualLayersPanel>
         <div className="h-screen w-full">
           <ClientOnly fallback={null}>
             <MapView>
-              <ScenarioToggle />
               <MapLegend />
               <LayerManager />
             </MapView>
