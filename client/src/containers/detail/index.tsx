@@ -1,6 +1,7 @@
 import Intro from "@/containers/detail/intro";
 import AreaStats from "@/containers/detail/stats";
 import ClimateRiskChart from "@/containers/detail/climate-risk-chart";
+import AreaPeerComparison from "@/containers/detail/area-peer-comparison";
 import AreaSpecies from "@/containers/detail/species";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "@tanstack/react-router";
@@ -37,6 +38,7 @@ export default function Detail() {
       <Intro />
       <AreaStats />
       <ClimateRiskChart indicator={area.indicator} />
+      <AreaPeerComparison />
       {/* Keyed so the search and "Show all" reset when another area opens */}
       <AreaSpecies key={area.id} />
     </div>
