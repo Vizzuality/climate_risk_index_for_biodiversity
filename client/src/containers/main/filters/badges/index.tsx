@@ -1,9 +1,8 @@
-import { CircleXIcon } from "lucide-react";
-
 import { AREA_SIZES } from "@/lib/area-sizes";
 import { BIOREGIONS } from "@/lib/bioregions";
 import { DEPTH_TIERS } from "@/lib/depth-tiers";
 import { PROTECTION_TYPES } from "@/lib/protection-types";
+import { FilterBadgeList } from "@/containers/main/filters/badges/list";
 import { useSpeciesOptions } from "@/containers/main/filters/species-options";
 import {
   AREA_FILTER_KEYS,
@@ -35,29 +34,11 @@ export function FilterBadges() {
       .map((option) => ({ key, ...option })),
   );
 
-  if (!badges.length) return null;
-
   const remove = (key: AreaFilterKey, value: string) =>
     applyFilters({
       ...filters,
       [key]: selectedValues(filters, key).filter((selected) => selected !== value),
     } as AreaFilters);
 
-  return (
-    <ul aria-label="Applied filters" className="flex flex-wrap gap-2">
-      {badges.map(({ key, value, label }) => (
-        <li key={`${key}-${value}`}>
-          <button
-            type="button"
-            aria-label={`Remove ${label} filter`}
-            onClick={() => remove(key, value)}
-            className="flex cursor-pointer items-center gap-2 rounded-3xl bg-teal-200 px-2.5 py-1 text-xs leading-4 text-teal-950 focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
-          >
-            {label}
-            <CircleXIcon aria-hidden className="size-3 text-slate-700" strokeWidth={2.4} />
-          </button>
-        </li>
-      ))}
-    </ul>
-  );
+  return <FilterBadgeList badges={badges} onRemove={remove} />;
 }

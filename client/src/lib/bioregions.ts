@@ -21,3 +21,8 @@ export const BIOREGIONS = BIOREGION_REGIONS.map((bioregion) => ({
 }));
 
 export const BIOREGION_VALUES = BIOREGIONS.map((bioregion) => bioregion.value);
+
+export const isInBioregions = (regions: readonly string[], bioregions: readonly Bioregion[]) =>
+  BIOREGIONS.some(
+    (bioregion) => bioregions.includes(bioregion.value) && regions.includes(bioregion.region),
+  );
