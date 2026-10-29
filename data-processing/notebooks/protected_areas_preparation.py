@@ -43,11 +43,25 @@ def _():
     from difflib import SequenceMatcher
 
     import geopandas as gpd
+    import numpy as np
     import pandas as pd
+    import rasterio
     import requests
     from bs4 import BeautifulSoup
+    from rasterio.mask import mask
 
-    return BeautifulSoup, SequenceMatcher, gpd, json, pd, requests, unicodedata
+    return (
+        BeautifulSoup,
+        SequenceMatcher,
+        gpd,
+        json,
+        mask,
+        np,
+        pd,
+        rasterio,
+        requests,
+        unicodedata,
+    )
 
 
 @app.cell
@@ -87,6 +101,14 @@ def _(mo):
         DATA_DIR / "01_raw" / "EasternCanadaMarineSpatialPlanningAreas_shp.zip"
     )
 
+    # GEBCO 2026 bathymetry grid (elevation in metres, negative below sea level)
+    GEBCO_PATH = (
+        DATA_DIR
+        / "01_raw"
+        / "GEBCO_10_Sep_2026_834d68139e19"
+        / "gebco_2026_n90.0_s20.0_w-170.0_e-40.0_geotiff.tif"
+    )
+
     # Output
     MERGED_OUTPUT_PATH = (
         DATA_DIR / "02_intermediate" / "marine_conservation_areas_merged.gpkg"
@@ -111,6 +133,7 @@ def _(mo):
         DFO_URL,
         EASTERN_CANADA_PATH,
         EBSA_PATH,
+        GEBCO_PATH,
         MERGED_OUTPUT_PATH,
         MERGED_WITH_REGIONS_PATH,
     )
@@ -578,8 +601,61 @@ def _(
     return (gdf_boundaries,)
 
 
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## Depth Tiers
+
+    Flag the depth tiers present in each area's seafloor, from [GEBCO 2026](https://www.gebco.net/data-and-products/gridded-bathymetry-data) (~460 m cells):
+    0–100 m, 100–200 m, 200–1000 m and >1000 m. An area can span several tiers.
+
+    Areas smaller than a GEBCO cell (coastal marshes, estuaries) can hold no below-sea-level cell; they are flagged as 0–100 m.
+    """)
+    return
+
+
 @app.cell
-def _(MERGED_WITH_REGIONS_PATH, gdf_boundaries, gdf_merged, gpd, json):
+def _(GEBCO_PATH, gdf_merged, mask, np, pd, rasterio):
+    # Depth tiers present in the seafloor of each feature
+    DEPTH_TIERS = {
+        "depth_0_100": (0, 100),
+        "depth_100_200": (100, 200),
+        "depth_200_1000": (200, 1000),
+        "depth_1000_plus": (1000, np.inf),
+    }
+
+    def _tiers_present(src, geom):
+        # Fall back to touched cells for features too small to hold a cell centre
+        for all_touched in (False, True):
+            band, _ = mask(
+                src, [geom], crop=True, filled=False, all_touched=all_touched
+            )
+            depth = -band.compressed().astype("float32")
+            depth = depth[depth > 0]
+            if depth.size:
+                return {
+                    tier: bool(((depth >= lo) & (depth < hi)).any())
+                    for tier, (lo, hi) in DEPTH_TIERS.items()
+                }
+        return {tier: tier == "depth_0_100" for tier in DEPTH_TIERS}
+
+    with rasterio.open(GEBCO_PATH) as src:
+        depth_tiers = pd.DataFrame(
+            [_tiers_present(src, g) for g in gdf_merged.geometry.to_crs(src.crs)],
+            index=gdf_merged.index,
+        )
+    return (depth_tiers,)
+
+
+@app.cell
+def _(
+    MERGED_WITH_REGIONS_PATH,
+    depth_tiers,
+    gdf_boundaries,
+    gdf_merged,
+    gpd,
+    json,
+):
     # Assign marine bioregion(s) to each feature via spatial join
     gdf_bounds_proj = gdf_boundaries.to_crs(gdf_merged.crs)  # type: ignore[assignment]
     joined = gpd.sjoin(
@@ -595,7 +671,9 @@ def _(MERGED_WITH_REGIONS_PATH, gdf_boundaries, gdf_merged, gpd, json):
     # JSON string `[xmin, ymin, xmax, ymax]`: GPKG and MVT have no array type
     bounds = gdf_merged.geometry.to_crs("EPSG:4326").bounds
     bbox = [json.dumps(b) for b in bounds.values.tolist()]
-    gdf_with_regions = gdf_merged.assign(region=region_agg.fillna(""), bbox=bbox)
+    gdf_with_regions = gdf_merged.assign(region=region_agg.fillna(""), bbox=bbox).join(
+        depth_tiers
+    )
     gdf_with_regions.to_file(MERGED_WITH_REGIONS_PATH, driver="GPKG")
     return
 
