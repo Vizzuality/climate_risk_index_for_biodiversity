@@ -1,8 +1,12 @@
 import { useEffect } from "react";
 import { useMap } from "react-map-gl/mapbox";
 
-// A layer of the basemap style, hidden there, so the contours keep the style's design.
-const DEPTH_STYLE_LAYER_ID = "Depth";
+// Layers of the basemap style, hidden there, so the contours and their depth labels keep the
+// style's design.
+const DEPTH_STYLE_LAYERS = [
+  { id: "Depth lines", opacityProperty: "line-opacity" },
+  { id: "Depth text", opacityProperty: "text-opacity" },
+] as const;
 
 export const BathymetryLayer = ({
   visible,
@@ -14,18 +18,20 @@ export const BathymetryLayer = ({
     const map = mapRef?.getMap();
     if (!map) return;
     const apply = () => {
-      if (!map.getLayer(DEPTH_STYLE_LAYER_ID)) return;
-      map.setLayoutProperty(DEPTH_STYLE_LAYER_ID, "visibility", visible ? "visible" : "none");
-      // Mirrors the style's zoom fade-in: a zoom expression can't be wrapped to scale it.
-      map.setPaintProperty(DEPTH_STYLE_LAYER_ID, "line-opacity", [
-        "interpolate",
-        ["linear"],
-        ["zoom"],
-        0,
-        0,
-        4,
-        opacity,
-      ]);
+      for (const { id, opacityProperty } of DEPTH_STYLE_LAYERS) {
+        if (!map.getLayer(id)) continue;
+        map.setLayoutProperty(id, "visibility", visible ? "visible" : "none");
+        // Mirrors the style's zoom fade-in: a zoom expression can't be wrapped to scale it.
+        map.setPaintProperty(id, opacityProperty, [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          0,
+          0,
+          4,
+          opacity,
+        ]);
+      }
     };
     apply();
     map.on("styledata", apply);
