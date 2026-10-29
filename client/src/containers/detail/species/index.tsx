@@ -18,6 +18,7 @@ import { useAreaSpecies } from "@/hooks/use-area-species";
 import { useSelectedArea } from "@/hooks/use-selected-area";
 import { filterSpecies } from "@/lib/area-species";
 import { withScenarioScores } from "@/lib/scenario-scores";
+import { formatCommonName } from "@/lib/species";
 import { useScenario } from "@/store";
 
 // Areas hold hundreds to thousands of species; the rest are behind "Show all".
@@ -96,7 +97,9 @@ export default function AreaSpecies() {
                       params={{ speciesId: String(species_id) }}
                       className="block hover:underline"
                     >
-                      {common_name && <span className="block capitalize">{common_name}</span>}
+                      {common_name && (
+                        <span className="block">{formatCommonName(common_name)}</span>
+                      )}
                       <span className="block italic text-slate-500">{scientific_name}</span>
                     </Link>
                   </TableCell>

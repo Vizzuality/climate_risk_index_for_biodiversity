@@ -5,7 +5,7 @@ import type { DataTableFeatures } from "@/containers/main/table/features";
 import { RiskClassesInfo } from "@/containers/main/table/risk-classes-info";
 import { RiskIndexChart } from "@/containers/main/table/risk-index-chart";
 import { SortButton } from "@/containers/main/table/sort-button";
-import { type Species, speciesName } from "@/lib/species";
+import { formatCommonName, type Species, speciesName } from "@/lib/species";
 import type { SCENARIO } from "@/types";
 
 const NameCell = ({ species }: { species: Species }) => (
@@ -17,7 +17,7 @@ const NameCell = ({ species }: { species: Species }) => (
   >
     <span className="min-w-0">
       {species.common_name && (
-        <span className="block truncate first-letter:uppercase">{species.common_name}</span>
+        <span className="block truncate">{formatCommonName(species.common_name)}</span>
       )}
       <span className="block truncate italic text-slate-500">{species.scientific_name}</span>
     </span>

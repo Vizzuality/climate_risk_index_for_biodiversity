@@ -12,10 +12,10 @@ export default function SpeciesIntro({ species }: Readonly<{ species: SpeciesDet
           Species
         </Link>
         <span className="text-slate-500 text-base">{">"}</span>
-        <span className="truncate text-slate-700 italic first-letter:uppercase">{name}</span>
+        <span className="truncate text-slate-700 italic">{name}</span>
       </div>
       <div>
-        <h2 className="text-2xl text-slate-700 font-semibold first-letter:uppercase">{name}</h2>
+        <h2 className="text-2xl text-slate-700 font-semibold">{name}</h2>
         {species.common_name && <p className="italic text-slate-500">{species.scientific_name}</p>}
       </div>
       <p className="text-slate-500 mt-4">

@@ -39,9 +39,12 @@ const climateRisk = (row: SpeciesQueryRow): IndicatorStats => ({
   max: row.ClimVuln_max,
 });
 
+// Common names come all lowercase from the source.
+export const formatCommonName = (name: string) => name.charAt(0).toUpperCase() + name.slice(1);
+
 // The name a species is listed and sorted by.
 export const speciesName = (species: Pick<Species, "common_name" | "scientific_name">) =>
-  species.common_name ?? species.scientific_name;
+  species.common_name ? formatCommonName(species.common_name) : species.scientific_name;
 
 export function buildSpecies(rows: SpeciesQueryRow[]): Species[] {
   const rowsById = new Map<number, Partial<Record<SCENARIO, SpeciesQueryRow>>>();

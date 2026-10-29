@@ -3,6 +3,7 @@ import { INDICATOR_COLUMNS } from "@/lib/indicators";
 import {
   buildSpecies,
   buildSpeciesDetail,
+  formatCommonName,
   speciesName,
   type SpeciesDetailQueryRow,
   type SpeciesQueryRow,
@@ -38,9 +39,15 @@ describe("buildSpecies", () => {
   });
 });
 
+describe("formatCommonName", () => {
+  it("uppercases only the first letter", () => {
+    expect(formatCommonName("reticulated turretsnail")).toBe("Reticulated turretsnail");
+  });
+});
+
 describe("speciesName", () => {
   it("prefers the common name", () => {
-    expect(speciesName({ common_name: "Beluga", scientific_name: "Delphinapterus leucas" })).toBe(
+    expect(speciesName({ common_name: "beluga", scientific_name: "Delphinapterus leucas" })).toBe(
       "Beluga",
     );
     expect(speciesName({ common_name: null, scientific_name: "Proclea graffii" })).toBe(
