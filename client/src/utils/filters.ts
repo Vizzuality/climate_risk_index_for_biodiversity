@@ -37,6 +37,7 @@ const AREA_FILTER_PREDICATES: AreaFilterPredicates = {
   size: ({ area_km2 }, values) =>
     area_km2 !== null &&
     AREA_SIZES.some((size) => values.includes(size.value) && isInAreaSize(area_km2, size)),
+  depth: ({ depth_tiers }, values) => depth_tiers.some((tier) => values.includes(tier)),
 };
 
 export const hasActiveAreaFilters = (filters: AreaFilters) =>

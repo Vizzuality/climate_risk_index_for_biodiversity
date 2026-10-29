@@ -6,6 +6,7 @@ import { RiskClassesInfo } from "@/containers/main/table/risk-classes-info";
 import { RiskIndexChart } from "@/containers/main/table/risk-index-chart";
 import { SortButton } from "@/containers/main/table/sort-button";
 import { formatAreaName } from "@/lib/area-name";
+import type { DepthTier } from "@/lib/depth-tiers";
 import type { SCENARIO } from "@/types";
 
 export type IndicatorStats = {
@@ -28,6 +29,7 @@ export type Area = {
   area_km2: number | null;
   assessed_species: number | null;
   regions: string[];
+  depth_tiers: DepthTier[];
   bbox: [number, number, number, number] | null;
   indicator: {
     name: string;

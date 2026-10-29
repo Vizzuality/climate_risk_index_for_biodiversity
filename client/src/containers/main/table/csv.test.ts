@@ -20,6 +20,7 @@ const area: Area = {
   area_km2: null,
   assessed_species: 12,
   regions: [],
+  depth_tiers: [],
   bbox: null,
   indicator: [{ name: "ClimVuln", type: "numerical", scenario: { low: NO_STATS, high: NO_STATS } }],
 };

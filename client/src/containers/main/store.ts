@@ -2,6 +2,7 @@ import { type SearchSchemaInput, useNavigate, useSearch } from "@tanstack/react-
 
 import { AREA_SIZE_VALUES } from "@/lib/area-sizes";
 import { BIOREGION_VALUES } from "@/lib/bioregions";
+import { DEPTH_TIER_VALUES } from "@/lib/depth-tiers";
 import { PROTECTION_TYPE_VALUES } from "@/lib/protection-types";
 import { idList, multiValue, type SearchCodec } from "@/lib/search-params";
 
@@ -13,6 +14,7 @@ const AREA_FILTER_CODECS = {
   region: multiValue(BIOREGION_VALUES),
   species: idList(),
   size: multiValue(AREA_SIZE_VALUES),
+  depth: multiValue(DEPTH_TIER_VALUES),
 };
 
 type AreaFilterCodecs = typeof AREA_FILTER_CODECS;
