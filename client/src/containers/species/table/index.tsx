@@ -35,7 +35,7 @@ type SpeciesRowProps = Readonly<{ row: Row<DataTableFeatures, TableSpecies> }>;
 
 const SpeciesRow = memo(function SpeciesRow({ row }: SpeciesRowProps) {
   return (
-    <TableRow className="border-slate-200 [counter-increment:species]">
+    <TableRow className="border-slate-200">
       {row.getAllCells().map((cell) => (
         <TableCell
           key={cell.id}
@@ -127,7 +127,7 @@ export default function SpeciesTable() {
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody className="[counter-reset:species]">
+          <TableBody>
             {rows.slice(0, shown).map((row) => (
               <SpeciesRow key={row.id} row={row} />
             ))}

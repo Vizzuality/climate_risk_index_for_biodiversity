@@ -43,7 +43,7 @@ const NameCell = ({ id, name }: { id: string; name: string }) => (
     to="/areas/$areaId"
     params={{ areaId: id }}
     title={name}
-    className="block truncate pl-1 text-xs leading-4 tracking-[0.24px] text-slate-700 before:content-[counter(area)'._'] hover:underline"
+    className="block truncate pl-1 text-xs leading-4 tracking-[0.24px] text-slate-700 hover:underline"
   >
     {name}
   </Link>

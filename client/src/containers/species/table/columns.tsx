@@ -13,7 +13,7 @@ const NameCell = ({ species }: { species: Species }) => (
     to="/species/$speciesId"
     params={{ speciesId: String(species.id) }}
     title={speciesName(species)}
-    className="flex min-w-0 gap-1 pl-1 text-xs leading-4 tracking-[0.24px] text-slate-700 before:content-[counter(species)'.'] hover:underline"
+    className="flex min-w-0 pl-1 text-xs leading-4 tracking-[0.24px] text-slate-700 hover:underline"
   >
     <span className="min-w-0">
       {species.common_name && (

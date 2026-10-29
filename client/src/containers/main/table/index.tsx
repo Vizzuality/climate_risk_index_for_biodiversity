@@ -31,7 +31,7 @@ type AreaRowProps = Readonly<{ row: Row<DataTableFeatures, TableArea> }>;
 
 const AreaRow = memo(function AreaRow({ row }: AreaRowProps) {
   return (
-    <TableRow className="border-slate-200 [counter-increment:area]">
+    <TableRow className="border-slate-200">
       {row.getAllCells().map((cell) => (
         <TableCell
           key={cell.id}
@@ -120,7 +120,7 @@ export default function DataTable() {
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody className="[counter-reset:area]">
+          <TableBody>
             {table.getRowModel().rows.map((row) => (
               <AreaRow key={row.id} row={row} />
             ))}
