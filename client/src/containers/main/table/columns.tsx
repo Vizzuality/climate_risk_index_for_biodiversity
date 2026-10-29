@@ -5,6 +5,7 @@ import type { DataTableFeatures } from "@/containers/main/table/features";
 import { RiskClassesInfo } from "@/containers/main/table/risk-classes-info";
 import { RiskIndexChart } from "@/containers/main/table/risk-index-chart";
 import { SortButton } from "@/containers/main/table/sort-button";
+import { formatAreaName } from "@/lib/area-name";
 import type { SCENARIO } from "@/types";
 
 export type IndicatorStats = {
@@ -99,7 +100,9 @@ export const areaColumns: ColumnDef<DataTableFeatures, TableArea>[] = [
       </SortButton>
     ),
     sortFn: (a, b) => a.original.name.localeCompare(b.original.name),
-    cell: (ctx) => <NameCell id={ctx.row.original.id} name={ctx.row.original.name} />,
+    cell: (ctx) => (
+      <NameCell id={ctx.row.original.id} name={formatAreaName(ctx.row.original.name)} />
+    ),
   },
   {
     accessorKey: "risk",

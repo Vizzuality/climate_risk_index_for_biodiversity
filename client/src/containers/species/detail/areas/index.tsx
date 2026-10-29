@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/table";
 import { useAreas } from "@/hooks/use-areas";
 import { useSpeciesAreas } from "@/hooks/use-species-areas";
+import { formatAreaName } from "@/lib/area-name";
 import { withScenarioScores } from "@/lib/scenario-scores";
 import { filterAreasByName, withAreaNames } from "@/lib/species-areas";
 import { useScenario } from "@/store";
@@ -95,7 +96,7 @@ export default function SpeciesAreas({ speciesId }: Readonly<{ speciesId: number
                 <TableRow key={id}>
                   <TableCell className="whitespace-normal text-slate-700">
                     <Link to="/areas/$areaId" params={{ areaId: id }} className="hover:underline">
-                      {name}
+                      {formatAreaName(name)}
                     </Link>
                   </TableCell>
                   <TableCell>

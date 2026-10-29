@@ -9,10 +9,11 @@ import { useMatchRoute, useNavigate, useParams } from "@tanstack/react-router";
 import { ScaleBar } from "@/components/map/scale-bar";
 import { useAreas } from "@/hooks/use-areas";
 import { useFilteredAreas } from "@/hooks/use-filtered-areas";
+import { formatAreaName } from "@/lib/area-name";
 import { clampBbox, unionBbox } from "@/lib/bbox";
 import { useAtom, useAtomValue } from "jotai";
 import { mapCursorAtom, popupAtom, speciesBboxAtom, useMapBbox } from "@/store";
-import { pickAreaFeature, pickHoverFeature } from "@/lib/pick-area-feature";
+import { AREAS_LAYER_ID, pickAreaFeature, pickHoverFeature } from "@/lib/pick-area-feature";
 
 const style = { width: "100%", height: "100%" };
 
@@ -153,7 +154,9 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
         {popup && (
           <Popup longitude={popup.lngLat.lng} latitude={popup.lngLat.lat} closeButton={false}>
             <div className="text-sm text-center text-slate-600">
-              {popup.properties?.name || popup.id}
+              {popup.layer?.id === AREAS_LAYER_ID && popup.properties?.name
+                ? formatAreaName(popup.properties.name)
+                : popup.properties?.name || popup.id}
             </div>
           </Popup>
         )}
