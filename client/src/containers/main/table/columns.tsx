@@ -95,7 +95,7 @@ export const areaColumns: ColumnDef<DataTableFeatures, TableArea>[] = [
   {
     accessorKey: "name",
     header: ({ column }) => (
-      <SortButton column={column} enableSortingRemoval={false} className="pl-2">
+      <SortButton column={column} className="pl-2">
         Conservation areas
       </SortButton>
     ),

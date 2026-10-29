@@ -9,13 +9,11 @@ const SORT_ICONS = { asc: ChevronUp, desc: ChevronDown } as const;
 
 export function SortButton<TData extends RowData, TValue>({
   column,
-  enableSortingRemoval = true,
   className,
   addon,
   children,
 }: Readonly<{
   column: Column<DataTableFeatures, TData, TValue>;
-  enableSortingRemoval?: boolean;
   className?: string;
   addon?: ReactNode;
   children: ReactNode;
@@ -37,11 +35,7 @@ export function SortButton<TData extends RowData, TValue>({
       <div className="flex items-center gap-1">
         <button
           type="button"
-          onClick={
-            enableSortingRemoval
-              ? column.getToggleSortingHandler()
-              : () => column.toggleSorting(nextDesc)
-          }
+          onClick={() => column.toggleSorting(nextDesc)}
           className="cursor-pointer after:absolute after:inset-0 after:rounded-sm focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-slate-500"
         >
           {children}

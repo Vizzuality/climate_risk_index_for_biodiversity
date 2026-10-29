@@ -50,7 +50,7 @@ export const speciesColumns: ColumnDef<DataTableFeatures, TableSpecies>[] = [
     id: "name",
     accessorFn: speciesName,
     header: ({ column }) => (
-      <SortButton column={column} enableSortingRemoval={false} className="pl-2">
+      <SortButton column={column} className="pl-2">
         Species
       </SortButton>
     ),
