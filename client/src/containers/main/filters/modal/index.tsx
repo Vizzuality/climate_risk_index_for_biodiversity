@@ -14,17 +14,13 @@ import {
 } from "@/components/ui/dialog";
 import { AREA_SIZES } from "@/lib/area-sizes";
 import { BIOREGIONS } from "@/lib/bioregions";
+import { DEPTH_TIERS } from "@/lib/depth-tiers";
 import { PROTECTION_TYPES } from "@/lib/protection-types";
 import { cn } from "@/lib/utils";
 import { useSpeciesOptions } from "@/containers/main/filters/species-options";
 import { type AreaFilters, NO_AREA_FILTERS, useAreaFilters } from "@/containers/main/store";
 
 const MAX_SPECIES_RESULTS = 50;
-
-const DEPTH_OPTIONS = ["100m", "200m", "1000m", "4000m"].map((depth) => ({
-  value: depth,
-  label: depth,
-}));
 
 const BUTTON_CLASSES = "h-9 rounded-[4px] font-normal text-slate-700";
 
@@ -45,8 +41,6 @@ function ComboboxField<T extends string>({ label, ...props }: ComboboxFieldProps
     </div>
   );
 }
-
-const NO_OPTIONS = { options: [], value: [], onChange: () => {}, disabled: true } as const;
 
 type CheckboxFieldProps<T extends string> = Readonly<{
   label: string;
@@ -158,8 +152,9 @@ export function FiltersModal() {
           />
           <CheckboxField
             label="Seafloor depth and topography"
-            {...NO_OPTIONS}
-            options={DEPTH_OPTIONS}
+            options={DEPTH_TIERS}
+            value={draft.depth}
+            onChange={(depth) => setDraft((prev) => ({ ...prev, depth }))}
           />
         </div>
 

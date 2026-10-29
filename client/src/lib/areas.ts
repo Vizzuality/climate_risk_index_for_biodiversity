@@ -1,4 +1,5 @@
 import { Area } from "@/containers/main/table/columns";
+import { DEPTH_TIERS, type DepthTierColumn } from "@/lib/depth-tiers";
 import { getDuckDBConnection, STATS_FILE } from "@/lib/duckdb";
 import { buildIndicators, EXPERIMENT_TO_SCENARIO, type IndicatorRow } from "@/lib/indicators";
 import { SCENARIO } from "@/types";
@@ -20,7 +21,8 @@ export type AreaQueryRow = {
   n_distinct_specid: number | null;
   // list<double> [xmin, ymin, xmax, ymax]; Arrow yields it as an iterable Vector
   bbox: Iterable<number> | null;
-} & IndicatorRow;
+} & Record<DepthTierColumn, boolean> &
+  IndicatorRow;
 
 // BIGINT columns are cast in SQL so Arrow yields numbers, not BigInts.
 const AREAS_QUERY = `
@@ -66,6 +68,7 @@ export function buildAreas(rows: AreaQueryRow[]): Area[] {
       area_km2: low.area_km2,
       assessed_species: low.n_distinct_specid,
       regions: low.region ? low.region.split(", ") : [],
+      depth_tiers: DEPTH_TIERS.filter((tier) => low[tier.column]).map((tier) => tier.value),
       bbox: bbox(low),
       indicator: buildIndicators(low, high),
     });

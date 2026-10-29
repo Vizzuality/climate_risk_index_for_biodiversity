@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { filterAreas, filterByAreaName } from "@/utils/filters";
 import { NO_AREA_FILTERS } from "@/containers/main/store";
 import { AREA_SIZE_VALUES } from "@/lib/area-sizes";
+import type { DepthTier } from "@/lib/depth-tiers";
 import { Area } from "@/containers/main/table/columns";
 
 const area = (name: string) => ({ name }) as Area;
@@ -116,5 +117,16 @@ describe("filterAreas", () => {
       );
       expect(filterAreas(sizedAreas, NO_AREA_FILTERS)).toContainEqual(sized("Unknown", null));
     });
+  });
+
+  it("keeps areas spanning any selected depth tier", () => {
+    const deep = (name: string, depth_tiers: DepthTier[]) => ({ name, depth_tiers }) as Area;
+    const spanning = deep("Slope", ["100-200", "200-1000", "gt1000"]);
+    const depthAreas = [deep("Marsh", ["0-100"]), spanning, deep("Shelf", ["0-100", "100-200"])];
+
+    expect(filterAreas(depthAreas, { ...NO_AREA_FILTERS, depth: ["gt1000"] })).toEqual([spanning]);
+    expect(filterAreas(depthAreas, { ...NO_AREA_FILTERS, depth: ["0-100", "200-1000"] })).toEqual(
+      depthAreas,
+    );
   });
 });

@@ -2,6 +2,7 @@ import { CircleXIcon } from "lucide-react";
 
 import { AREA_SIZES } from "@/lib/area-sizes";
 import { BIOREGIONS } from "@/lib/bioregions";
+import { DEPTH_TIERS } from "@/lib/depth-tiers";
 import { PROTECTION_TYPES } from "@/lib/protection-types";
 import { useSpeciesOptions } from "@/containers/main/filters/species-options";
 import {
@@ -17,6 +18,7 @@ const STATIC_FILTER_OPTIONS: Record<Exclude<AreaFilterKey, "species">, readonly 
   protection: PROTECTION_TYPES.map(({ value, shortLabel }) => ({ value, label: shortLabel })),
   region: BIOREGIONS,
   size: AREA_SIZES,
+  depth: DEPTH_TIERS,
 };
 
 const selectedValues = (filters: AreaFilters, key: AreaFilterKey) =>

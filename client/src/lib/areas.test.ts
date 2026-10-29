@@ -18,6 +18,10 @@ function makeRow(experiment: number, base: number, overrides: Partial<AreaQueryR
     area_km2: 10.9,
     region: "Scotian Shelf and Bay of Fundy, The Estuary and the Gulf of St. Lawrence",
     n_distinct_specid: 12.4,
+    depth_0_100: true,
+    depth_100_200: false,
+    depth_200_1000: true,
+    depth_1000_plus: false,
     ClimVuln_min: base - 0.1,
     ClimVuln_max: base + 0.1,
     // typed array, not a plain array, like the Arrow Vector duckdb-wasm returns
@@ -36,6 +40,12 @@ function nullIndicators(): Partial<AreaQueryRow> {
 }
 
 describe("buildAreas", () => {
+  it("lists the depth tiers flagged in the row", () => {
+    const [area] = buildAreas([makeRow(126, 0.2), makeRow(585, 0.6)]);
+
+    expect(area.depth_tiers).toEqual(["0-100", "200-1000"]);
+  });
+
   it("groups the two experiment rows into one Area with low/high scenarios", () => {
     const areas = buildAreas([makeRow(126, 0.2), makeRow(585, 0.6)]);
 
