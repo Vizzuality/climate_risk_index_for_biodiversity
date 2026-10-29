@@ -16,7 +16,10 @@ import { AREA_SIZES } from "@/lib/area-sizes";
 import { BIOREGIONS } from "@/lib/bioregions";
 import { PROTECTION_TYPES } from "@/lib/protection-types";
 import { cn } from "@/lib/utils";
+import { useSpeciesOptions } from "@/containers/main/filters/species-options";
 import { type AreaFilters, NO_AREA_FILTERS, useAreaFilters } from "@/containers/main/store";
+
+const MAX_SPECIES_RESULTS = 50;
 
 const DEPTH_OPTIONS = ["100m", "200m", "1000m", "4000m"].map((depth) => ({
   value: depth,
@@ -92,6 +95,7 @@ function CheckboxField<T extends string>({
 
 export function FiltersModal() {
   const [filters, applyFilters] = useAreaFilters();
+  const speciesOptions = useSpeciesOptions();
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState<AreaFilters>(filters);
 
@@ -134,7 +138,18 @@ export function FiltersModal() {
             value={draft.region}
             onChange={(region) => setDraft((prev) => ({ ...prev, region }))}
           />
-          <ComboboxField label="Species" placeholder="Select species" {...NO_OPTIONS} />
+          <ComboboxField
+            label="Species"
+            placeholder="Select species"
+            searchPlaceholder="Search species"
+            options={speciesOptions.options}
+            suggestedSearch={{
+              suggested: speciesOptions.suggested,
+              maxResults: MAX_SPECIES_RESULTS,
+            }}
+            value={draft.species}
+            onChange={(species) => setDraft((prev) => ({ ...prev, species }))}
+          />
           <CheckboxField
             label="Size"
             options={AREA_SIZES}

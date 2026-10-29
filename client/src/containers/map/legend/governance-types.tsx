@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { useMatchRoute } from "@tanstack/react-router";
 
 import { useAreaFilters, useListSearch } from "@/containers/main/store";
+import { useAreaIdsWithSpecies } from "@/hooks/use-area-ids-with-species";
 import { useAreas } from "@/hooks/use-areas";
 import {
   PROTECTION_TYPE_VALUES,
@@ -20,16 +21,18 @@ export function GovernanceTypesLegend() {
   const [q] = useListSearch();
   const [filters, applyFilters] = useAreaFilters();
   const { data } = useAreas();
+  const { data: speciesAreaIds } = useAreaIdsWithSpecies(filters.species);
 
   const counts = useMemo(() => {
     const byType = new Map<string, number>();
     if (!data) return byType;
     // Counted under every other filter, so each shows what switching its type on would add.
-    for (const area of filterAreas(filterByAreaName(data, q), { ...filters, protection: [] })) {
+    const others = { ...filters, protection: [] };
+    for (const area of filterAreas(filterByAreaName(data, q), others, speciesAreaIds)) {
       byType.set(area.governance_type, (byType.get(area.governance_type) ?? 0) + 1);
     }
     return byType;
-  }, [data, q, filters]);
+  }, [data, q, filters, speciesAreaIds]);
 
   const selected = filters.protection;
   const allOn = selected.length === PROTECTION_TYPE_VALUES.length;

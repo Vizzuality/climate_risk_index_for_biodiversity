@@ -163,3 +163,16 @@ row per species and experiment: about 10.7k rows, 670 KB), built by
 `data-processing/notebooks/species_stats.py`. Like the areas, the list
 reads it whole on first visit, selecting only the names and the ClimVuln
 mean, min and max, and filters and sorts in memory.
+
+## Amendment (2026-10-29, species filter)
+
+The areas list filters by species through `areas_per_species.parquet`
+(sorted by `species_id`, about 59 MB). The filter queries the selected
+species only, taking the distinct area `id`s under either experiment, so
+the matches don't change with the scenario. Like the species detail view,
+each species costs a few range requests.
+
+The filter suggests species before the user types. Ranking them by how
+many areas they occur in would need the whole file, so the suggestions are
+the species with a common name at the highest ClimVuln under the selected
+scenario, read from `species_stats.parquet`, which is already in memory.

@@ -16,6 +16,19 @@ export const multiValue = <T extends string>(
   serialize: (values) => allowed.filter((value) => values.includes(value)).join(","),
 });
 
+const normalizeIds = (ids: readonly string[]) =>
+  [...new Set(ids.filter((id) => /^\d+$/.test(id)))].sort((a, b) => Number(a) - Number(b));
+
+// Numeric ids from an open-ended set, like species, in ascending order. A single id in the URL
+// is read back as a number.
+export const idList = (): SearchCodec<string[]> => ({
+  parse: (raw) => {
+    if (typeof raw === "number") return normalizeIds([String(raw)]);
+    return typeof raw === "string" ? normalizeIds(raw.split(",")) : [];
+  },
+  serialize: (ids) => normalizeIds(ids).join(","),
+});
+
 const toPercentStep = (value: number) => Math.min(100, Math.max(0, Math.round(value / 10) * 10));
 
 // `key:percent` pairs in 10% steps, e.g. `risk:60,areas:80`. Full (100%) entries are left out
@@ -45,6 +58,10 @@ export const percentByKey = <T extends string>(
 });
 
 // Commas and colons are valid in a query string, so keep multi-value and keyed params readable
-// instead of the default `%2C` and `%3A`.
+// instead of the default `%2C` and `%3A`. Number-like strings are written JSON-quoted so they
+// read back as strings; a single species id drops the quotes, as `idList` reads numbers too.
 export const stringifySearch = (search: Record<string, unknown>) =>
-  defaultStringifySearch(search).replaceAll("%2C", ",").replaceAll("%3A", ":");
+  defaultStringifySearch(search)
+    .replaceAll("%2C", ",")
+    .replaceAll("%3A", ":")
+    .replace(/([?&]species=)%22(\d+)%22/, "$1$2");

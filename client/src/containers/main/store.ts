@@ -3,7 +3,7 @@ import { type SearchSchemaInput, useNavigate, useSearch } from "@tanstack/react-
 import { AREA_SIZE_VALUES } from "@/lib/area-sizes";
 import { BIOREGION_VALUES } from "@/lib/bioregions";
 import { PROTECTION_TYPE_VALUES } from "@/lib/protection-types";
-import { multiValue, type SearchCodec } from "@/lib/search-params";
+import { idList, multiValue, type SearchCodec } from "@/lib/search-params";
 
 // Each filter adds its codec here and its predicate in `AREA_FILTER_PREDICATES`
 // (utils/filters.ts). An inactive filter serializes to "". The default selection is stripped
@@ -11,6 +11,7 @@ import { multiValue, type SearchCodec } from "@/lib/search-params";
 const AREA_FILTER_CODECS = {
   protection: multiValue(PROTECTION_TYPE_VALUES, ["mca"]),
   region: multiValue(BIOREGION_VALUES),
+  species: idList(),
   size: multiValue(AREA_SIZE_VALUES),
 };
 

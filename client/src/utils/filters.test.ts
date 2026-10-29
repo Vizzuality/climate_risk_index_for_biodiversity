@@ -71,6 +71,19 @@ describe("filterAreas", () => {
     ).toEqual([spanning, located("Gulf", ["Strait of Georgia"])]);
   });
 
+  it("keeps areas where any selected species occurs", () => {
+    const withId = (id: string) => ({ id, name: id }) as Area;
+    const speciesAreas = [withId("a"), withId("b"), withId("c")];
+
+    expect(
+      filterAreas(
+        speciesAreas,
+        { ...NO_AREA_FILTERS, species: ["812", "1043"] },
+        new Set(["a", "c"]),
+      ),
+    ).toEqual([withId("a"), withId("c")]);
+  });
+
   describe("size", () => {
     const sized = (name: string, area_km2: number | null) => ({ name, area_km2 }) as Area;
     const sizedAreas = [

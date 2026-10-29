@@ -12,6 +12,9 @@ import { stringifySearch } from "@/lib/search-params";
 import { rootSearch } from "@/store";
 
 vi.mock("@/hooks/use-areas", () => ({ useAreas: () => ({ data: undefined, isPending: true }) }));
+vi.mock("@/hooks/use-area-ids-with-species", () => ({
+  useAreaIdsWithSpecies: () => ({ data: undefined, isPending: true }),
+}));
 
 function renderAt(path: string) {
   const rootRoute = createRootRoute({ ...rootSearch, component: MapLegend });

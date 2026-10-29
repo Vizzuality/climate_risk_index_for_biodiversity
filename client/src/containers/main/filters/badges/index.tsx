@@ -3,6 +3,7 @@ import { CircleXIcon } from "lucide-react";
 import { AREA_SIZES } from "@/lib/area-sizes";
 import { BIOREGIONS } from "@/lib/bioregions";
 import { PROTECTION_TYPES } from "@/lib/protection-types";
+import { useSpeciesOptions } from "@/containers/main/filters/species-options";
 import {
   AREA_FILTER_KEYS,
   type AreaFilterKey,
@@ -12,7 +13,7 @@ import {
 
 type FilterOption = Readonly<{ value: string; label: string }>;
 
-const FILTER_OPTIONS: Record<AreaFilterKey, readonly FilterOption[]> = {
+const STATIC_FILTER_OPTIONS: Record<Exclude<AreaFilterKey, "species">, readonly FilterOption[]> = {
   protection: PROTECTION_TYPES.map(({ value, shortLabel }) => ({ value, label: shortLabel })),
   region: BIOREGIONS,
   size: AREA_SIZES,
@@ -23,9 +24,11 @@ const selectedValues = (filters: AreaFilters, key: AreaFilterKey) =>
 
 export function FilterBadges() {
   const [filters, applyFilters] = useAreaFilters();
+  const { options: speciesOptions } = useSpeciesOptions();
+  const filterOptions = { ...STATIC_FILTER_OPTIONS, species: speciesOptions };
 
   const badges = AREA_FILTER_KEYS.flatMap((key) =>
-    FILTER_OPTIONS[key]
+    filterOptions[key]
       .filter((option) => selectedValues(filters, key).includes(option.value))
       .map((option) => ({ key, ...option })),
   );

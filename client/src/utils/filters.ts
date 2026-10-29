@@ -17,7 +17,11 @@ export function filterByAreaName(areas: Area[], searchTerm: string): Area[] {
 }
 
 type AreaFilterPredicates = {
-  [K in AreaFilterKey]: (area: Area, value: AreaFilters[K]) => boolean;
+  [K in AreaFilterKey]: (
+    area: Area,
+    value: AreaFilters[K],
+    speciesAreaIds: ReadonlySet<string>,
+  ) => boolean;
 };
 
 const AREA_FILTER_PREDICATES: AreaFilterPredicates = {
@@ -29,6 +33,7 @@ const AREA_FILTER_PREDICATES: AreaFilterPredicates = {
     BIOREGIONS.some(
       (bioregion) => values.includes(bioregion.value) && area.regions.includes(bioregion.region),
     ),
+  species: (area, _speciesIds, speciesAreaIds) => speciesAreaIds.has(area.id),
   size: ({ area_km2 }, values) =>
     area_km2 !== null &&
     AREA_SIZES.some((size) => values.includes(size.value) && isInAreaSize(area_km2, size)),
@@ -37,14 +42,23 @@ const AREA_FILTER_PREDICATES: AreaFilterPredicates = {
 export const hasActiveAreaFilters = (filters: AreaFilters) =>
   AREA_FILTER_KEYS.some((key) => isAreaFilterActive(filters, key));
 
-export function filterAreas(areas: Area[], filters: AreaFilters): Area[] {
+// `speciesAreaIds` holds the areas where any of the selected species occurs.
+export function filterAreas(
+  areas: Area[],
+  filters: AreaFilters,
+  speciesAreaIds: ReadonlySet<string> = new Set(),
+): Area[] {
   const active = AREA_FILTER_KEYS.filter((key) => isAreaFilterActive(filters, key));
   if (!active.length) return areas;
 
   return areas.filter((area) =>
     active.every((key) => {
-      const matches = AREA_FILTER_PREDICATES[key] as (area: Area, value: unknown) => boolean;
-      return matches(area, filters[key]);
+      const matches = AREA_FILTER_PREDICATES[key] as (
+        area: Area,
+        value: unknown,
+        speciesAreaIds: ReadonlySet<string>,
+      ) => boolean;
+      return matches(area, filters[key], speciesAreaIds);
     }),
   );
 }

@@ -48,6 +48,23 @@ export async function fetchSpeciesAreas(
   }
 }
 
+// The areas where any of the species occurs, under either scenario, so the
+// selection doesn't change with the scenario.
+export async function fetchAreaIdsWithSpecies(speciesIds: readonly string[]): Promise<Set<string>> {
+  const conn = await getDuckDBConnection();
+  const statement = await conn.prepare(`
+    SELECT DISTINCT id
+    FROM '${AREAS_PER_SPECIES_FILE}'
+    WHERE species_id IN (${speciesIds.map(() => "CAST(? AS INTEGER)").join(", ")})
+  `);
+  try {
+    const result = await statement.query(...speciesIds.map(Number));
+    return new Set(result.toArray().map((row) => String(row.id)));
+  } finally {
+    await statement.close();
+  }
+}
+
 // The species' areas with their names, keeping the order; ids missing from
 // the areas list are dropped.
 export function withAreaNames<T extends SpeciesArea>(

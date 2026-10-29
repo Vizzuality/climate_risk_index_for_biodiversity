@@ -57,6 +57,10 @@ const AREAS = [
 ];
 
 vi.mock("@/hooks/use-areas", () => ({ useAreas: () => ({ data: AREAS, isPending: false }) }));
+vi.mock("@/hooks/use-area-ids-with-species", () => ({
+  useAreaIdsWithSpecies: () => ({ data: undefined, isPending: true }),
+}));
+vi.mock("@/hooks/use-species", () => ({ useSpecies: () => ({ data: undefined }) }));
 
 beforeAll(() => {
   globalThis.ResizeObserver ??= class {
