@@ -5,8 +5,8 @@ export const PROTECTION_TYPES = [
     governanceType: "AOI",
     label: "Area of Interest",
     shortLabel: "Area of Interest",
-    color: "#fff",
-    fillColor: "rgba(255, 255, 255, 0.30)",
+    color: "#4C9542",
+    fillColor: "rgba(76, 149, 66, 0.30)",
   },
   {
     value: "ebsa",
