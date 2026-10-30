@@ -1,11 +1,17 @@
 import { cn } from "@/lib/utils";
-import { LucideGrid2x2 } from "lucide-react";
+import { LucideGrid2x2, LucideMapPinned } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { MapPinnedSolidIcon } from "./map-pinned-solid-icon";
+import { Grid2x2SolidIcon } from "./grid-2x2-solid-icon";
 
 const SECTIONS = [
-  { to: "/areas", label: "Conservation Areas", Icon: MapPinnedSolidIcon },
-  { to: "/species", label: "Species", Icon: LucideGrid2x2 },
+  {
+    to: "/areas",
+    label: "Conservation Areas",
+    Icon: LucideMapPinned,
+    ActiveIcon: MapPinnedSolidIcon,
+  },
+  { to: "/species", label: "Species", Icon: LucideGrid2x2, ActiveIcon: Grid2x2SolidIcon },
 ] as const;
 
 export default function Navigation() {
@@ -23,18 +29,31 @@ export default function Navigation() {
       </div>
       <nav className={cn("bg-black-900 z-20 flex flex-col justify-between")}>
         <ul>
-          {SECTIONS.map(({ to, label, Icon }) => (
+          {SECTIONS.map(({ to, label, Icon, ActiveIcon }) => (
             <li key={to}>
               <Link
                 to={to}
                 className="flex h-22 flex-col items-center justify-center gap-2 border-l-3 px-2 py-4"
-                inactiveProps={{ className: "border-transparent text-slate-700" }}
+                inactiveProps={{
+                  className: "border-transparent text-slate-700 hover:bg-slate-300",
+                }}
                 activeProps={{ className: "border-primary bg-slate-700 text-white" }}
               >
-                <Icon aria-hidden="true" className="size-4 shrink-0" strokeWidth={1.2} />
-                <span className="overflow-wrap-anywhere break-word w-full text-center whitespace-normal text-[10px] leading-3 font-medium tracking-[0.4px]">
-                  {label}
-                </span>
+                {({ isActive }) => {
+                  const SectionIcon = isActive ? ActiveIcon : Icon;
+                  return (
+                    <>
+                      <SectionIcon
+                        aria-hidden="true"
+                        className="size-4 shrink-0"
+                        strokeWidth={1.2}
+                      />
+                      <span className="overflow-wrap-anywhere break-word w-full text-center whitespace-normal text-[10px] leading-3 font-medium tracking-[0.4px]">
+                        {label}
+                      </span>
+                    </>
+                  );
+                }}
               </Link>
             </li>
           ))}
