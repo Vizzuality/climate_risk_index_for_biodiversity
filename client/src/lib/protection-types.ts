@@ -6,7 +6,7 @@ export const PROTECTION_TYPES = [
     label: "Area of Interest",
     shortLabel: "Area of Interest",
     color: "#4C9542",
-    fillColor: "rgba(76, 149, 66, 0.30)",
+    fillColor: "rgba(76, 149, 66, 0.15)",
   },
   {
     value: "ebsa",
@@ -14,7 +14,7 @@ export const PROTECTION_TYPES = [
     label: "Ecologically and Biologically Significant Area",
     shortLabel: "EBSA",
     color: "#AF1B9E",
-    fillColor: "rgba(175, 27, 158, 0.30)",
+    fillColor: "rgba(175, 27, 158, 0.15)",
   },
   {
     value: "mca",
@@ -22,7 +22,7 @@ export const PROTECTION_TYPES = [
     label: "Marine Conserved Area",
     shortLabel: "Marine Conserved Area",
     color: "#2751DB",
-    fillColor: "rgba(39, 81, 219, 0.30)",
+    fillColor: "rgba(39, 81, 219, 0.15)",
   },
 ] as const;
 
