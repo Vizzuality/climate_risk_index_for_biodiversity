@@ -39,6 +39,6 @@ dropped when the URL is parsed and cleared when the layer is switched off.
 - **Trade-offs**: a layer's state is split across three params, so
   removing a layer must clear it from `hidden` and `opacity` too
   (`keepLayerSettingsOnMap` in `src/store.ts` does both on parse and on
-  switch-off).
+  switch-off). It also clears the areas layer's `hiddenTypes` (ADR 0008).
 - **Follow-ups**: new map layers need a key in `MAP_LAYERS`
   (`lib/map-layers.ts`) to get legend settings.

@@ -51,11 +51,25 @@ describe("MapLegend", () => {
   });
 
   it("removes a contextual layer together with its settings", async () => {
-    const router = renderAt("/areas?hidden=areas&opacity=areas:40,risk:60");
+    const router = renderAt("/areas?hidden=areas&opacity=areas:40,risk:60&hiddenTypes=aoi");
     fireEvent.click(await screen.findByRole("button", { name: "Remove Conservation areas" }));
     await waitFor(() =>
       expect(router.state.location.search).toEqual({ layers: "bathymetry", opacity: "risk:60" }),
     );
     expect(screen.queryByRole("heading", { name: "Conservation areas" })).toBeNull();
+  });
+
+  it("hides governance types on the map without touching the area filters", async () => {
+    const router = renderAt("/areas?protection=mca");
+    fireEvent.click(await screen.findByRole("button", { name: "EBSA" }));
+    await waitFor(() =>
+      expect(router.state.location.search).toEqual({ protection: "mca", hiddenTypes: "ebsa" }),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Show only Area of Interest" }));
+    await waitFor(() =>
+      expect(router.state.location.search).toEqual({ protection: "mca", hiddenTypes: "ebsa,mca" }),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Show all" }));
+    await waitFor(() => expect(router.state.location.search).toEqual({ protection: "mca" }));
   });
 });

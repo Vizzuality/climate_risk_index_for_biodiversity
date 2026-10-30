@@ -1,67 +1,48 @@
 import { useMemo } from "react";
-import { useMatchRoute } from "@tanstack/react-router";
 
-import { useAreaFilters, useListSearch } from "@/containers/main/store";
-import { useAreaIdsWithSpecies } from "@/hooks/use-area-ids-with-species";
-import { useAreas } from "@/hooks/use-areas";
-import {
-  PROTECTION_TYPE_VALUES,
-  PROTECTION_TYPES,
-  type ProtectionType,
-} from "@/lib/protection-types";
+import { useFilteredAreas } from "@/hooks/use-filtered-areas";
+import { PROTECTION_TYPE_VALUES, PROTECTION_TYPES } from "@/lib/protection-types";
 import { cn } from "@/lib/utils";
-import { filterAreas, filterByAreaName } from "@/utils/filters";
+import { useHiddenAreaTypes } from "@/store";
 
 const TEXT_CLASS_NAME = "text-[10px] leading-[14px]";
 
+// The rows only show or hide types on the map; the area filters narrow which areas are counted.
 export function GovernanceTypesLegend() {
-  const matchRoute = useMatchRoute();
-  // The area filters only apply to the list; elsewhere the rows just show the selection.
-  const interactive = Boolean(matchRoute({ to: "/areas" }));
-  const [q] = useListSearch();
-  const [filters, applyFilters] = useAreaFilters();
-  const { data } = useAreas();
-  const { data: speciesAreaIds } = useAreaIdsWithSpecies(filters.species);
+  const { data: matches } = useFilteredAreas();
+  const [hidden, setHidden] = useHiddenAreaTypes();
 
   const counts = useMemo(() => {
     const byType = new Map<string, number>();
-    if (!data) return byType;
-    // Counted under every other filter, so each shows what switching its type on would add.
-    const others = { ...filters, protection: [] };
-    for (const area of filterAreas(filterByAreaName(data, q), others, speciesAreaIds)) {
+    for (const area of matches ?? []) {
       byType.set(area.governance_type, (byType.get(area.governance_type) ?? 0) + 1);
     }
     return byType;
-  }, [data, q, filters, speciesAreaIds]);
+  }, [matches]);
 
-  const selected = filters.protection;
-  const allOn = selected.length === PROTECTION_TYPE_VALUES.length;
-  const setProtection = (protection: ProtectionType[]) => applyFilters({ ...filters, protection });
+  const shown = PROTECTION_TYPE_VALUES.length - hidden.length;
+  const allOn = hidden.length === 0;
 
   return (
     <>
       <ul className="flex flex-col">
         {PROTECTION_TYPES.map(({ value, governanceType, shortLabel: label, color }) => {
-          const on = selected.includes(value);
+          const on = !hidden.includes(value);
           return (
             <li
               key={value}
               className={cn(
                 "group relative flex h-6 items-center gap-2 rounded-[4px] pr-2",
-                "has-[button:focus-visible]:outline-2 has-[button:focus-visible]:-outline-offset-2 has-[button:focus-visible]:outline-teal-400",
-                interactive && "hover:bg-[#eef2f7]",
+                "has-[button:focus-visible]:outline-2 has-[button:focus-visible]:-outline-offset-2 has-[button:focus-visible]:outline-teal-400 hover:bg-[#eef2f7]",
               )}
             >
               <button
                 type="button"
                 aria-pressed={on}
-                disabled={!interactive}
                 onClick={() =>
-                  setProtection(
-                    on ? selected.filter((type) => type !== value) : [...selected, value],
-                  )
+                  setHidden(on ? [...hidden, value] : hidden.filter((type) => type !== value))
                 }
-                className="flex min-w-0 flex-1 items-center gap-2 self-stretch pl-1 text-left enabled:cursor-pointer focus-visible:outline-none"
+                className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 self-stretch pl-1 text-left focus-visible:outline-none"
               >
                 <Swatch color={color} on={on} />
                 <span className={cn(TEXT_CLASS_NAME, "truncate text-slate-700")}>{label}</span>
@@ -70,55 +51,48 @@ export function GovernanceTypesLegend() {
                 className={cn(
                   TEXT_CLASS_NAME,
                   on ? "text-slate-500" : "text-slate-700",
-                  interactive &&
-                    "group-hover:invisible group-has-[[data-only]:focus-visible]:invisible",
+                  "group-hover:invisible group-has-[[data-only]:focus-visible]:invisible",
                 )}
               >
-                {counts.get(governanceType)}
+                {counts.get(governanceType) ?? (matches ? 0 : undefined)}
               </span>
-              {interactive && (
-                <button
-                  type="button"
-                  data-only
-                  aria-label={`Show only ${label}`}
-                  onClick={() => setProtection([value])}
-                  className={cn(
-                    TEXT_CLASS_NAME,
-                    "absolute right-2 cursor-pointer text-teal-700 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none",
-                  )}
-                >
-                  Only
-                </button>
-              )}
+              <button
+                type="button"
+                data-only
+                aria-label={`Show only ${label}`}
+                onClick={() => setHidden(PROTECTION_TYPE_VALUES.filter((type) => type !== value))}
+                className={cn(
+                  TEXT_CLASS_NAME,
+                  "absolute right-2 cursor-pointer text-teal-700 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none",
+                )}
+              >
+                Only
+              </button>
             </li>
           );
         })}
       </ul>
-      {interactive && (
-        <div
-          className={cn(
-            TEXT_CLASS_NAME,
-            "flex gap-2 border-t border-slate-300 py-1.5 pr-2 pl-1 text-slate-500",
-          )}
-        >
-          <p className="flex-1">
-            {allOn && "Click a type to filter map and table"}
-            {selected.length === 0 && "No types selected"}
-            {!allOn &&
-              selected.length > 0 &&
-              `${selected.length} of ${PROTECTION_TYPE_VALUES.length} types`}
-          </p>
-          {!allOn && (
-            <button
-              type="button"
-              onClick={() => setProtection([...PROTECTION_TYPE_VALUES])}
-              className="cursor-pointer text-teal-700 hover:underline"
-            >
-              Show all
-            </button>
-          )}
-        </div>
-      )}
+      <div
+        className={cn(
+          TEXT_CLASS_NAME,
+          "flex gap-2 border-t border-slate-300 py-1.5 pr-2 pl-1 text-slate-500",
+        )}
+      >
+        <p className="flex-1">
+          {allOn && "Click a type to show or hide it on the map"}
+          {shown === 0 && "No types shown"}
+          {!allOn && shown > 0 && `${shown} of ${PROTECTION_TYPE_VALUES.length} types shown`}
+        </p>
+        {!allOn && (
+          <button
+            type="button"
+            onClick={() => setHidden([])}
+            className="cursor-pointer text-teal-700 hover:underline"
+          >
+            Show all
+          </button>
+        )}
+      </div>
     </>
   );
 }

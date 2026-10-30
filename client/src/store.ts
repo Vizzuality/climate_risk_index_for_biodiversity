@@ -16,6 +16,7 @@ import {
   isContextualLayer,
 } from "@/lib/contextual-layers";
 import { MAP_LAYER_VALUES, type MapLayer } from "@/lib/map-layers";
+import { PROTECTION_TYPE_VALUES, type ProtectionType } from "@/lib/protection-types";
 import { multiValue, percentByKey } from "@/lib/search-params";
 import { SCENARIO } from "@/types";
 
@@ -29,15 +30,23 @@ const hiddenLayersCodec = multiValue(MAP_LAYER_VALUES);
 
 const layerOpacityCodec = percentByKey(MAP_LAYER_VALUES);
 
+const hiddenAreaTypesCodec = multiValue(PROTECTION_TYPE_VALUES);
+
 const isOnMap = (layer: MapLayer, contextualLayers: readonly ContextualLayer[]) =>
   !isContextualLayer(layer) || contextualLayers.includes(layer);
 
-type LayerSettingsSearch = { layers: string; hidden: string; opacity: string };
+type LayerSettingsSearch = {
+  layers: string;
+  hidden: string;
+  opacity: string;
+  hiddenTypes: string;
+};
 
-// Visibility and opacity only apply to layers on the map; a layer that leaves it loses both.
+// Visibility and opacity only apply to layers on the map; a layer that leaves it loses both,
+// and the areas layer also loses its hidden governance types.
 const keepLayerSettingsOnMap = <T extends Partial<LayerSettingsSearch>>(
   search: T,
-): T & Pick<LayerSettingsSearch, "hidden" | "opacity"> => {
+): T & Pick<LayerSettingsSearch, "hidden" | "opacity" | "hiddenTypes"> => {
   const onMap = (layer: MapLayer) => isOnMap(layer, contextualLayersCodec.parse(search.layers));
   const opacity = Object.entries(layerOpacityCodec.parse(search.opacity)).filter(([layer]) =>
     onMap(layer as MapLayer),
@@ -46,6 +55,9 @@ const keepLayerSettingsOnMap = <T extends Partial<LayerSettingsSearch>>(
     ...search,
     hidden: hiddenLayersCodec.serialize(hiddenLayersCodec.parse(search.hidden).filter(onMap)),
     opacity: layerOpacityCodec.serialize(Object.fromEntries(opacity)),
+    hiddenTypes: onMap("areas")
+      ? hiddenAreaTypesCodec.serialize(hiddenAreaTypesCodec.parse(search.hiddenTypes))
+      : "",
   };
 };
 
@@ -58,6 +70,7 @@ export const rootSearch = {
       layers?: unknown;
       hidden?: unknown;
       opacity?: unknown;
+      hiddenTypes?: unknown;
       bbox?: unknown;
     } & SearchSchemaInput,
   ): RootSearch =>
@@ -66,6 +79,7 @@ export const rootSearch = {
       layers: contextualLayersCodec.serialize(contextualLayersCodec.parse(search.layers)),
       hidden: hiddenLayersCodec.serialize(hiddenLayersCodec.parse(search.hidden)),
       opacity: layerOpacityCodec.serialize(layerOpacityCodec.parse(search.opacity)),
+      hiddenTypes: hiddenAreaTypesCodec.serialize(hiddenAreaTypesCodec.parse(search.hiddenTypes)),
       bbox: bboxCodec.serialize(bboxCodec.parse(search.bbox)) || undefined,
     }),
   search: {
@@ -76,8 +90,16 @@ export const rootSearch = {
         layers: DEFAULT_LAYERS,
         hidden: "",
         opacity: "",
+        hiddenTypes: "",
       }),
-      retainSearchParams<RootSearch>(["scenario", "layers", "hidden", "opacity", "bbox"]),
+      retainSearchParams<RootSearch>([
+        "scenario",
+        "layers",
+        "hidden",
+        "opacity",
+        "hiddenTypes",
+        "bbox",
+      ]),
     ],
   },
 };
@@ -146,6 +168,20 @@ export const useLayerSettings = () => {
     });
 
   return { isOnMap: isLayerOnMap, isVisible, opacity: layerOpacity, setVisible, setOpacity };
+};
+
+// Governance types left off the map by the legend. The area filters don't read them.
+export const useHiddenAreaTypes = () => {
+  const { hiddenTypes } = useSearch({ from: "__root__" });
+  const navigate = useNavigate();
+  const hidden = useMemo(() => hiddenAreaTypesCodec.parse(hiddenTypes), [hiddenTypes]);
+  const setHidden = (next: readonly ProtectionType[]) =>
+    navigate({
+      to: ".",
+      search: (prev) => ({ ...prev, hiddenTypes: hiddenAreaTypesCodec.serialize([...next]) }),
+      replace: true,
+    });
+  return [hidden, setHidden] as const;
 };
 
 export const useMapBbox = () => {
