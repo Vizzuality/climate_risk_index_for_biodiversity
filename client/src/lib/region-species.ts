@@ -1,19 +1,21 @@
-import { getDuckDBConnection, SPECIES_PER_AREA_FILE } from "@/lib/duckdb";
+import { BIOREGIONS, type Bioregion } from "@/lib/bioregions";
+import { getDuckDBConnection, SPECIES_PER_BIOREGION_FILE } from "@/lib/duckdb";
 
-// The species found in any of the areas, under either scenario, so the
-// selection doesn't change with the scenario. The file is sorted by area id,
-// so an id list prunes row groups by their stats; joining the stats file in
-// SQL instead reads every row group between the lowest and highest id.
-export async function fetchSpeciesIdsInAreas(areaIds: readonly string[]): Promise<Set<number>> {
-  if (!areaIds.length) return new Set();
+export async function fetchSpeciesIdsInBioregions(
+  bioregions: readonly Bioregion[],
+): Promise<Set<number>> {
+  const regions = BIOREGIONS.filter((bioregion) => bioregions.includes(bioregion.value)).map(
+    (bioregion) => bioregion.region,
+  );
+  if (!regions.length) return new Set();
   const conn = await getDuckDBConnection();
   const statement = await conn.prepare(`
     SELECT DISTINCT species_id
-    FROM '${SPECIES_PER_AREA_FILE}'
-    WHERE id IN (${areaIds.map(() => "?").join(", ")})
+    FROM '${SPECIES_PER_BIOREGION_FILE}'
+    WHERE region IN (${regions.map(() => "?").join(", ")})
   `);
   try {
-    const result = await statement.query(...areaIds);
+    const result = await statement.query(...regions);
     return new Set(result.toArray().map((row) => Number(row.species_id)));
   } finally {
     await statement.close();

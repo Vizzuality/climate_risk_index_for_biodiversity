@@ -70,7 +70,7 @@ export function filterAreas(
   );
 }
 
-// `regionSpeciesIds` holds the species found in any of the selected regions.
+// `regionSpeciesIds` holds the species whose range overlaps any of the selected regions.
 type SpeciesFilterContext = Readonly<{
   scenario: SCENARIO;
   regionSpeciesIds: ReadonlySet<number>;

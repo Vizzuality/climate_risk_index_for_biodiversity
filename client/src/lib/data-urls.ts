@@ -8,6 +8,7 @@ export const STATS_URL = `${DATA_BASE_URL}/mpas_stats.parquet`;
 export const SPECIES_STATS_URL = `${DATA_BASE_URL}/species_stats.parquet`;
 export const SPECIES_PER_AREA_URL = `${DATA_BASE_URL}/species_per_area.parquet`;
 export const AREAS_PER_SPECIES_URL = `${DATA_BASE_URL}/areas_per_species.parquet`;
+export const SPECIES_PER_BIOREGION_URL = `${DATA_BASE_URL}/species_per_bioregion.parquet`;
 export const AREAS_PMTILES_URL = `${DATA_BASE_URL}/mpas.pmtiles`;
 export const LOW_EMISSIONS_RASTER_URL = `${DATA_BASE_URL}/126_climvuln_cog.tif`;
 export const HIGH_EMISSIONS_RASTER_URL = `${DATA_BASE_URL}/585_climvuln_cog.tif`;
