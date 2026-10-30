@@ -68,8 +68,17 @@ export const BathymetryLayer = ({
           : undefined;
         if (fillColor) {
           map.setPaintProperty(DEPTH_TEXT_LAYER_ID, "text-halo-color", fillColor);
-          map.setPaintProperty(DEPTH_TEXT_LAYER_ID, "text-halo-width", 3);
+          map.setPaintProperty(DEPTH_TEXT_LAYER_ID, "text-halo-width", 0.55);
           map.setPaintProperty(DEPTH_TEXT_LAYER_ID, "text-halo-blur", 0);
+        }
+      }
+      if (map.getLayer(DEPTH_LINE_LAYER_ID)) {
+        const fillColor = map.getLayer(DEPTH_FILL_LAYER_ID)
+          ? map.getPaintProperty(DEPTH_FILL_LAYER_ID, "fill-color")
+          : undefined;
+        if (fillColor) {
+          map.setPaintProperty(DEPTH_LINE_LAYER_ID, "line-color", fillColor);
+          map.setPaintProperty(DEPTH_LINE_LAYER_ID, "line-width", 1);
         }
       }
     };
