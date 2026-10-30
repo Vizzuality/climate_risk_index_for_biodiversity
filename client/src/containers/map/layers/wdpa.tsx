@@ -10,14 +10,16 @@ import { useHiddenAreaTypes } from "@/store";
 
 const AREA_ID = ["to-string", ["get", "id"]];
 
-const GOVERNANCE_TYPE_COLOR = [
-  "match",
-  ["get", "governance_type"],
-  ...PROTECTION_TYPES.flatMap((type) => [type.governanceType, type.color]),
-  "transparent",
-] as ExpressionSpecification;
+const governanceTypeMatch = (key: "color" | "fillColor") =>
+  [
+    "match",
+    ["get", "governance_type"],
+    ...PROTECTION_TYPES.flatMap((type) => [type.governanceType, type[key]]),
+    "transparent",
+  ] as ExpressionSpecification;
 
-const AREA_FILL_OPACITY = 0.12;
+const GOVERNANCE_TYPE_LINE_COLOR = governanceTypeMatch("color");
+const GOVERNANCE_TYPE_FILL_COLOR = governanceTypeMatch("fillColor");
 
 export const WDPALayer = ({
   visible,
@@ -54,8 +56,8 @@ export const WDPALayer = ({
         layout={layout}
         beforeId={BASEMAP_BOUNDARIES_LAYER_ID}
         paint={{
-          "fill-color": GOVERNANCE_TYPE_COLOR,
-          "fill-opacity": AREA_FILL_OPACITY * opacity,
+          "fill-color": GOVERNANCE_TYPE_FILL_COLOR,
+          "fill-opacity": opacity,
         }}
         {...selected}
       />
@@ -68,7 +70,7 @@ export const WDPALayer = ({
         layout={layout}
         beforeId={BASEMAP_BOUNDARIES_LAYER_ID}
         paint={{
-          "line-color": GOVERNANCE_TYPE_COLOR,
+          "line-color": GOVERNANCE_TYPE_LINE_COLOR,
           "line-width": 1.5,
           "line-opacity": opacity,
         }}

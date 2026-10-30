@@ -26,7 +26,7 @@ export function GovernanceTypesLegend() {
   return (
     <>
       <ul className="flex flex-col">
-        {PROTECTION_TYPES.map(({ value, governanceType, shortLabel: label, color }) => {
+        {PROTECTION_TYPES.map(({ value, governanceType, shortLabel: label, color, fillColor }) => {
           const on = !hidden.includes(value);
           return (
             <li
@@ -44,7 +44,7 @@ export function GovernanceTypesLegend() {
                 }
                 className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 self-stretch pl-1 text-left focus-visible:outline-none"
               >
-                <Swatch color={color} on={on} />
+                <Swatch color={color} fillColor={fillColor} on={on} />
                 <span className={cn(TEXT_CLASS_NAME, "truncate text-slate-700")}>{label}</span>
               </button>
               <span
@@ -97,7 +97,11 @@ export function GovernanceTypesLegend() {
   );
 }
 
-function Swatch({ color, on }: Readonly<{ color: string; on: boolean }>) {
+function Swatch({
+  color,
+  fillColor,
+  on,
+}: Readonly<{ color: string; fillColor: string; on: boolean }>) {
   if (!on)
     return <span aria-hidden className="size-3.5 shrink-0 rounded-[3px] border border-slate-500" />;
   return (
@@ -107,7 +111,7 @@ function Swatch({ color, on }: Readonly<{ color: string; on: boolean }>) {
     >
       <span
         className="absolute top-0.5 left-0.5 size-2.5 rounded-[2px] border-[1.5px]"
-        style={{ borderColor: color, backgroundColor: `${color}33` }}
+        style={{ borderColor: color, backgroundColor: fillColor }}
       />
     </span>
   );

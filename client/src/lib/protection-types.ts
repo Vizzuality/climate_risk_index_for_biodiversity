@@ -5,21 +5,24 @@ export const PROTECTION_TYPES = [
     governanceType: "AOI",
     label: "Area of Interest",
     shortLabel: "Area of Interest",
-    color: "#d9f99d",
+    color: "#fff",
+    fillColor: "rgba(255, 255, 255, 0.30)",
   },
   {
     value: "ebsa",
     governanceType: "EBSA",
     label: "Ecologically and Biologically Significant Area",
     shortLabel: "EBSA",
-    color: "#f0abfc",
+    color: "#AF1B9E",
+    fillColor: "rgba(175, 27, 158, 0.30)",
   },
   {
     value: "mca",
     governanceType: "MCA",
     label: "Marine Conserved Area",
     shortLabel: "Marine Conserved Area",
-    color: "#2dd4bf",
+    color: "#2751DB",
+    fillColor: "rgba(39, 81, 219, 0.30)",
   },
 ] as const;
 
