@@ -14,23 +14,27 @@ import { useSpeciesSarStatus } from "@/hooks/use-species-sar-status";
 import { type SarPopulation, saraListing } from "@/lib/species-sar-status";
 import { cn } from "@/lib/utils";
 
-// Kept apart from the climate risk colors so the two scales don't read as one.
+// From the design's sara/* tags, shifted one step so that the statuses at
+// risk run from red (Endangered) down to green, and the statuses of species
+// already gone are dark tags with white text: Extirpated in the deep red of
+// the design's extirpated text, Extinct in slate. COSEWIC uses the same tags.
+const DATA_DEFICIENT = "bg-[#dfe6ec] text-[#362204]";
 const STATUS_CLASSES: Record<string, string> = {
-  Extinct: "bg-slate-800 text-white",
-  Extirpated: "bg-slate-600 text-white",
-  Endangered: "bg-red-100 text-red-800",
-  Threatened: "bg-orange-100 text-orange-800",
-  "Special Concern": "bg-amber-100 text-amber-800",
-  "Data Deficient": "bg-slate-100 text-slate-600",
-  "Not at Risk": "bg-emerald-100 text-emerald-800",
+  Extinct: "bg-[#2d394a] text-white",
+  Extirpated: "bg-[#7e2715] text-white",
+  Endangered: "bg-[#eda6a5] text-[#7e2715]",
+  Threatened: "bg-[#fed8b0] text-[#864412]",
+  "Special Concern": "bg-[#ece2a8] text-[#8e4a17]",
+  "Data Deficient": DATA_DEFICIENT,
+  "Not at Risk": "bg-[#addecb] text-[#184523]",
 };
 
 function StatusBadge({ status }: Readonly<{ status: string }>) {
   return (
     <span
       className={cn(
-        "inline-block rounded-full px-2 py-0.5 text-xs font-semibold whitespace-nowrap",
-        STATUS_CLASSES[status] ?? "bg-slate-100 text-slate-600",
+        "inline-flex items-center rounded-sm px-1.5 py-0.5 text-xs uppercase tracking-wide whitespace-nowrap",
+        STATUS_CLASSES[status] ?? DATA_DEFICIENT,
       )}
     >
       {status}
@@ -40,7 +44,7 @@ function StatusBadge({ status }: Readonly<{ status: string }>) {
 
 function SaraStatus({ population }: Readonly<{ population: SarPopulation }>) {
   const sara = saraListing(population);
-  return sara ? <StatusBadge status={sara} /> : <span className="text-slate-500">Not listed</span>;
+  return sara ? <StatusBadge status={sara} /> : <span className="text-slate-700">Not listed</span>;
 }
 
 function PopulationRow({
@@ -82,9 +86,9 @@ export default function ConservationStatus({
     return <p className="text-sm text-slate-500">The conservation status couldn’t be loaded.</p>;
   }
 
-  const { populations, status } = data;
-  // A species assessed as a whole has a single row without a population; it
-  // fits in the header row.
+  const { populations, cosewicStatus, saraStatus } = data;
+  // A species assessed as a whole has a single row without a population; the
+  // header rows say it all.
   const single = populations.length === 1 && !populations[0].population;
 
   return (
@@ -92,21 +96,29 @@ export default function ConservationStatus({
       <div className="flex items-center gap-1 py-2 border-b border-dashed border-b-slate-300 text-slate-600">
         <span className="flex-1 uppercase font-semibold text-xs">COSEWIC status</span>
         <span className="flex-1">
-          {status ? <StatusBadge status={status} /> : <span className="text-sm">Not assessed</span>}
+          {cosewicStatus ? (
+            <StatusBadge status={cosewicStatus} />
+          ) : (
+            <span className="text-sm text-slate-700">Not assessed</span>
+          )}
         </span>
       </div>
-      {single && (
+      {populations.length > 0 && (
         <div className="flex items-center gap-1 py-2 border-b border-dashed border-b-slate-300 text-slate-600">
           <span className="flex-1 uppercase font-semibold text-xs">SARA status</span>
           <span className="flex-1 text-sm">
-            <SaraStatus population={populations[0]} />
+            {saraStatus ? (
+              <StatusBadge status={saraStatus} />
+            ) : (
+              <span className="text-slate-700">Not listed</span>
+            )}
           </span>
         </div>
       )}
       {!single && populations.length > 0 && (
         <>
           <div className="flex items-baseline justify-between gap-4 text-sm text-slate-500">
-            <p>Assessed as {populations.length} populations, most at risk first.</p>
+            <p>Assessed as {populations.length} populations, showing worst case.</p>
             <button
               type="button"
               aria-expanded={expanded}

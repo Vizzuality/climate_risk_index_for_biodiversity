@@ -12,8 +12,9 @@ export type SarPopulation = {
   sara_schedule: string | null;
 };
 
-// Most severe first. Statuses not listed here sort last.
-export const COSEWIC_STATUSES = [
+// Most severe first; SARA uses the same names for its listings. Statuses not
+// listed here sort last.
+export const STATUSES = [
   "Extinct",
   "Extirpated",
   "Endangered",
@@ -24,8 +25,8 @@ export const COSEWIC_STATUSES = [
 ] as const;
 
 const severity = (status: string) => {
-  const index = COSEWIC_STATUSES.indexOf(status as (typeof COSEWIC_STATUSES)[number]);
-  return index === -1 ? COSEWIC_STATUSES.length : index;
+  const index = STATUSES.indexOf(status as (typeof STATUSES)[number]);
+  return index === -1 ? STATUSES.length : index;
 };
 
 // The SARA status of a population on Schedule 1, or null when it isn't
@@ -40,7 +41,10 @@ export type SarStatus = {
   populations: SarPopulation[];
   // The most severe COSEWIC status over the populations, null when the
   // species hasn't been assessed.
-  status: string | null;
+  cosewicStatus: string | null;
+  // The most severe SARA listing over the populations, null when none is
+  // legally listed.
+  saraStatus: string | null;
 };
 
 export function buildSarStatus(rows: SarPopulation[]): SarStatus {
@@ -49,7 +53,12 @@ export function buildSarStatus(rows: SarPopulation[]): SarStatus {
       severity(a.cosewic_status) - severity(b.cosewic_status) ||
       (a.population ?? "").localeCompare(b.population ?? ""),
   );
-  return { populations, status: populations[0]?.cosewic_status ?? null };
+  const saraStatus =
+    populations
+      .map(saraListing)
+      .filter((listing) => listing !== null)
+      .toSorted((a, b) => severity(a) - severity(b))[0] ?? null;
+  return { populations, cosewicStatus: populations[0]?.cosewic_status ?? null, saraStatus };
 }
 
 // The file is small and read whole. The parameter comes in as a DOUBLE;

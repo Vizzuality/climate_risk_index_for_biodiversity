@@ -18,7 +18,7 @@ const population = (
 
 describe("buildSarStatus", () => {
   it("sorts the populations by severity, then by name, and takes the most severe status", () => {
-    const { populations, status } = buildSarStatus([
+    const { populations, cosewicStatus } = buildSarStatus([
       population("Special Concern", "Arctic Lakes population"),
       population("Endangered", "Southern population"),
       population("Data Deficient", "Arctic Marine population"),
@@ -31,7 +31,7 @@ describe("buildSarStatus", () => {
       "Arctic Lakes population",
       "Arctic Marine population",
     ]);
-    expect(status).toBe("Endangered");
+    expect(cosewicStatus).toBe("Endangered");
   });
 
   it("sorts unknown statuses last", () => {
@@ -44,7 +44,22 @@ describe("buildSarStatus", () => {
   });
 
   it("has no status without assessments", () => {
-    expect(buildSarStatus([])).toEqual({ populations: [], status: null });
+    expect(buildSarStatus([])).toEqual({ populations: [], cosewicStatus: null, saraStatus: null });
+  });
+
+  it("takes the most severe SARA listing, which can come from another population", () => {
+    const listed = (sara_status: string) => ({ sara_status, sara_schedule: "Schedule 1" });
+    const { saraStatus } = buildSarStatus([
+      population("Endangered", "A"),
+      population("Threatened", "B", listed("Special Concern")),
+      population("Special Concern", "C", listed("Threatened")),
+    ]);
+
+    expect(saraStatus).toBe("Threatened");
+  });
+
+  it("has no SARA status when no population is listed", () => {
+    expect(buildSarStatus([population("Endangered", "A")]).saraStatus).toBeNull();
   });
 });
 
