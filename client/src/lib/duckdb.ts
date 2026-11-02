@@ -5,6 +5,7 @@ import {
   AREAS_PER_SPECIES_URL,
   SPECIES_PER_AREA_URL,
   SPECIES_PER_BIOREGION_URL,
+  SPECIES_SAR_STATUS_URL,
   SPECIES_STATS_URL,
   STATS_URL,
 } from "@/lib/data-urls";
@@ -14,6 +15,7 @@ export const SPECIES_PER_AREA_FILE = "species_per_area.parquet";
 export const AREAS_PER_SPECIES_FILE = "areas_per_species.parquet";
 export const SPECIES_STATS_FILE = "species_stats.parquet";
 export const SPECIES_PER_BIOREGION_FILE = "species_per_bioregion.parquet";
+export const SPECIES_SAR_STATUS_FILE = "species_sar_status.parquet";
 
 let connection: Promise<duckdb.AsyncDuckDBConnection> | null = null;
 
@@ -29,9 +31,10 @@ async function boot(): Promise<duckdb.AsyncDuckDBConnection> {
     const db = new duckdb.AsyncDuckDB(new duckdb.ConsoleLogger(duckdb.LogLevel.WARNING), worker);
     // The stats files are read whole, and DuckDB's range reads go one request
     // at a time, so they're downloaded in one request each while the wasm loads.
-    const [stats, speciesStats] = await Promise.all([
+    const [stats, speciesStats, speciesSarStatus] = await Promise.all([
       download(STATS_URL),
       download(SPECIES_STATS_URL),
+      download(SPECIES_SAR_STATUS_URL),
       db.instantiate(duckdbWasmUrl),
     ]);
     // This build reads HTTP files whole unless told otherwise. CloudFront
@@ -41,6 +44,7 @@ async function boot(): Promise<duckdb.AsyncDuckDBConnection> {
     const absolute = (url: string) => new URL(url, window.location.origin).href;
     await db.registerFileBuffer(STATS_FILE, stats);
     await db.registerFileBuffer(SPECIES_STATS_FILE, speciesStats);
+    await db.registerFileBuffer(SPECIES_SAR_STATUS_FILE, speciesSarStatus);
     await db.registerFileURL(
       SPECIES_PER_AREA_FILE,
       SPECIES_PER_AREA_URL,
