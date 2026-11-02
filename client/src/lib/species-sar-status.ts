@@ -36,15 +36,29 @@ export function saraListing({ sara_status, sara_schedule }: SarPopulation): stri
   return sara_status;
 }
 
+// A status and how many populations have it. A null status is a population
+// without one: not legally listed, for SARA.
+export type StatusCount = { status: string | null; count: number };
+
+// Most common first, then most severe, with null last.
+function countStatuses(statuses: (string | null)[]): StatusCount[] {
+  const counts = new Map<string | null, number>();
+  for (const status of statuses) counts.set(status, (counts.get(status) ?? 0) + 1);
+  const rank = (status: string | null) =>
+    status === null ? STATUSES.length + 1 : severity(status);
+  return Array.from(counts, ([status, count]) => ({ status, count })).toSorted(
+    (a, b) => b.count - a.count || rank(a.status) - rank(b.status),
+  );
+}
+
 export type SarStatus = {
   // Most severe COSEWIC status first, then by population name.
   populations: SarPopulation[];
-  // The most severe COSEWIC status over the populations, null when the
-  // species hasn't been assessed.
-  cosewicStatus: string | null;
-  // The most severe SARA listing over the populations, null when none is
-  // legally listed.
-  saraStatus: string | null;
+  // How many populations have each COSEWIC status; empty when the species
+  // hasn't been assessed.
+  cosewicStatuses: StatusCount[];
+  // How many populations have each SARA listing, null for not listed.
+  saraStatuses: StatusCount[];
 };
 
 export function buildSarStatus(rows: SarPopulation[]): SarStatus {
@@ -53,12 +67,11 @@ export function buildSarStatus(rows: SarPopulation[]): SarStatus {
       severity(a.cosewic_status) - severity(b.cosewic_status) ||
       (a.population ?? "").localeCompare(b.population ?? ""),
   );
-  const saraStatus =
-    populations
-      .map(saraListing)
-      .filter((listing) => listing !== null)
-      .toSorted((a, b) => severity(a) - severity(b))[0] ?? null;
-  return { populations, cosewicStatus: populations[0]?.cosewic_status ?? null, saraStatus };
+  return {
+    populations,
+    cosewicStatuses: countStatuses(populations.map((p) => p.cosewic_status)),
+    saraStatuses: countStatuses(populations.map(saraListing)),
+  };
 }
 
 // The file is small and read whole. The parameter comes in as a DOUBLE;

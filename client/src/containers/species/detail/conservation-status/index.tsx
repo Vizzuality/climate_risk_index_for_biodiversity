@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useSpeciesSarStatus } from "@/hooks/use-species-sar-status";
-import { type SarPopulation, saraListing } from "@/lib/species-sar-status";
+import { type SarPopulation, type StatusCount, saraListing } from "@/lib/species-sar-status";
 import { cn } from "@/lib/utils";
 
 // From the design's sara/* tags, shifted one step so that the statuses at
@@ -38,6 +38,36 @@ function StatusBadge({ status }: Readonly<{ status: string }>) {
       )}
     >
       {status}
+    </span>
+  );
+}
+
+// The statuses of a species' populations with how many have each; counts
+// only when there are populations to count.
+function StatusCounts({
+  statuses,
+  showCounts,
+  emptyLabel,
+}: Readonly<{ statuses: StatusCount[]; showCounts: boolean; emptyLabel: string }>) {
+  return (
+    <span className="flex flex-1 flex-wrap gap-x-3 gap-y-1">
+      {statuses.map(({ status, count }) => (
+        <span key={status ?? ""} className="inline-flex items-center gap-1">
+          {status ? (
+            <StatusBadge status={status} />
+          ) : (
+            <span className="text-sm text-slate-700">{emptyLabel}</span>
+          )}
+          {showCounts && (
+            <span className="text-xs tabular-nums text-slate-700">
+              <span aria-hidden>×{count}</span>
+              <span className="sr-only">
+                {count} {count === 1 ? "population" : "populations"}
+              </span>
+            </span>
+          )}
+        </span>
+      ))}
     </span>
   );
 }
@@ -86,7 +116,7 @@ export default function ConservationStatus({
     return <p className="text-sm text-slate-500">The conservation status couldn’t be loaded.</p>;
   }
 
-  const { populations, cosewicStatus, saraStatus } = data;
+  const { populations, cosewicStatuses, saraStatuses } = data;
   // A species assessed as a whole has a single row without a population; the
   // header rows say it all.
   const single = populations.length === 1 && !populations[0].population;
@@ -95,30 +125,22 @@ export default function ConservationStatus({
     <section className="space-y-2">
       <div className="flex items-center gap-1 py-2 border-b border-dashed border-b-slate-300 text-slate-600">
         <span className="flex-1 uppercase font-semibold text-xs">COSEWIC status</span>
-        <span className="flex-1">
-          {cosewicStatus ? (
-            <StatusBadge status={cosewicStatus} />
-          ) : (
-            <span className="text-sm text-slate-700">Not assessed</span>
-          )}
-        </span>
+        {populations.length === 0 ? (
+          <span className="flex-1 text-sm text-slate-700">Not assessed</span>
+        ) : (
+          <StatusCounts statuses={cosewicStatuses} showCounts={!single} emptyLabel="Not assessed" />
+        )}
       </div>
       {populations.length > 0 && (
         <div className="flex items-center gap-1 py-2 border-b border-dashed border-b-slate-300 text-slate-600">
           <span className="flex-1 uppercase font-semibold text-xs">SARA status</span>
-          <span className="flex-1 text-sm">
-            {saraStatus ? (
-              <StatusBadge status={saraStatus} />
-            ) : (
-              <span className="text-slate-700">Not listed</span>
-            )}
-          </span>
+          <StatusCounts statuses={saraStatuses} showCounts={!single} emptyLabel="Not listed" />
         </div>
       )}
       {!single && populations.length > 0 && (
         <>
           <div className="flex items-baseline justify-between gap-4 text-sm text-slate-500">
-            <p>Assessed as {populations.length} populations, showing worst case.</p>
+            <p>Assessed as {populations.length} populations.</p>
             <button
               type="button"
               aria-expanded={expanded}
