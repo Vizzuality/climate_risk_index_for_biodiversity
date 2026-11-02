@@ -6,6 +6,7 @@ const DATA_BASE_URL = "https://d2g59ujvhm7q3s.cloudfront.net/data";
 // request: GET or HEAD with at most a single `Range: bytes=a-b` header.
 export const STATS_URL = `${DATA_BASE_URL}/mpas_stats.parquet`;
 export const SPECIES_STATS_URL = `${DATA_BASE_URL}/species_stats.parquet`;
+export const SPECIES_SAR_STATUS_URL = `${DATA_BASE_URL}/species_sar_status.parquet`;
 export const SPECIES_PER_AREA_URL = `${DATA_BASE_URL}/species_per_area.parquet`;
 export const AREAS_PER_SPECIES_URL = `${DATA_BASE_URL}/areas_per_species.parquet`;
 export const SPECIES_PER_BIOREGION_URL = `${DATA_BASE_URL}/species_per_bioregion.parquet`;
