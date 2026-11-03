@@ -38,13 +38,13 @@ export default function SpeciesDetail() {
       <SpeciesStats species={species} />
       {/* Keyed so "Show all" resets when another species opens */}
       <ConservationStatus
-        key={species.id}
+        key={`${species.id}-status`}
         speciesId={species.id}
         scientificName={species.scientific_name}
       />
       <ClimateRiskChart indicator={species.indicator} />
       {/* Keyed so the search and "Show all" reset when another species opens */}
-      <SpeciesAreas key={species.id} speciesId={species.id} />
+      <SpeciesAreas key={`${species.id}-areas`} speciesId={species.id} />
     </div>
   );
 }
