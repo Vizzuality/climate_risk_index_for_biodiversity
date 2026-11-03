@@ -11,7 +11,7 @@ const SECTIONS = [
     Icon: LucideMapPinned,
     ActiveIcon: MapPinnedSolidIcon,
   },
-  { to: "/species", label: "Species", Icon: LucideGrid2x2, ActiveIcon: Grid2x2SolidIcon },
+  { to: "/species", label: "Marine Species", Icon: LucideGrid2x2, ActiveIcon: Grid2x2SolidIcon },
 ] as const;
 
 export default function Navigation() {

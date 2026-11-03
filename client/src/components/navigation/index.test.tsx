@@ -37,7 +37,7 @@ describe("Navigation", () => {
     "marks only the species section as current on %s",
     async (path) => {
       renderAt(path);
-      const link = await screen.findByRole("link", { name: "Species" });
+      const link = await screen.findByRole("link", { name: "Marine Species" });
       expect(link.getAttribute("aria-current")).toBe("page");
       const areas = screen.getByRole("link", { name: "Conservation Areas" });
       expect(areas.getAttribute("aria-current")).toBeNull();
