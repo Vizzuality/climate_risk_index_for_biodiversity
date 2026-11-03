@@ -139,19 +139,21 @@ export default function ConservationStatus({
       )}
       {!single && populations.length > 0 && (
         <>
-          <div className="flex items-baseline justify-between gap-4 text-sm text-slate-500">
+          <div className="flex flex-wrap items-center gap-2 text-xs tracking-[0.24px] text-slate-700">
             <p>Assessed as {populations.length} populations.</p>
             <button
               type="button"
               aria-expanded={expanded}
               aria-controls={listId}
               onClick={() => setExpanded(!expanded)}
-              className="inline-flex shrink-0 items-center gap-0.5 text-slate-700 underline underline-offset-2 hover:text-slate-900"
+              className="inline-flex shrink-0 cursor-pointer items-center gap-1 hover:text-slate-900"
             >
-              {expanded ? "Hide populations" : "Show all populations"}
+              <span className="border-b-[1.5px] border-current">
+                {expanded ? "Hide populations" : "Show all populations"}
+              </span>
               <ChevronDown
                 aria-hidden
-                className={cn("size-3.5 transition-transform", expanded && "rotate-180")}
+                className={cn("size-4 transition-transform", expanded && "rotate-180")}
               />
             </button>
           </div>
