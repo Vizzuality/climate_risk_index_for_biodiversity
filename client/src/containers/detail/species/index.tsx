@@ -91,7 +91,7 @@ export default function AreaSpecies() {
             <TableBody>
               {rows.map(({ species_id, common_name, scientific_name, scores }) => (
                 <TableRow key={species_id}>
-                  <TableCell className="whitespace-normal text-slate-700">
+                  <TableCell className="whitespace-normal pl-0 text-slate-700">
                     <Link
                       to="/species/$speciesId"
                       params={{ speciesId: String(species_id) }}
@@ -103,7 +103,7 @@ export default function AreaSpecies() {
                       <span className="block italic text-slate-500">{scientific_name}</span>
                     </Link>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="pr-0">
                     <ScenarioScores scores={scores} />
                   </TableCell>
                 </TableRow>
@@ -111,10 +111,10 @@ export default function AreaSpecies() {
             </TableBody>
             <TableFooter className="bg-transparent">
               <TableRow className="hover:bg-transparent">
-                <TableHead>
+                <TableHead className="pl-0">
                   <span className="sr-only">Species</span>
                 </TableHead>
-                <TableHead className="text-xs uppercase text-slate-700 text-right">
+                <TableHead className="pr-0 text-xs uppercase text-slate-700 text-right">
                   CRIB risk index
                 </TableHead>
               </TableRow>
