@@ -10,8 +10,8 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableFooter,
   TableHead,
+  TableHeader,
   TableRow,
 } from "@/components/ui/table";
 import { useAreas } from "@/hooks/use-areas";
@@ -19,7 +19,11 @@ import { useSpeciesAreas } from "@/hooks/use-species-areas";
 import { formatAreaName } from "@/lib/area-name";
 import { withScenarioScores } from "@/lib/scenario-scores";
 import { filterAreasByName, withAreaNames } from "@/lib/species-areas";
+import { cn } from "@/lib/utils";
 import { useScenario } from "@/store";
+
+const COLUMN_LABEL =
+  "h-auto pb-2 text-xs leading-4 font-semibold uppercase tracking-[1.2px] text-slate-700";
 
 // Widespread species are in hundreds of areas; the rest are behind "Show all".
 const COLLAPSED_ROWS = 10;
@@ -90,38 +94,38 @@ export default function SpeciesAreas({ speciesId }: Readonly<{ speciesId: number
         (matches.length === 0 ? (
           <p className="text-sm text-slate-500">No areas match “{deferredQuery.trim()}”.</p>
         ) : (
-          <Table>
-            <TableBody>
-              {rows.map(({ id, name, scores }) => (
-                <TableRow key={id}>
-                  <TableCell className="whitespace-normal pl-0 text-slate-700">
-                    <Link to="/areas/$areaId" params={{ areaId: id }} className="hover:underline">
-                      {formatAreaName(name)}
-                    </Link>
-                  </TableCell>
-                  <TableCell className="pr-0">
-                    <ScenarioScores scores={scores} />
-                  </TableCell>
+          <div className="flex flex-col gap-2">
+            <Table>
+              <TableHeader className="[&_tr]:border-0">
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className={cn(COLUMN_LABEL, "pl-0")}>Conservation area</TableHead>
+                  <TableHead className={cn(COLUMN_LABEL, "pr-0 text-right")}>
+                    Climate risk index (low / high)
+                  </TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-            <TableFooter className="bg-transparent">
-              <TableRow className="hover:bg-transparent">
-                <TableHead className="pl-0">
-                  <span className="sr-only">Conservation area</span>
-                </TableHead>
-                <TableHead className="pr-0 text-xs uppercase text-slate-700 text-right">
-                  CRIB risk index
-                </TableHead>
-              </TableRow>
-            </TableFooter>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {rows.map(({ id, name, scores }) => (
+                  <TableRow key={id}>
+                    <TableCell className="whitespace-normal pl-0 text-slate-700">
+                      <Link to="/areas/$areaId" params={{ areaId: id }} className="hover:underline">
+                        {formatAreaName(name)}
+                      </Link>
+                    </TableCell>
+                    <TableCell className="pr-0">
+                      <ScenarioScores scores={scores} />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            {matches.length > COLLAPSED_ROWS && (
+              <ShowMoreButton expanded={expanded} onClick={() => setExpanded(!expanded)}>
+                {expanded ? "Show fewer" : `Show all ${matches.length} areas`}
+              </ShowMoreButton>
+            )}
+          </div>
         ))}
-      {matches.length > COLLAPSED_ROWS && (
-        <ShowMoreButton expanded={expanded} className="mb-6" onClick={() => setExpanded(!expanded)}>
-          {expanded ? "Show fewer" : `Show all ${matches.length} areas`}
-        </ShowMoreButton>
-      )}
     </section>
   );
 }
