@@ -31,8 +31,8 @@ export default defineConfig({
         ],
         // Content-hashed assets (duckdb wasm ~8MB gzip among them) and the
         // version-pathed duckdb extension are safe to cache forever; without
-        // this Vercel serves them max-age=0 and re-downloads the wasm on
-        // every visit.
+        // this they are served with max-age=0 and the wasm is re-downloaded
+        // on every visit.
         routeRules: {
           "/assets/**": {
             headers: { "cache-control": "public, max-age=31536000, immutable" },
