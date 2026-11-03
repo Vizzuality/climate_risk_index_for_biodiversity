@@ -5,6 +5,10 @@ import viteReact from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "node:path";
 
+// The static build skips Nitro: it keeps the server bundle in memory, but the
+// SPA shell prerender imports it from dist/server.
+const spa = process.env.SPA === "true";
+
 export default defineConfig({
   resolve: {
     alias: {
@@ -13,30 +17,31 @@ export default defineConfig({
   },
   plugins: [
     tailwindcss(),
-    tanstackStart(),
-    nitroV2Plugin({
-      compatibilityDate: "2026-07-09",
-      // Nitro's own static handler cannot answer Range requests; serve-static can.
-      serveStatic: false,
-      handlers: [
-        {
-          middleware: true,
-          handler: path.resolve(import.meta.dirname, "src/server/static-assets.ts"),
+    tanstackStart({ spa: { enabled: spa } }),
+    !spa &&
+      nitroV2Plugin({
+        compatibilityDate: "2026-07-09",
+        // Nitro's own static handler cannot answer Range requests; serve-static can.
+        serveStatic: false,
+        handlers: [
+          {
+            middleware: true,
+            handler: path.resolve(import.meta.dirname, "src/server/static-assets.ts"),
+          },
+        ],
+        // Content-hashed assets (duckdb wasm ~8MB gzip among them) and the
+        // version-pathed duckdb extension are safe to cache forever; without
+        // this Vercel serves them max-age=0 and re-downloads the wasm on
+        // every visit.
+        routeRules: {
+          "/assets/**": {
+            headers: { "cache-control": "public, max-age=31536000, immutable" },
+          },
+          "/duckdb-extensions/**": {
+            headers: { "cache-control": "public, max-age=31536000, immutable" },
+          },
         },
-      ],
-      // Content-hashed assets (duckdb wasm ~8MB gzip among them) and the
-      // version-pathed duckdb extension are safe to cache forever; without
-      // this Vercel serves them max-age=0 and re-downloads the wasm on
-      // every visit.
-      routeRules: {
-        "/assets/**": {
-          headers: { "cache-control": "public, max-age=31536000, immutable" },
-        },
-        "/duckdb-extensions/**": {
-          headers: { "cache-control": "public, max-age=31536000, immutable" },
-        },
-      },
-    }),
+      }),
     // react's vite plugin must come after start's vite plugin
     viteReact(),
   ],

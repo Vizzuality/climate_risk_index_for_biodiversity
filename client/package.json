@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
+    "build:spa": "SPA=true vite build",
     "start": "node .output/server/index.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
