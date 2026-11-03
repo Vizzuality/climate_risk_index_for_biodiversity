@@ -4,7 +4,7 @@ export function RiskBadge({ value }: Readonly<{ value: number }>) {
   const { badgeColor, label } = riskClassFor(value);
   return (
     <span
-      className="inline-flex items-center rounded-sm px-1.5 py-0.5 text-xs font-medium uppercase text-white"
+      className="inline-flex items-center rounded-[4px] px-2 py-0.5 text-[10px] leading-4 font-semibold uppercase tracking-[1px] whitespace-nowrap text-white"
       style={{ backgroundColor: badgeColor }}
     >
       {label}
