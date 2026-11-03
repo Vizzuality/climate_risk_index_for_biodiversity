@@ -152,7 +152,7 @@ export default function ConservationStatus({
           <div id={listId} hidden={!expanded} className="mt-6">
             <Table>
               <TableHeader>
-                <TableRow className="hover:bg-transparent">
+                <TableRow>
                   <TableHead className="pl-0 text-xs uppercase text-slate-700">
                     Population
                   </TableHead>

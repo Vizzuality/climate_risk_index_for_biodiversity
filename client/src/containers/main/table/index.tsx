@@ -99,7 +99,7 @@ export default function DataTable() {
         <Table className="table-fixed">
           <TableHeader className="sticky top-0 z-10 bg-slate-50">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="border-b-0 hover:bg-transparent">
+              <TableRow key={headerGroup.id} className="border-b-0">
                 {headerGroup.headers.map((header) => {
                   const sorted = header.column.getIsSorted();
                   return (

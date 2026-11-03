@@ -97,7 +97,7 @@ export default function SpeciesAreas({ speciesId }: Readonly<{ speciesId: number
           <div className="flex flex-col gap-2">
             <Table>
               <TableHeader className="[&_tr]:border-0">
-                <TableRow className="hover:bg-transparent">
+                <TableRow>
                   <TableHead className={cn(COLUMN_LABEL, "pl-0")}>Conservation area</TableHead>
                   <TableHead className={cn(COLUMN_LABEL, "pr-0 text-right")}>
                     Climate risk index (low / high)

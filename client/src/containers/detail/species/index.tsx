@@ -111,7 +111,7 @@ export default function AreaSpecies() {
                 ))}
               </TableBody>
               <TableFooter className="bg-transparent">
-                <TableRow className="hover:bg-transparent">
+                <TableRow>
                   <TableHead className="h-auto pt-2 pl-0">
                     <span className="sr-only">Species</span>
                   </TableHead>

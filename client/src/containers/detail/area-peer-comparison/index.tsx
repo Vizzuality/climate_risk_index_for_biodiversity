@@ -46,7 +46,7 @@ export default function AreaPeerComparison() {
           ))}
         </TableBody>
         <TableFooter className="bg-transparent">
-          <TableRow className="hover:bg-transparent">
+          <TableRow>
             <TableHead>
               <span className="sr-only">Group</span>
             </TableHead>
