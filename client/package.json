@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
+    "build:spa": "SPA=true vite build",
+    "postbuild:spa": "mv dist dist-spa && mv dist-spa/client dist && rm -rf dist-spa",
     "start": "node .output/server/index.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
