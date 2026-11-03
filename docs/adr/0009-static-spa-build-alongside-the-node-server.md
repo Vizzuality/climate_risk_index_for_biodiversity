@@ -19,7 +19,8 @@ build.
 ## Decision
 
 `pnpm build:spa` sets `SPA=true`, which enables SPA mode and drops the Nitro
-plugin from `vite.config.ts`; the static site lands in `dist/client/`. The
+plugin from `vite.config.ts`; a `postbuild:spa` hook then drops the
+prerender-only server bundle and moves the static site up to `dist/`. The
 default `pnpm build` is untouched and still produces the Nitro server in
 `.output/` for Railway and Docker.
 

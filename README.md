@@ -91,10 +91,19 @@ Releases are manual. From `client/`, with `VITE_MAPBOX_TOKEN` set in your shell
 or in `client/.env` (it is inlined at build time, as above):
 
 ```bash
-pnpm build:spa    # writes the site to dist/client/
+pnpm build:spa    # writes the site to dist/
 ```
 
-Upload `dist/client/` in two passes: the content-hashed `assets/` and the
+Opening `dist/_shell.html` from disk shows an empty page: the app needs to be
+served over HTTP from the site root, with unknown paths answered by the shell.
+To check a build locally:
+
+```bash
+echo '{"rewrites":[{"source":"**","destination":"/_shell.html"}]}' > /tmp/serve.json
+pnpm dlx serve@14.2.4 dist -c /tmp/serve.json
+```
+
+Upload `dist/` in two passes: the content-hashed `assets/` and the
 version-pathed `duckdb-extensions/` first, cached for a year, then everything
 else (the shell, icons, manifest) with `no-cache`, so a new release is picked up
 on the next visit and the new shell never points at assets that aren't
@@ -103,10 +112,10 @@ running the previous release can keep loading its chunks.
 
 ```bash
 BUCKET=s3://<bucket>
-aws s3 sync dist/client "$BUCKET" \
+aws s3 sync dist "$BUCKET" \
   --exclude "*" --include "assets/*" --include "duckdb-extensions/*" \
   --cache-control "public, max-age=31536000, immutable"
-aws s3 sync dist/client "$BUCKET" --delete \
+aws s3 sync dist "$BUCKET" --delete \
   --exclude "assets/*" --exclude "duckdb-extensions/*" \
   --cache-control "no-cache"
 aws cloudfront create-invalidation --distribution-id <distribution-id> --paths "/*"
