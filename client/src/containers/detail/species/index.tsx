@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { SearchIcon } from "lucide-react";
 
 import { ScenarioScores } from "@/components/scenario-scores";
-import { Button } from "@/components/ui/button";
+import { ShowMoreButton } from "@/components/show-more-button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -122,9 +122,9 @@ export default function AreaSpecies() {
           </Table>
         ))}
       {matches.length > COLLAPSED_ROWS && (
-        <Button variant="outline" size="sm" className="mb-6" onClick={() => setExpanded(!expanded)}>
+        <ShowMoreButton expanded={expanded} className="mb-6" onClick={() => setExpanded(!expanded)}>
           {expanded ? "Show fewer" : `Show all ${matches.length} species`}
-        </Button>
+        </ShowMoreButton>
       )}
     </section>
   );

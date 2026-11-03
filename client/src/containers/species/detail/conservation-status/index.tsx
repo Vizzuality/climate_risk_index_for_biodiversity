@@ -1,6 +1,6 @@
 import { useId, useState } from "react";
-import { ChevronDown } from "lucide-react";
 
+import { ShowMoreButton } from "@/components/show-more-button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -141,21 +141,13 @@ export default function ConservationStatus({
         <>
           <div className="flex flex-wrap items-center gap-2 text-xs tracking-[0.24px] text-slate-700">
             <p>Assessed as {populations.length} populations.</p>
-            <button
-              type="button"
-              aria-expanded={expanded}
+            <ShowMoreButton
+              expanded={expanded}
               aria-controls={listId}
               onClick={() => setExpanded(!expanded)}
-              className="inline-flex shrink-0 cursor-pointer items-center gap-1 hover:text-slate-900"
             >
-              <span className="border-b-[1.5px] border-current">
-                {expanded ? "Hide populations" : "Show all populations"}
-              </span>
-              <ChevronDown
-                aria-hidden
-                className={cn("size-4 transition-transform", expanded && "rotate-180")}
-              />
-            </button>
+              {expanded ? "Hide populations" : "Show all populations"}
+            </ShowMoreButton>
           </div>
           <div id={listId} hidden={!expanded}>
             <Table>
