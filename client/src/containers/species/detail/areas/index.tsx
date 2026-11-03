@@ -94,12 +94,12 @@ export default function SpeciesAreas({ speciesId }: Readonly<{ speciesId: number
             <TableBody>
               {rows.map(({ id, name, scores }) => (
                 <TableRow key={id}>
-                  <TableCell className="whitespace-normal text-slate-700">
+                  <TableCell className="whitespace-normal pl-0 text-slate-700">
                     <Link to="/areas/$areaId" params={{ areaId: id }} className="hover:underline">
                       {formatAreaName(name)}
                     </Link>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="pr-0">
                     <ScenarioScores scores={scores} />
                   </TableCell>
                 </TableRow>
@@ -107,10 +107,10 @@ export default function SpeciesAreas({ speciesId }: Readonly<{ speciesId: number
             </TableBody>
             <TableFooter className="bg-transparent">
               <TableRow className="hover:bg-transparent">
-                <TableHead>
+                <TableHead className="pl-0">
                   <span className="sr-only">Conservation area</span>
                 </TableHead>
-                <TableHead className="text-xs uppercase text-slate-700 text-right">
+                <TableHead className="pr-0 text-xs uppercase text-slate-700 text-right">
                   CRIB risk index
                 </TableHead>
               </TableRow>
