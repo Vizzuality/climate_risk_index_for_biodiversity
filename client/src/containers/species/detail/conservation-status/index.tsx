@@ -14,26 +14,26 @@ import { useSpeciesSarStatus } from "@/hooks/use-species-sar-status";
 import { type SarPopulation, type StatusCount, saraListing } from "@/lib/species-sar-status";
 import { cn } from "@/lib/utils";
 
-// From the design's sara/* tags, shifted one step so that the statuses at
-// risk run from red (Endangered) down to green, and the statuses of species
-// already gone are dark tags with white text: Extirpated in the deep red of
-// the design's extirpated text, Extinct in slate. COSEWIC uses the same tags.
-const DATA_DEFICIENT = "bg-[#dfe6ec] text-[#362204]";
+// The design's sara/* tags; COSEWIC uses the same tags.
+const DATA_DEFICIENT = "bg-[#cbd3dc] text-[#0b1630]";
+const NO_STATUS = "bg-slate-100 text-slate-700";
 const STATUS_CLASSES: Record<string, string> = {
-  Extinct: "bg-[#2d394a] text-white",
-  Extirpated: "bg-[#7e2715] text-white",
-  Endangered: "bg-[#eda6a5] text-[#7e2715]",
-  Threatened: "bg-[#fed8b0] text-[#864412]",
-  "Special Concern": "bg-[#ece2a8] text-[#8e4a17]",
+  Extinct: "bg-slate-700 text-white",
+  Extirpated: "bg-[#a04545] text-white",
+  Endangered: "bg-[#f0afad] text-[#8a2a0c]",
+  Threatened: "bg-[#ffdcb7] text-[#924c01]",
+  "Special Concern": "bg-[#efe5af] text-[#825309]",
   "Data Deficient": DATA_DEFICIENT,
-  "Not at Risk": "bg-[#addecb] text-[#184523]",
+  "Not at Risk": "bg-[#b5e2d1] text-[#184f26]",
+  "Not listed": NO_STATUS,
+  "Not assessed": NO_STATUS,
 };
 
 function StatusBadge({ status }: Readonly<{ status: string }>) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-sm px-1.5 py-0.5 text-xs uppercase tracking-wide whitespace-nowrap",
+        "inline-flex items-center rounded-[4px] px-2 py-0.5 text-[10px] leading-4 font-semibold uppercase tracking-[1px] whitespace-nowrap",
         STATUS_CLASSES[status] ?? DATA_DEFICIENT,
       )}
     >
@@ -50,17 +50,16 @@ function StatusCounts({
   emptyLabel,
 }: Readonly<{ statuses: StatusCount[]; showCounts: boolean; emptyLabel: string }>) {
   return (
-    <span className="flex flex-1 flex-wrap gap-x-3 gap-y-1">
+    <span className="flex flex-1 flex-wrap gap-x-2 gap-y-[3px]">
       {statuses.map(({ status, count }) => (
         <span key={status ?? ""} className="inline-flex items-center gap-1">
-          {status ? (
-            <StatusBadge status={status} />
-          ) : (
-            <span className="text-sm text-slate-700">{emptyLabel}</span>
-          )}
+          <StatusBadge status={status ?? emptyLabel} />
           {showCounts && (
-            <span className="text-xs tabular-nums text-slate-700">
-              <span aria-hidden>×{count}</span>
+            <span className="text-[10px] leading-[14px] tabular-nums text-slate-700">
+              <span aria-hidden className="inline-flex items-center gap-px">
+                <span className="text-[6px]">X</span>
+                {count}
+              </span>
               <span className="sr-only">
                 {count} {count === 1 ? "population" : "populations"}
               </span>
@@ -73,8 +72,7 @@ function StatusCounts({
 }
 
 function SaraStatus({ population }: Readonly<{ population: SarPopulation }>) {
-  const sara = saraListing(population);
-  return sara ? <StatusBadge status={sara} /> : <span className="text-slate-700">Not listed</span>;
+  return <StatusBadge status={saraListing(population) ?? "Not listed"} />;
 }
 
 function PopulationRow({
@@ -126,7 +124,9 @@ export default function ConservationStatus({
       <div className="flex items-center gap-1 py-2 border-b border-dashed border-b-slate-300 text-slate-600">
         <span className="flex-1 uppercase font-semibold text-xs">COSEWIC status</span>
         {populations.length === 0 ? (
-          <span className="flex-1 text-sm text-slate-700">Not assessed</span>
+          <span className="flex-1">
+            <StatusBadge status="Not assessed" />
+          </span>
         ) : (
           <StatusCounts statuses={cosewicStatuses} showCounts={!single} emptyLabel="Not assessed" />
         )}
