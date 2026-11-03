@@ -85,7 +85,7 @@ function PopulationRow({
 
   return (
     <TableRow>
-      <TableCell className="whitespace-normal text-slate-700">
+      <TableCell className="whitespace-normal pl-0 text-slate-700">
         {population.population && <p>{population.population}</p>}
         {isSubspecies && <p className="italic text-slate-600">{population.scientific_name}</p>}
         {population.cosewic_assessed && (
@@ -161,7 +161,9 @@ export default function ConservationStatus({
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
-                  <TableHead className="text-xs uppercase text-slate-700">Population</TableHead>
+                  <TableHead className="pl-0 text-xs uppercase text-slate-700">
+                    Population
+                  </TableHead>
                   <TableHead className="text-xs uppercase text-slate-700">COSEWIC</TableHead>
                   <TableHead className="text-xs uppercase text-slate-700">SARA</TableHead>
                 </TableRow>
