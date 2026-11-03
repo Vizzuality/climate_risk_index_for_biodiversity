@@ -120,8 +120,8 @@ export default function ConservationStatus({
   const single = populations.length === 1 && !populations[0].population;
 
   return (
-    <section className="space-y-2">
-      <div className="flex items-center gap-1 py-2 border-b border-dashed border-b-slate-300 text-slate-600">
+    <section className="flex flex-col gap-2">
+      <div className="flex min-h-8 items-center gap-1 py-1.5 border-b border-dashed border-b-slate-300 text-slate-600">
         <span className="flex-1 uppercase font-semibold text-xs">COSEWIC status</span>
         {populations.length === 0 ? (
           <span className="flex-1">
@@ -132,7 +132,7 @@ export default function ConservationStatus({
         )}
       </div>
       {populations.length > 0 && (
-        <div className="flex items-center gap-1 py-2 border-b border-dashed border-b-slate-300 text-slate-600">
+        <div className="flex min-h-8 items-center gap-1 py-1.5 border-b border-dashed border-b-slate-300 text-slate-600">
           <span className="flex-1 uppercase font-semibold text-xs">SARA status</span>
           <StatusCounts statuses={saraStatuses} showCounts={!single} emptyLabel="Not listed" />
         </div>
@@ -149,7 +149,7 @@ export default function ConservationStatus({
               {expanded ? "Hide populations" : "Show all populations"}
             </ShowMoreButton>
           </div>
-          <div id={listId} hidden={!expanded}>
+          <div id={listId} hidden={!expanded} className="mt-6">
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent">

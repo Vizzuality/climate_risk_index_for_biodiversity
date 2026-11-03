@@ -33,15 +33,17 @@ export default function SpeciesDetail() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-8 pb-10">
       <Intro species={species} />
-      <SpeciesStats species={species} />
-      {/* Keyed so "Show all" resets when another species opens */}
-      <ConservationStatus
-        key={`${species.id}-status`}
-        speciesId={species.id}
-        scientificName={species.scientific_name}
-      />
+      <div className="flex flex-col gap-2">
+        <SpeciesStats species={species} />
+        {/* Keyed so "Show all" resets when another species opens */}
+        <ConservationStatus
+          key={`${species.id}-status`}
+          speciesId={species.id}
+          scientificName={species.scientific_name}
+        />
+      </div>
       <ClimateRiskChart indicator={species.indicator} />
       {/* Keyed so the search and "Show all" reset when another species opens */}
       <SpeciesAreas key={`${species.id}-areas`} speciesId={species.id} />

@@ -21,15 +21,15 @@ export default function AreaStats() {
       {rows.map(({ label, value }) => (
         <li
           key={label}
-          className="flex items-center gap-1 py-2 border-b border-dashed border-b-slate-300 text-slate-600"
+          className="flex min-h-8 items-center gap-1 py-1.5 border-b border-dashed border-b-slate-300 text-slate-600"
         >
           <span className="flex-1 uppercase font-semibold text-xs">{label}</span>
-          <span className="flex-1">{value || "N/A"}</span>
+          <span className="flex-1 text-sm leading-4">{value || "N/A"}</span>
         </li>
       ))}
-      <li className="flex items-center gap-1 py-2 border-b border-dashed border-b-slate-300 text-slate-600">
+      <li className="flex min-h-8 items-center gap-1 py-1.5 border-b border-dashed border-b-slate-300 text-slate-600">
         <span className="flex-1 uppercase font-semibold text-xs">Website</span>
-        <span className="flex flex-1 min-w-0">
+        <span className="flex flex-1 min-w-0 text-sm leading-4">
           {area?.url ? (
             <a href={area.url} target="_blank" rel="noopener noreferrer" className="truncate">
               {area.url}

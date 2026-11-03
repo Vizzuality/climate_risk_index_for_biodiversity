@@ -15,15 +15,15 @@ export default function SpeciesStats({ species }: Readonly<{ species: SpeciesDet
 
   return (
     <ul className="space-y-2">
-      <li className="flex items-center gap-1 py-2 border-b border-dashed border-b-slate-300 text-slate-600">
+      <li className="flex min-h-8 items-center gap-1 py-1.5 border-b border-dashed border-b-slate-300 text-slate-600">
         <span className="flex-1 uppercase font-semibold text-xs">Overall climate risk</span>
         <span className="flex flex-1">
           <ScenarioScores scores={scores} />
         </span>
       </li>
-      <li className="flex items-center gap-1 py-2 border-b border-dashed border-b-slate-300 text-slate-600">
+      <li className="flex min-h-8 items-center gap-1 py-1.5 border-b border-dashed border-b-slate-300 text-slate-600">
         <span className="flex-1 uppercase font-semibold text-xs">Range of risk</span>
-        <span className="flex-1 tabular-nums">
+        <span className="flex-1 text-sm leading-4 tabular-nums">
           {min === null || max === null
             ? "N/A"
             : `${scoreFormatter.format(min)} – ${scoreFormatter.format(max)}`}

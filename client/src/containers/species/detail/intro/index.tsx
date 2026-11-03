@@ -18,7 +18,7 @@ export default function SpeciesIntro({ species }: Readonly<{ species: SpeciesDet
         <h2 className="text-2xl text-slate-700 font-semibold">{name}</h2>
         {species.common_name && <p className="italic text-slate-500">{species.scientific_name}</p>}
       </div>
-      <p className="text-slate-500 mt-4">
+      <p className="text-slate-500 mt-6">
         Below you’ll find the climate risk of the selected species over its whole range, as well as
         the twelve indicators that make up the Climate Risk Index.
       </p>

@@ -87,45 +87,47 @@ export default function AreaSpecies() {
         (matches.length === 0 ? (
           <p className="text-sm text-slate-500">No species match “{deferredQuery.trim()}”.</p>
         ) : (
-          <Table>
-            <TableBody>
-              {rows.map(({ species_id, common_name, scientific_name, scores }) => (
-                <TableRow key={species_id}>
-                  <TableCell className="whitespace-normal pl-0 text-slate-700">
-                    <Link
-                      to="/species/$speciesId"
-                      params={{ speciesId: String(species_id) }}
-                      className="block hover:underline"
-                    >
-                      {common_name && (
-                        <span className="block">{formatCommonName(common_name)}</span>
-                      )}
-                      <span className="block italic text-slate-500">{scientific_name}</span>
-                    </Link>
-                  </TableCell>
-                  <TableCell className="pr-0">
-                    <ScenarioScores scores={scores} />
-                  </TableCell>
+          <div className="flex flex-col gap-2">
+            <Table>
+              <TableBody>
+                {rows.map(({ species_id, common_name, scientific_name, scores }) => (
+                  <TableRow key={species_id}>
+                    <TableCell className="whitespace-normal pl-0 text-slate-700">
+                      <Link
+                        to="/species/$speciesId"
+                        params={{ speciesId: String(species_id) }}
+                        className="block hover:underline"
+                      >
+                        {common_name && (
+                          <span className="block">{formatCommonName(common_name)}</span>
+                        )}
+                        <span className="block italic text-slate-500">{scientific_name}</span>
+                      </Link>
+                    </TableCell>
+                    <TableCell className="pr-0">
+                      <ScenarioScores scores={scores} />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+              <TableFooter className="bg-transparent">
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="h-auto pt-2 pl-0">
+                    <span className="sr-only">Species</span>
+                  </TableHead>
+                  <TableHead className="h-auto pt-2 pr-0 text-right text-xs leading-4 font-semibold uppercase tracking-[1.2px] text-slate-700">
+                    CRIB risk index
+                  </TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-            <TableFooter className="bg-transparent">
-              <TableRow className="hover:bg-transparent">
-                <TableHead className="pl-0">
-                  <span className="sr-only">Species</span>
-                </TableHead>
-                <TableHead className="pr-0 text-xs uppercase text-slate-700 text-right">
-                  CRIB risk index
-                </TableHead>
-              </TableRow>
-            </TableFooter>
-          </Table>
+              </TableFooter>
+            </Table>
+            {matches.length > COLLAPSED_ROWS && (
+              <ShowMoreButton expanded={expanded} onClick={() => setExpanded(!expanded)}>
+                {expanded ? "Show fewer" : `Show all ${matches.length} species`}
+              </ShowMoreButton>
+            )}
+          </div>
         ))}
-      {matches.length > COLLAPSED_ROWS && (
-        <ShowMoreButton expanded={expanded} className="mb-6" onClick={() => setExpanded(!expanded)}>
-          {expanded ? "Show fewer" : `Show all ${matches.length} species`}
-        </ShowMoreButton>
-      )}
     </section>
   );
 }

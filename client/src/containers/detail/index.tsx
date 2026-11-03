@@ -34,9 +34,11 @@ export default function Detail() {
   }
 
   return (
-    <div className="space-y-4">
-      <Intro />
-      <AreaStats />
+    <div className="flex flex-col gap-8 pb-10">
+      <div className="flex flex-col gap-4">
+        <Intro />
+        <AreaStats />
+      </div>
       <ClimateRiskChart indicator={area.indicator} />
       <AreaPeerComparison />
       {/* Keyed so the search and "Show all" reset when another area opens */}

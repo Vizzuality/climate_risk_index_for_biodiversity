@@ -16,7 +16,7 @@ export default function DetailIntro() {
         <span className="truncate text-slate-700 italic">{name}</span>
       </div>
       <h2 className="text-2xl text-slate-700 font-semibold">{name}</h2>
-      <p className="text-slate-500 mt-4">
+      <p className="text-slate-500 mt-6">
         Below you’ll find the key parameters of your selected area, as well as the twelve indicators
         that make up the Climate Risk Index. Lastly, you’ll see the species assessed within the
         area.

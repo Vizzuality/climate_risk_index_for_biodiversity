@@ -6,7 +6,7 @@ export default function ClimateRiskChart({
   indicator,
 }: Readonly<{ indicator: Area["indicator"] }>) {
   return (
-    <div className="climate-risk-chart space-y-4">
+    <div className="climate-risk-chart space-y-4 pb-6">
       <h3 className="text-slate-700 font-semibold text-[20px]">Climate Risk</h3>
       <p className="text-slate-700">
         Climate Risk represented in the 3 dimensions of risk and the sub-dimensions.
