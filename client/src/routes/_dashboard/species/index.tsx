@@ -13,7 +13,7 @@ export const Route = createFileRoute("/_dashboard/species/")({
 
 function Species() {
   return (
-    <div className=" flex flex-col h-full gap-4">
+    <div className="flex flex-col h-full gap-4 pt-10">
       <SpeciesList />
     </div>
   );

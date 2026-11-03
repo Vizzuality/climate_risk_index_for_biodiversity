@@ -10,7 +10,7 @@ export const Route = createFileRoute("/_dashboard/areas/")({
 
 function Areas() {
   return (
-    <div className=" flex flex-col h-full gap-4">
+    <div className="flex flex-col h-full gap-4 pt-10">
       <Main />
     </div>
   );
