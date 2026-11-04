@@ -34,8 +34,11 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [cursor, setCursor] = useAtom(mapCursorAtom);
   const { data: areas, isPending, failureCount } = useAreas();
   const { data: matches, isFiltered } = useFilteredAreas();
+  // The area search and filters live in params every list route can read; only the
+  // area routes frame them.
+  const framesAreaSearch = areasClickable && isFiltered;
   const speciesBbox = useAtomValue(speciesBboxAtom);
-  const [framedOnMount] = useState(isFiltered || params.areaId !== undefined);
+  const [framedOnMount] = useState(framesAreaSearch || params.areaId !== undefined);
   const [urlBbox, setUrlBbox] = useMapBbox();
   const [sharedBbox] = useState(() => urlBbox && clampBbox(urlBbox, MAX_BOUNDS));
 
@@ -45,8 +48,8 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
   const selectedSpeciesBbox =
     speciesBbox && String(speciesBbox.speciesId) === params.speciesId ? speciesBbox.bbox : null;
   const searchBbox = useMemo(
-    () => (isFiltered && matches ? unionBbox(matches) : null),
-    [isFiltered, matches],
+    () => (framesAreaSearch && matches ? unionBbox(matches) : null),
+    [framesAreaSearch, matches],
   );
   // A box reaching past maxBounds (Arctic areas touch 85°N) can't be fitted, and the
   // camera clamp that follows pushes other matches out of view. A box wholly outside
