@@ -1,5 +1,6 @@
 import { useId, useState } from "react";
 
+import { InfoPopover } from "@/components/info-popover";
 import { ShowMoreButton } from "@/components/show-more-button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -122,7 +123,16 @@ export default function ConservationStatus({
   return (
     <section className="flex flex-col gap-2">
       <div className="flex min-h-8 items-center gap-1 py-1.5 border-b border-dashed border-b-slate-300 text-slate-600">
-        <span className="flex-1 uppercase font-semibold text-xs">COSEWIC status</span>
+        <span className="flex flex-1 items-center gap-1 uppercase font-semibold text-xs">
+          <span>COSEWIC status</span>
+          <InfoPopover label="About COSEWIC status">
+            Status assessed by the Committee on the Status of Endangered Wildlife in Canada
+            (COSEWIC), the independent body of experts that evaluates which wildlife species are at
+            risk in Canada. Status is assessed per population, so populations of the same species
+            can have different statuses. Categories are Extinct, Extirpated, Endangered, Threatened,
+            Special Concern, Data Deficient and Not at Risk.
+          </InfoPopover>
+        </span>
         {populations.length === 0 ? (
           <span className="flex-1">
             <StatusBadge status="Not assessed" />
@@ -133,7 +143,14 @@ export default function ConservationStatus({
       </div>
       {populations.length > 0 && (
         <div className="flex min-h-8 items-center gap-1 py-1.5 border-b border-dashed border-b-slate-300 text-slate-600">
-          <span className="flex-1 uppercase font-semibold text-xs">SARA status</span>
+          <span className="flex flex-1 items-center gap-1 uppercase font-semibold text-xs">
+            <span>SARA status</span>
+            <InfoPopover label="About SARA status">
+              Legal status of the species under Schedule 1 of Canada’s Species at Risk Act (SARA),
+              which determines its federal protection. Species can be listed as Extirpated,
+              Endangered, Threatened or Special Concern.
+            </InfoPopover>
+          </span>
           <StatusCounts statuses={saraStatuses} showCounts={!single} emptyLabel="Not listed" />
         </div>
       )}
