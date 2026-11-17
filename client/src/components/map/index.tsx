@@ -60,7 +60,7 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
   }, [areaBbox, selectedSpeciesBbox, searchBbox]);
 
   // The box the camera shows: the map opens on the target box of the render that mounts it,
-  // so refitting it on load would replay the same view as an animation. Boxes that arrive
+  // so it isn't refitted on load, where it would also replace a shared box. Boxes that arrive
   // later, like a species' range once its raster header loads, are fitted on load.
   const fittedBbox = useRef(targetBbox);
   const mapMounted = useRef(false);
@@ -75,7 +75,7 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
   useEffect(() => {
     if (!targetBbox || !mapLoaded || targetBbox === fittedBbox.current) return;
     fittedBbox.current = targetBbox;
-    mapRef.current?.fitBounds(targetBbox, { animate: true, padding: FIT_PADDING });
+    mapRef.current?.fitBounds(targetBbox, { animate: false, padding: FIT_PADDING });
   }, [targetBbox, mapLoaded]);
 
   // With terrain on, Mapbox draws custom layers after every draped style layer, which lifts the
