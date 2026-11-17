@@ -114,6 +114,20 @@ describe("MapView search framing", () => {
     }
   });
 
+  it("keeps the camera where the user moved it on the areas list", async () => {
+    const router = renderMap("/areas?q=cod");
+    await waitFor(() => expect(map.loaded).toBe(true));
+    await act(() =>
+      router.navigate({
+        to: ".",
+        search: (prev) => ({ ...prev, bbox: "-130,50,-125,55" }),
+        replace: true,
+      }),
+    );
+
+    expect(map.fitBounds).not.toHaveBeenCalled();
+  });
+
   it("opens a searched species list on the full extent, not on matching areas", async () => {
     renderMap("/species?q=cod");
     await waitFor(() => expect(map.initialViewState).toBeDefined());

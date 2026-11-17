@@ -28,7 +28,7 @@ export const MapView: React.FC<React.PropsWithChildren> = ({ children }) => {
   const navigate = useNavigate();
   const params = useParams({ strict: false });
   const matchRoute = useMatchRoute();
-  const areasClickable = Boolean(matchRoute({ to: "/areas", fuzzy: true }));
+  const areasClickable = Boolean(matchRoute({ to: "/areas", fuzzy: true, includeSearch: false }));
   const [popup, setPopup] = useAtom(popupAtom);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [cursor, setCursor] = useAtom(mapCursorAtom);
