@@ -5,3 +5,5 @@ allowBuilds:
   sharp: true
   unrs-resolver: true
 savePrefix: ""
+overrides:
+  "@loaders.gl/compression>fflate": "0.7.5"
