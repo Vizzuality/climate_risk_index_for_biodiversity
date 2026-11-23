@@ -4732,9 +4732,9 @@ packages:
     resolution: {integrity: sha512-nK7WOY8jik6zaG9CRwZTaD5O7ETWDLZYMM12pqY8htll+7dYeqGfEUPcUBHOpSJg2vJOrvFIY2Dl5cX2ih1hAQ==}
     engines: {node: '>=0.10.0'}
 
-  source-map-js@1.2.1:
-    resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
-    engines: {node: '>=0.10.0'}
+  source-map-js@1.2.4:
+    resolution: {integrity: sha512-J7ZjMvHd9O1fcT/5V09QWaaSl2BbWx3F6O08spde82Namf9UB0GxRVIPiNbVsdKkoizHiSpTodo3vp2bAy91MA==}
+    engines: {node: '>=6.0.0'}
 
   source-map-support@0.5.21:
     resolution: {integrity: sha512-uBHU3L3czsIyYXKX88fdrGovxdSCoTGDRZ6SYXtSRxLZUzHg5P/66Ht6uoUlHu9EZod+inXhKo3qQgwXUT/y1w==}
@@ -7158,7 +7158,7 @@ snapshots:
       jiti: 2.7.0
       lightningcss: 1.32.0
       magic-string: 0.30.21
-      source-map-js: 1.2.1
+      source-map-js: 1.2.4
       tailwindcss: 4.3.3
 
   '@tailwindcss/oxide-android-arm64@4.3.3':
@@ -8187,7 +8187,7 @@ snapshots:
   css-tree@3.2.1:
     dependencies:
       mdn-data: 2.27.1
-      source-map-js: 1.2.1
+      source-map-js: 1.2.4
 
   csstype@3.2.3: {}
 
@@ -9013,7 +9013,7 @@ snapshots:
     dependencies:
       '@babel/parser': 7.29.9
       '@babel/types': 7.29.8
-      source-map-js: 1.2.1
+      source-map-js: 1.2.4
 
   mapbox-gl@3.32.0: {}
 
@@ -9339,7 +9339,7 @@ snapshots:
     dependencies:
       nanoid: 3.3.19
       picocolors: 1.1.1
-      source-map-js: 1.2.1
+      source-map-js: 1.2.4
 
   powershell-utils@0.1.0: {}
 
@@ -9660,7 +9660,7 @@ snapshots:
       sort-desc: 0.2.0
       union-value: 1.0.1
 
-  source-map-js@1.2.1: {}
+  source-map-js@1.2.4: {}
 
   source-map-support@0.5.21:
     dependencies:
